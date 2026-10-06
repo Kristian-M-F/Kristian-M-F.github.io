@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // Client for the Spring Boot backend (repository finance-tracker-backend).
 //
 // The website and the backend run on different addresses:
@@ -49,6 +50,10 @@ function forgetLogin() {
     // Nothing stored.
   }
 }
+=======
+// URL of the Spring Boot backend hosted on Render.
+const API_BASE = "https://finance-tracker-backend-5rru.onrender.com/api";
+>>>>>>> e00ec3369d7bce9f7f3da3d48624164dc36e1c0b
 
 // Older versions kept the token in localStorage; remove those leftovers.
 try {
@@ -60,13 +65,18 @@ try {
 
 /**
  * Sends a request to the backend and returns the parsed JSON (or null for 204).
- * On 401 the user is sent to the login page unless redirectOn401 is false.
+ * The login token is stored in an HttpOnly cookie.
+ *
+ * credentials: "include" is required because the frontend is hosted on
+ * GitHub Pages while the backend is hosted on Render.
  */
 async function api(path, { method = "GET", body, redirectOn401 = true } = {}) {
   let response;
+
   try {
     response = await fetch(API_BASE + path, {
       method,
+<<<<<<< HEAD
       credentials: "same-origin",
       headers: requestHeaders(body !== undefined),
       body: body === undefined ? undefined : JSON.stringify(body),
@@ -77,6 +87,18 @@ async function api(path, { method = "GET", body, redirectOn401 = true } = {}) {
         ? "Backend nicht erreichbar – läuft Spring Boot auf Port 8080?"
         : "Server nicht erreichbar – bitte in einer Minute nochmals versuchen.",
     );
+=======
+      credentials: "include",
+      headers: body === undefined
+        ? {}
+        : { "Content-Type": "application/json" },
+      body: body === undefined
+        ? undefined
+        : JSON.stringify(body),
+    });
+  } catch {
+    throw new Error("Backend nicht erreichbar. Bitte versuche es erneut.");
+>>>>>>> e00ec3369d7bce9f7f3da3d48624164dc36e1c0b
   }
 
   if (response.status === 401) forgetLogin();
@@ -84,25 +106,43 @@ async function api(path, { method = "GET", body, redirectOn401 = true } = {}) {
     location.replace("login.html");
     throw new Error("Bitte neu einloggen");
   }
-  if (response.status === 204) return null;
+
+  if (response.status === 204) {
+    return null;
+  }
 
   const payload = await response.json().catch(() => null);
+
   if (!response.ok) {
-    const error = new Error(payload?.message || `Fehler ${response.status}`);
+    const error = new Error(
+      payload?.message || `Fehler ${response.status}`
+    );
+
     error.status = response.status;
-    error.code = payload?.code; // e.g. "EMAIL_NOT_VERIFIED"
+    error.code = payload?.code;
+
     throw error;
   }
+
   return payload;
 }
 
-/** Ends the session on the server (all devices) and goes to the login page. */
+/**
+ * Ends the session on the server and redirects to the login page.
+ */
 async function logoutAndRedirect() {
   try {
-    await api("/auth/logout", { method: "POST", redirectOn401: false });
+    await api("/auth/logout", {
+      method: "POST",
+      redirectOn401: false
+    });
   } catch {
-    // Go to the login page even if the backend does not answer.
+    // Redirect even if the backend cannot be reached.
   }
+<<<<<<< HEAD
   forgetLogin();
+=======
+
+>>>>>>> e00ec3369d7bce9f7f3da3d48624164dc36e1c0b
   location.replace("login.html");
 }
