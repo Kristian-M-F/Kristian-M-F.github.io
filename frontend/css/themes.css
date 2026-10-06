@@ -1,0 +1,264 @@
+/* Appearance: accent colour, light/dark mode, text size, hidden amounts.
+   Controlled by attributes on <html>, set by applyAppearance() in app.js:
+     data-accent = green | blue | violet | orange | pink
+     data-theme  = light | dark   (without the attribute the page follows the device)
+     data-text   = normal | large
+     data-hide-amounts
+   To add a colour: copy a [data-accent="…"] block here and add a colour button
+   under "Darstellung" in app.html. */
+
+/* Accent colours */
+
+:root[data-accent="blue"] {
+  --brand: #1d5fc4;
+  --brand-hover: #174c9d;
+  --brand-soft: #e7effb;
+  --brand-light: #7fb2ff;
+}
+
+:root[data-accent="violet"] {
+  --brand: #6b40c4;
+  --brand-hover: #56339e;
+  --brand-soft: #efe9fb;
+  --brand-light: #b89cff;
+}
+
+:root[data-accent="orange"] {
+  --brand: #b3520c;
+  --brand-hover: #8f4109;
+  --brand-soft: #fbeee3;
+  --brand-light: #ffab66;
+}
+
+:root[data-accent="pink"] {
+  --brand: #b8306b;
+  --brand-hover: #952656;
+  --brand-soft: #fbe8f0;
+  --brand-light: #ff8fc0;
+}
+
+/* Dark mode: darken the light accent surfaces */
+:root[data-theme="dark"][data-accent] {
+  --brand-soft: color-mix(in srgb, var(--brand-light) 15%, var(--panel));
+}
+
+/* Dark mode */
+/* The dark colours themselves are in base.css (they also apply to the landing and login pages). */
+
+[data-theme="dark"] .secondary {
+  color: var(--ink);
+}
+
+[data-theme="dark"] .toast {
+  background: #2a3446;
+}
+
+/* Larger text (content only, not the menu) */
+
+[data-text="large"] .content {
+  zoom: 1.12;
+}
+
+/* Hide amounts (e.g. at school or on the train) */
+
+[data-hide-amounts] .kpi strong,
+[data-hide-amounts] td.money,
+[data-hide-amounts] #ledgerBalance,
+[data-hide-amounts] .summary-row b:last-child,
+[data-hide-amounts] .compare-values,
+[data-hide-amounts] .category-label b,
+[data-hide-amounts] .bar i {
+  filter: blur(7px);
+  user-select: none;
+}
+
+/* "Appearance" section in the settings */
+
+.appearance {
+  display: grid;
+  gap: 22px;
+}
+
+.appearance fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.appearance legend {
+  margin-bottom: 10px;
+  padding: 0;
+  color: var(--label);
+  font-size: 14px;
+}
+
+/* Colour swatches */
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.swatch {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.swatch input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  min-height: 0;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.swatch-dot {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--dot);
+  box-shadow: 0 0 0 2px var(--panel), 0 0 0 4px transparent;
+  transition: box-shadow 0.15s ease;
+}
+
+.swatch input:checked + .swatch-dot {
+  box-shadow: 0 0 0 2px var(--panel), 0 0 0 4px var(--dot);
+}
+
+.swatch input:checked ~ span:last-child {
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.swatch input:focus-visible + .swatch-dot {
+  outline: 3px solid #78a8ff;
+  outline-offset: 5px;
+}
+
+.swatch-green { --dot: #0f6e4b; }
+.swatch-blue { --dot: #1d5fc4; }
+.swatch-violet { --dot: #6b40c4; }
+.swatch-orange { --dot: #b3520c; }
+.swatch-pink { --dot: #b8306b; }
+
+/* Segmented control with 2–3 options (light / dark / system) */
+.segmented {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--soft);
+}
+
+.segmented label {
+  position: relative;
+  cursor: pointer;
+}
+
+.segmented input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  min-height: 0;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.segmented span {
+  display: block;
+  padding: 9px 16px;
+  border-radius: 9px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.segmented input:checked + span {
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.segmented input:focus-visible + span {
+  outline: 3px solid #78a8ff;
+  outline-offset: 2px;
+}
+
+/* Switch (hide amounts) */
+.switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+}
+
+.switch-text {
+  display: grid;
+  gap: 3px;
+}
+
+.switch-text small {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.switch input {
+  appearance: none;
+  flex-shrink: 0;
+  position: relative;
+  width: 46px;
+  min-height: 0;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 99px;
+  background: var(--line-strong);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.switch input::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s ease;
+}
+
+.switch input:checked {
+  background: var(--brand);
+}
+
+.switch input:checked::after {
+  transform: translateX(18px);
+}
+
+.appearance select {
+  max-width: 280px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swatch-dot,
+  .switch input,
+  .switch input::after {
+    transition: none;
+  }
+}

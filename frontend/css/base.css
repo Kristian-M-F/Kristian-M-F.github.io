@@ -1,0 +1,892 @@
+/* Base styles for every page (app, landing, login, privacy).
+   Colours are variables in :root below. Contains basic elements (buttons, fields,
+   tables), layout, sidebar, cards and the toast message. */
+
+/* Font (bundled locally, no Google server needed; licence: fonts/LICENSE-Inter.txt) */
+
+@font-face {
+  font-family: "Inter";
+  src: url("../fonts/Inter-Regular.woff") format("woff");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("../fonts/Inter-SemiBold.woff") format("woff");
+  font-weight: 500 650;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("../fonts/Inter-Bold.woff") format("woff");
+  font-weight: 700 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter Display";
+  src: url("../fonts/InterDisplay-Bold.woff") format("woff");
+  font-weight: 700 900;
+  font-display: swap;
+}
+
+:root {
+  --bg: #f4f6fa;
+  --panel: #fff;
+  --ink: #151b2a;
+  --muted: #747d91;
+  --label: #596478;
+  --line: #e5e8ef;
+  --nav: #111827;
+  --nav-hover: #222c41;
+  --accent: #172033;
+  --soft: #eef1f6;
+  --green: #137a52;
+  --red: #b84040;
+  --orange: #c77700;
+  --spending: #c86748;
+  /* Brand colour (also logo and landing page): buttons, active menu item, progress */
+  --brand: #0f6e4b;
+  --brand-hover: #0b5a3d;
+  --brand-soft: #e6f3ec;
+  --brand-light: #4fd49a;
+  --brand-text: var(--brand);
+  /* Other surfaces, overridden in dark mode (see below) */
+  --field: #fff;
+  --line-strong: #bac2d0;
+  --row-hover: rgba(23, 32, 51, 0.02);
+  --track: #edf0f4;
+  --bar: color-mix(in srgb, var(--brand) 30%, #fff);
+  --bar-hover: var(--brand);
+  --good-soft: #e8f4ee;
+  --warn-soft: #fff4df;
+  --warn-text: #845d17;
+  --danger-line: #f0caca;
+  --spending-text: #a3482b;
+  --shadow: 0 8px 28px rgba(25, 35, 55, 0.035);
+}
+
+/* Dark mode
+   Landing, login and privacy pages follow the device setting.
+   In the app it can be fixed under Settings → Appearance
+   (app.js then sets data-theme="light" or "dark" on <html>). */
+
+:root {
+  color-scheme: light dark; /* date pickers, scrollbars etc. adapt */
+  --error-soft: #fbeaea;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e131b;
+    --panel: #161d28;
+    --ink: #e7ebf2;
+    --muted: #98a2b5;
+    --label: #aeb7c7;
+    --line: #273041;
+    --nav: #0a0e14;
+    --nav-hover: #1c2432;
+    --soft: #212a38;
+    --green: #4cc48b;
+    --red: #f07c7c;
+    --orange: #f0a845;
+    --spending: #e2896b;
+    --brand-text: var(--brand-light);
+    --brand-soft: color-mix(in srgb, var(--brand-light) 15%, var(--panel));
+    --field: #10161f;
+    --line-strong: #3d4a60;
+    --row-hover: rgba(255, 255, 255, 0.025);
+    --track: #232c3a;
+    --bar: color-mix(in srgb, var(--brand-light) 35%, var(--panel));
+    --bar-hover: var(--brand-light);
+    --good-soft: rgba(76, 196, 139, 0.14);
+    --warn-soft: rgba(240, 168, 69, 0.14);
+    --warn-text: #f0bf6e;
+    --danger-line: #5a2e33;
+    --spending-text: #e9997d;
+    --shadow: none;
+    --error-soft: rgba(240, 124, 124, 0.14);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #0e131b;
+  --panel: #161d28;
+  --ink: #e7ebf2;
+  --muted: #98a2b5;
+  --label: #aeb7c7;
+  --line: #273041;
+  --nav: #0a0e14;
+  --nav-hover: #1c2432;
+  --soft: #212a38;
+  --green: #4cc48b;
+  --red: #f07c7c;
+  --orange: #f0a845;
+  --spending: #e2896b;
+  --brand-text: var(--brand-light);
+  --brand-soft: color-mix(in srgb, var(--brand-light) 15%, var(--panel));
+  --field: #10161f;
+  --line-strong: #3d4a60;
+  --row-hover: rgba(255, 255, 255, 0.025);
+  --track: #232c3a;
+  --bar: color-mix(in srgb, var(--brand-light) 35%, var(--panel));
+  --bar-hover: var(--brand-light);
+  --good-soft: rgba(76, 196, 139, 0.14);
+  --warn-soft: rgba(240, 168, 69, 0.14);
+  --warn-text: #f0bf6e;
+  --danger-line: #5a2e33;
+  --spending-text: #e9997d;
+  --shadow: none;
+  --error-soft: rgba(240, 124, 124, 0.14);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* Hide the page until it is translated into the chosen language (js/i18n.js) */
+.i18n-wait body {
+  visibility: hidden;
+}
+
+/* The app stays hidden until the backend has confirmed the login (see start() in app.js) */
+.checking-login body {
+  visibility: hidden;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+}
+
+/* Basic elements */
+
+button,
+input,
+select {
+  min-height: 46px;
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid #78a8ff;
+  outline-offset: 3px;
+}
+
+.primary,
+.secondary {
+  border: 0;
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-weight: 650;
+}
+
+.primary {
+  background: var(--brand);
+  color: #fff;
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--brand-hover);
+}
+
+.secondary {
+  background: var(--soft);
+  color: var(--ink);
+}
+
+.danger {
+  border: 0;
+  background: none;
+  color: var(--red);
+}
+
+input,
+select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--field);
+  color: var(--ink);
+  font-size: 16px;
+}
+
+select {
+  appearance: none;
+  padding-right: 36px;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 17px) 20px, calc(100% - 12px) 20px;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+select:hover {
+  border-color: var(--line-strong);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 11px 9px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  font-size: 14px;
+}
+
+th {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+tr:hover td {
+  background: var(--row-hover);
+}
+
+.money {
+  text-align: right;
+}
+
+.good {
+  color: var(--green);
+}
+
+.bad {
+  color: var(--red);
+}
+
+.transfer {
+  color: var(--orange);
+}
+
+.note,
+.sub {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.sub {
+  margin-top: 7px;
+}
+
+.empty {
+  color: var(--muted);
+  padding: 18px 0;
+  text-align: center;
+  width: 100%;
+}
+
+.sep {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 13px 0;
+}
+
+/* Layout */
+
+.app {
+  display: grid;
+  grid-template-columns: 245px 1fr;
+  min-height: 100vh;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  background: var(--nav);
+  color: #fff;
+  padding: 26px 16px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-top {
+  padding: 0 11px 26px;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  font-family: "Inter Display", Inter, ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+.logo img {
+  border-radius: 7px;
+}
+
+/* App logo: square in the chosen accent colour (Settings → Appearance) */
+.logo-mark {
+  flex-shrink: 0;
+}
+
+.logo-mark rect {
+  fill: var(--brand);
+}
+
+.logo-mark path {
+  fill: #fff;
+}
+
+/* Burger and month button only exist on phones */
+.mobile-month,
+.sidebar .burger {
+  display: none;
+}
+
+/* Bottom of the sidebar: month, account, language, light */
+.sidebar-menu {
+  margin-top: auto;
+}
+
+.sidebar-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 10px 0;
+}
+
+.sidebar .lang-select,
+.sidebar .icon-button {
+  border-color: #303849;
+  background-color: var(--nav-hover);
+  color: #fff;
+}
+
+
+
+.logo:focus-visible,
+
+.nav button {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: none;
+  color: #aab2c4;
+  padding: 13px 14px;
+  margin: 3px 0;
+  text-align: left;
+  border-radius: 11px;
+  font-size: 14px;
+}
+
+.nav button:hover,
+.nav button.active {
+  background: var(--nav-hover);
+  color: #fff;
+}
+
+/* Active menu item: coloured bar on the left */
+.nav button.active {
+  box-shadow: inset 3px 0 0 var(--brand-light);
+}
+
+.nav button.active .nav-icon {
+  color: var(--brand-light);
+}
+
+.nav-short {
+  display: none;
+}
+
+.nav-icon {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.month-switch {
+  margin: 22px 10px;
+  color: #aab2c4;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.month-switch button {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.content {
+  padding: 32px;
+  max-width: 1500px;
+  width: 100%;
+  margin: auto;
+}
+
+.page {
+  display: none;
+}
+
+.page.active {
+  display: block;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.head h1 {
+  margin: 0;
+  font-size: 27px;
+}
+
+.head p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.head-actions {
+  display: flex;
+  gap: 11px;
+}
+
+.head-actions select {
+  max-width: 280px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 19px;
+  box-shadow: var(--shadow);
+  min-width: 0;
+}
+
+.grid4,
+.grid3,
+.two {
+  display: grid;
+  gap: 14px;
+}
+
+.grid4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.grid3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.two {
+  grid-template-columns: 1.25fr 0.75fr;
+}
+
+.section {
+  margin-top: 14px;
+}
+
+.row {
+  display: flex;
+  gap: 11px;
+  align-items: end;
+  flex-wrap: wrap;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 145px;
+}
+
+.field label {
+  font-size: 14px;
+  color: var(--label);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.actions button {
+  font-size: 14px;
+  padding: 8px 10px;
+  min-width: 88px;
+}
+
+/* Sidebar: save status below the user name */
+
+.save-status {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: #8791a8;
+}
+
+.save-status.error {
+  color: #ff9b9b;
+}
+
+/* Toast */
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 12px;
+  padding: 14px 20px;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+  max-width: 90vw;
+  font-size: 14px;
+}
+
+/* Collapsible sections (<details class="card fold">) */
+
+.fold {
+  align-self: start;
+}
+
+.fold > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 30px;
+  margin: -4px;
+  padding: 4px;
+  border-radius: 9px;
+  list-style: none;
+  cursor: pointer;
+  font-weight: 700;
+  user-select: none;
+}
+
+.fold > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Arrow on the right: points down when closed, up when open */
+.fold > summary::after {
+  content: "";
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  margin: 0 6px 4px auto;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg);
+  transition: transform 0.15s ease;
+}
+
+.fold[open] > summary::after {
+  margin-bottom: -4px;
+  transform: rotate(-135deg);
+}
+
+.fold > summary:hover::after {
+  border-color: var(--ink);
+}
+
+.fold > summary:focus-visible {
+  outline: 3px solid #78a8ff;
+  outline-offset: 2px;
+}
+
+.fold[open] > summary {
+  margin-bottom: 8px;
+}
+
+.fold-title {
+  min-width: 0;
+}
+
+/* Number of entries next to the title */
+.fold-count {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--brand-soft);
+  color: var(--brand-text);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.fold-count:empty {
+  display: none;
+}
+
+.fold-body > .note:first-child,
+.fold-body > .row:first-child {
+  margin-top: 0;
+}
+
+/* Apprentice year tiles inside a card */
+.year-grid .card {
+  background: var(--bg);
+  box-shadow: none;
+}
+
+/* Long lists: "Show all …" */
+
+.more-row td,
+tr.more-row:hover td {
+  padding: 14px 0 2px;
+  border-bottom: 0;
+  background: none;
+  text-align: center;
+}
+
+.more-button {
+  min-height: 40px;
+  padding: 8px 18px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.more-button:hover:not(:disabled) {
+  border-color: var(--line-strong);
+}
+
+/* Shared controls: light switch, language, burger menu */
+
+.icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  min-height: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--ink);
+}
+
+.icon-button:hover:not(:disabled) {
+  border-color: var(--line-strong);
+}
+
+/* Light bulb: light = on (filled, with rays), dark = off */
+.bulb {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.bulb-glass {
+  fill: #ffd84d;
+  stroke: #b8860b;
+  transition: fill 0.25s ease, stroke 0.25s ease;
+}
+
+.bulb-rays {
+  stroke: #e0a800;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  transform-origin: 12px 10px;
+}
+
+[aria-pressed="false"] .bulb-glass {
+  fill: transparent;
+  stroke: currentColor;
+}
+
+[aria-pressed="false"] .bulb-rays {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.lang-select {
+  width: auto;
+  min-height: 40px;
+  height: 40px;
+  padding: 6px 30px 6px 10px;
+  border-radius: 10px;
+  background-color: var(--panel);
+  background-position: calc(100% - 15px) 17px, calc(100% - 10px) 17px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.lang-select.large {
+  min-height: 46px;
+  height: 46px;
+  padding-left: 14px;
+  background-position: calc(100% - 17px) 20px, calc(100% - 12px) 20px;
+  font-size: 16px;
+}
+
+.page-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Burger icon: the three bars turn into an X when open */
+.burger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 44px;
+  min-height: 44px;
+  height: 44px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+}
+
+.burger span {
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transition: transform 0.25s ease, opacity 0.2s ease;
+}
+
+.burger[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.burger[aria-expanded="true"] span:nth-child(2) {
+  opacity: 0;
+}
+
+.burger[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+.burger:hover:not(:disabled) {
+  transform: none;
+  background: var(--soft);
+}
+
+/* Page transitions (cross-fade in browsers with view transitions) */
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.25s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+
+  .bulb-glass,
+  .bulb-rays,
+  .burger span {
+    transition: none;
+  }
+}
+
+/* Subtle app animations (off with reduced motion) */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Page change via the menu and switching tabs in the settings */
+  .page.active,
+  [data-settings-tab]:not(.tab-hidden) {
+    animation: page-in 0.28s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  /* Opening a collapsible section */
+  .fold[open] > .fold-body {
+    animation: fold-in 0.22s ease both;
+  }
+
+  /* Toast message */
+  .toast:not([hidden]) {
+    animation: toast-in 0.25s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  /* "Choose pay month" dialog */
+  .month-entry:not([hidden]) .card {
+    animation: page-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  @keyframes page-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @keyframes fold-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @keyframes toast-in {
+    from { opacity: 0; transform: translate(-50%, 10px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+  }
+}
+
+/* Link styled as a button (e.g. "Change password" in the settings) */
+.button-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-weight: 650;
+  text-decoration: none;
+}

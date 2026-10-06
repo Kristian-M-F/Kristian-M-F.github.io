@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="de-CH">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Finance OS – der Finance Tracker für Lernende in der Schweiz</title>
+    <meta
+      name="description"
+      content="Behalte deinen Lehrlingslohn im Griff: Finance OS rechnet deinen Lohnmonat ab deinem Lohntag – mit Lehrjahren, Pauschalen, 13. Monatslohn, Daueraufträgen und Sparzielen. Kostenlos, ohne Werbung, Daten verschlüsselt."
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f4f6fa" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e131b" media="(prefers-color-scheme: dark)" />
+    <meta property="og:title" content="Finance OS – der Finance Tracker für Lernende" />
+    <meta property="og:description" content="Lohn, Ausgaben, Daueraufträge und Sparen – pro Lohnmonat auf einen Blick. Kostenlos und ohne Werbung." />
+    <meta property="og:image" content="img/app-dashboard.webp" />
+    <link rel="icon" href="img/favicon.svg" type="image/svg+xml" />
+    <script src="js/translations.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/site.js"></script>
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/landing.css" />
+  </head>
+  <body class="landing">
+    <a class="skip-link" href="#content">Zum Inhalt springen</a>
+
+    <!-- Header: logo, navigation, login -->
+    <header class="site-header">
+      <div class="wrap header-inner">
+        <a class="brand" href="index.html" aria-label="Finance OS – Startseite">
+          <img src="img/favicon.svg" alt="" width="28" height="28" />
+          <span>Finance OS</span>
+        </a>
+        <nav class="site-nav" aria-label="Seitenbereiche">
+          <a href="#features">Funktionen</a>
+          <a href="#how-it-works">So geht's</a>
+          <a href="#security">Sicherheit</a>
+          <a href="#faq">Fragen</a>
+        </nav>
+        <div class="header-actions">
+          <select class="lang-select" data-lang-select aria-label="Sprache">
+            <option value="de">DE</option>
+            <option value="en">EN</option>
+            <option value="fr">FR</option>
+            <option value="it">IT</option>
+          </select>
+          <button type="button" class="icon-button" data-theme-toggle><svg class="bulb" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path class="bulb-rays" d="M12 1.5v2M4.2 4.2l1.4 1.4M1.5 12h2M20.5 12h2M18.4 5.6l1.4-1.4"/><path class="bulb-glass" d="M8.5 15.5c-1.6-1.2-2.5-3-2.5-5a6 6 0 0 1 12 0c0 2-.9 3.8-2.5 5v2h-7z"/><path d="M9.5 20.5h5M10 17.5h4"/></svg></button>
+          <a class="header-login" href="login.html" target="_blank" rel="noopener">Einloggen</a>
+          <a class="button primary" href="login.html?register" target="_blank" rel="noopener">Kostenlos starten</a>
+          <button type="button" class="burger" data-burger aria-controls="mobileMenu" aria-expanded="false" aria-label="Menü">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Phone menu (burger) -->
+      <div class="mobile-menu" id="mobileMenu">
+        <nav class="wrap mobile-menu-inner" aria-label="Menü">
+          <a href="#features">Funktionen</a>
+          <a href="#how-it-works">So geht's</a>
+          <a href="#security">Sicherheit</a>
+          <a href="#faq">Fragen</a>
+          <a href="kontakt.html">Kontakt</a>
+          <a href="login.html" target="_blank" rel="noopener">Einloggen</a>
+          <div class="mobile-menu-tools">
+            <select class="lang-select large" data-lang-select aria-label="Sprache">
+            <option value="de">DE</option>
+            <option value="en">EN</option>
+            <option value="fr">FR</option>
+            <option value="it">IT</option>
+          </select>
+            <button type="button" class="icon-button" data-theme-toggle><svg class="bulb" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path class="bulb-rays" d="M12 1.5v2M4.2 4.2l1.4 1.4M1.5 12h2M20.5 12h2M18.4 5.6l1.4-1.4"/><path class="bulb-glass" d="M8.5 15.5c-1.6-1.2-2.5-3-2.5-5a6 6 0 0 1 12 0c0 2-.9 3.8-2.5 5v2h-7z"/><path d="M9.5 20.5h5M10 17.5h4"/></svg></button>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main id="content">
+      <!-- Hero: benefit and a real pay month statement -->
+      <section class="hero">
+        <div class="wrap hero-inner">
+          <div class="hero-text">
+            <p class="hero-kicker">Für Lernende in der Schweiz</p>
+            <h1>Dein Lehrlingslohn, im Griff vom 25. bis zum 24.</h1>
+            <p class="hero-lead">
+              Finance OS rechnet deinen Lohnmonat so, wie er wirklich läuft: Lohn und
+              Pauschalen rein, Daueraufträge und Sparen raus. Du siehst jederzeit, wie viel
+              noch verfügbar ist.
+            </p>
+            <div class="hero-actions">
+              <a class="button primary large" href="login.html?register" target="_blank" rel="noopener">Kostenlos Konto erstellen</a>
+              <a class="button ghost large" href="#how-it-works">So funktioniert's</a>
+            </div>
+            <ul class="assurances">
+              <li>Kostenlos und ohne Werbung</li>
+              <li>Keine Verbindung zu deinem Bankkonto</li>
+              <li>In zwei Minuten eingerichtet</li>
+            </ul>
+          </div>
+
+          <!-- Sample pay month as it appears in the app -->
+          <figure class="ledger" aria-label="Beispiel: Monatsrechnung für Oktober 2026">
+            <div class="ledger-top">
+              <div>
+                <strong>Lohnmonat Oktober</strong>
+                <span>25.09. – 24.10.2026</span>
+              </div>
+              <span class="ledger-badge">Stand heute</span>
+            </div>
+            <ol class="ledger-rows">
+              <li class="in"><time>25.09.</time><span>Lohn + Essenspauschale</span><b>+ 1’250.00</b></li>
+              <li class="save"><time>25.09.</time><span>Automatisch sparen</span><b>↗ 200.00</b></li>
+              <li class="out"><time>28.09.</time><span>Handy-Abo</span><b>− 25.00</b></li>
+              <li class="out"><time>02.10.</time><span>Migros</span><b>− 18.40</b></li>
+              <li class="out"><time>05.10.</time><span>Spotify</span><b>− 12.95</b></li>
+              <li class="out"><time>11.10.</time><span>Kino mit Kollegen</span><b>− 21.00</b></li>
+            </ol>
+            <div class="ledger-total">
+              <span>Verfügbar bis zum 24.</span>
+              <strong data-countdown>CHF 972.65</strong>
+            </div>
+            <div class="ledger-bar" aria-hidden="true"><span></span></div>
+            <figcaption>22 % der Einnahmen ausgegeben oder gespart</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- Trust: short facts right below the hero -->
+      <section class="facts" aria-label="Das Wichtigste in Kürze">
+        <ul class="wrap facts-list" data-reveal-group>
+          <li><strong>CHF 0</strong><span>kostenlos, ohne Abo</span></li>
+          <li><strong>AES-256</strong><span>verschlüsselte Finanzdaten</span></li>
+          <li><strong>DSG</strong><span>nach Schweizer Datenschutzgesetz</span></li>
+          <li><strong>0 Tracker</strong><span>keine Werbung, kein Datenverkauf</span></li>
+        </ul>
+      </section>
+
+      <!-- Problem and product: real screenshot -->
+      <section class="product">
+        <div class="wrap">
+          <div class="section-intro" data-reveal>
+            <h2>Am 25. kommt der Lohn. Am 10. ist er weg?</h2>
+            <p>
+              Abos, Handy, Ausgang, Kleider: Kleine Beträge summieren sich schnell, und die
+              Banking-App zeigt nur den Kontostand. Finance OS zeigt dir, wohin dein Geld geht – und
+              wie viel du in deiner Lehre schon gespart hast.
+            </p>
+          </div>
+          <div class="screen" data-reveal>
+            <picture>
+              <!-- Dark device: screenshot in dark mode -->
+              <!-- Phone: screenshot of the phone view; dark device: dark screenshot -->
+              <source media="(prefers-color-scheme: dark) and (max-width: 700px)" srcset="img/app-phone-dark.webp" width="585" height="1170" />
+              <source media="(max-width: 700px)" srcset="img/app-phone.webp" width="585" height="1170" />
+              <source media="(prefers-color-scheme: dark)" srcset="img/app-dashboard-dark.webp" />
+              <img
+                src="img/app-dashboard.webp"
+                width="1280"
+                height="820"
+                loading="lazy"
+                alt="Dashboard von Finance OS mit gesamtem Ersparten, Einnahmen, Ausgaben, Sparquote und Sparentwicklung pro Monat"
+              />
+            </picture>
+          </div>
+        </div>
+      </section>
+
+      <!-- Features: same icons as the app navigation -->
+      <section class="features" id="features">
+        <div class="wrap">
+          <div class="section-intro" data-reveal>
+            <h2>Alles, was du für deinen Lohn brauchst</h2>
+            <p>Gebaut für die Lehre – und auf deine eingestellt: 2, 3 oder 4 Lehrjahre, dein Lohntag, Pauschalen wie Essen oder ÖV und 13. Monatslohn.</p>
+          </div>
+          <ul class="feature-list" data-reveal-group>
+            <li>
+              <span class="glyph" aria-hidden="true">▦</span>
+              <h3>Dashboard</h3>
+              <p>Gespart, Einnahmen, Ausgaben und Sparquote auf einen Blick – auch pro Lehrjahr.</p>
+            </li>
+            <li>
+              <span class="glyph" aria-hidden="true">▣</span>
+              <h3>Monatsübersicht</h3>
+              <p>Jede Buchung im Lohnmonat, neueste zuerst, mit Budget-Balken bis zum nächsten Lohn.</p>
+            </li>
+            <li>
+              <span class="glyph" aria-hidden="true">+/−</span>
+              <h3>Einträge in Sekunden</h3>
+              <p>Ausgabe, Einnahme oder Sparübertrag mit Kategorie und Zahlungsart: TWINT, Karte, Bar.</p>
+            </li>
+            <li>
+              <span class="glyph" aria-hidden="true">↻</span>
+              <h3>Daueraufträge</h3>
+              <p>Handy-Abo, Halbtax oder Nebenjob zählen erst am Fälligkeitstag – monatlich, vierteljährlich, halbjährlich oder jährlich.</p>
+            </li>
+            <li>
+              <span class="glyph" aria-hidden="true">⚙</span>
+              <h3>Automatisch sparen</h3>
+              <p>Lege pro Lehrjahr fest, wie viel von Lohn und Pauschalen direkt aufs Sparkonto geht.</p>
+            </li>
+            <li>
+              <span class="glyph" aria-hidden="true">↓</span>
+              <h3>Deine Daten gehören dir</h3>
+              <p>Alles jederzeit als Datei herunterladen oder das Konto mit einem Klick löschen.</p>
+            </li>
+          </ul>
+          <p class="swipe-hint" aria-hidden="true">← Wischen für mehr →</p>
+        </div>
+      </section>
+
+      <!-- How it works: three steps (actual order) -->
+      <section class="steps" id="how-it-works">
+        <div class="wrap">
+          <div class="section-intro" data-reveal>
+            <h2>In drei Schritten startklar</h2>
+          </div>
+          <ol class="step-list" data-reveal-group>
+            <li>
+              <h3>Konto erstellen</h3>
+              <p>E-Mail, Benutzername und Passwort – dann bestätigst du deine Adresse per Link.</p>
+            </li>
+            <li>
+              <h3>Lohn und Fixkosten eintragen</h3>
+              <p>Lohntag und Lohn pro Lehrjahr einmal festlegen, dazu was du sparst. Abos als Dauerauftrag.</p>
+            </li>
+            <li>
+              <h3>Ausgaben erfassen</h3>
+              <p>Finance OS rechnet den Rest und zeigt dir, wie viel bis zum nächsten Lohn bleibt.</p>
+            </li>
+          </ol>
+          <p class="swipe-hint" aria-hidden="true">← Wischen für mehr →</p>
+          <a class="button primary large" href="login.html?register" target="_blank" rel="noopener">Kostenlos Konto erstellen</a>
+        </div>
+      </section>
+
+      <!-- Security: explain concretely what happens -->
+      <section class="security" id="security">
+        <div class="wrap security-inner">
+          <div class="section-intro" data-reveal>
+            <h2>Deine Finanzen gehen nur dich etwas an</h2>
+            <p>
+              Wir sagen dir genau, wie deine Daten geschützt sind – und was wir nicht tun: Wir
+              zeigen keine Werbung, verkaufen keine Daten und binden keine Tracker ein.
+            </p>
+            <a class="security-link" href="datenschutz.html">Datenschutzerklärung lesen</a>
+          </div>
+          <ul class="security-list" data-reveal-group>
+            <li><strong>Verschlüsselt gespeichert</strong>Deine Einträge liegen mit AES-256 verschlüsselt in der Datenbank.</li>
+            <li><strong>Passwort nie im Klartext</strong>Gespeichert wird nur ein BCrypt-Hash – auch wir sehen dein Passwort nicht.</li>
+            <li><strong>Schutz vor Passwort-Raten</strong>Nach fünf falschen Versuchen wird das Login für 15 Minuten gesperrt.</li>
+            <li><strong>Bestätigte E-Mail</strong>Konten werden erst nach der Bestätigung per Link aktiv.</li>
+            <li><strong>Kein Zugriff aufs Bankkonto</strong>Du trägst Beträge selbst ein. Finance OS kann kein Geld bewegen.</li>
+            <li><strong>Deine Rechte nach DSG</strong>Daten herunterladen oder Konto löschen – direkt in den Einstellungen.</li>
+          </ul>
+          <p class="swipe-hint" aria-hidden="true">← Wischen für mehr →</p>
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section class="faq" id="faq">
+        <div class="wrap faq-inner">
+          <h2>Häufige Fragen</h2>
+          <div class="faq-list" data-reveal-group>
+            <details>
+              <summary>Was kostet Finance OS?</summary>
+              <p>Nichts. Finance OS ist kostenlos, zeigt keine Werbung und verkauft keine Daten.</p>
+            </details>
+            <details>
+              <summary>Ist Finance OS mit meinem Bankkonto verbunden?</summary>
+              <p>
+                Nein. Du trägst Lohn, Ausgaben und Daueraufträge selbst ein. Finance OS hat keinen
+                Zugriff auf dein Konto und kann kein Geld bewegen.
+              </p>
+            </details>
+            <details>
+              <summary>Für wen ist Finance OS gedacht?</summary>
+              <p>
+                Für Lernende in der Schweiz: Du stellst Lohntag, Dauer der Lehre (2, 3 oder 4 Jahre),
+                Lohn, Pauschalen und Sparbetrag pro Lehrjahr selbst ein. Es funktioniert aber für
+                alle mit einem Monatslohn – mit Lohntag 1 einfach pro Kalendermonat.
+              </p>
+            </details>
+            <details>
+              <summary>Wer sieht meine Daten?</summary>
+              <p>
+                Nur du. Deine Finanzdaten werden verschlüsselt gespeichert, und jedes Konto sieht
+                ausschliesslich die eigenen Einträge. Mehr dazu in der
+                <a href="datenschutz.html">Datenschutzerklärung</a>.
+              </p>
+            </details>
+            <details>
+              <summary>Kann ich Finance OS auf dem Handy nutzen?</summary>
+              <p>Ja. Finance OS läuft im Browser und ist für Handy, Tablet und Computer gestaltet.</p>
+            </details>
+            <details>
+              <summary>Kann ich mein Konto wieder löschen?</summary>
+              <p>
+                Jederzeit: In den Einstellungen unter „Profil“ löschst du dein Konto mit allen
+                Daten. Vorher kannst du alles als Datei herunterladen.
+              </p>
+            </details>
+            <details>
+              <summary>Ich habe eine Frage, die hier nicht beantwortet ist.</summary>
+              <p>
+                Schreib mir über das <a href="kontakt.html">Kontaktformular</a> – ich antworte
+                dir per E-Mail.
+              </p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <!-- Closing call to action -->
+      <section class="final-cta">
+        <div class="wrap final-inner" data-reveal>
+          <h2>Starte deinen ersten Lohnmonat</h2>
+          <p>Kostenlos, ohne Werbung, in zwei Minuten eingerichtet.</p>
+          <a class="button primary large on-dark" href="login.html?register" target="_blank" rel="noopener">Kostenlos Konto erstellen</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap footer-inner">
+        <a class="brand" href="index.html">
+          <img src="img/favicon.svg" alt="" width="24" height="24" />
+          <span>Finance OS</span>
+        </a>
+        <nav aria-label="Weitere Seiten">
+          <a href="datenschutz.html">Datenschutz</a>
+          <a href="kontakt.html">Kontakt</a>
+          <a href="login.html" target="_blank" rel="noopener">Einloggen</a>
+          <a href="login.html?register" target="_blank" rel="noopener">Registrieren</a>
+        </nav>
+        <p>© 2026 Finance OS, Zürich</p>
+      </div>
+    </footer>
+    <script src="js/landing.js"></script>
+  </body>
+</html>

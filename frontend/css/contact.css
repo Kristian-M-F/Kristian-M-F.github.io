@@ -1,0 +1,60 @@
+/* Contact page (kontakt.html). Page frame and messages come from login.css. */
+
+.contact-form {
+  display: grid;
+  gap: 16px;
+}
+
+.contact-form textarea {
+  width: 100%;
+  min-height: 150px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--field);
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.contact-form textarea:focus-visible {
+  outline: 3px solid #78a8ff;
+  outline-offset: 3px;
+}
+
+/* Characters used of the maximum, e.g. "12/30" */
+.char-count {
+  font-size: 12px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.char-count.full {
+  color: var(--orange);
+  font-weight: 600;
+}
+
+/* Spam trap: off screen instead of display: none, so bots still see it */
+.contact-trap {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.contact-submit {
+  width: 100%;
+}
+
+.contact-legal {
+  margin: 0;
+  font-size: 13px;
+  text-align: center;
+}
+
+.contact-page #contactNotice {
+  margin: 0 0 16px;
+}

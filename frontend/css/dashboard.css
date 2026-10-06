@@ -1,0 +1,346 @@
+/* Dashboard page: KPI cards and charts (savings, income/expenses, categories). */
+
+.kpi .label {
+  color: var(--muted);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.75px;
+}
+
+.kpi strong {
+  display: block;
+  font-size: 24px;
+  margin-top: 9px;
+}
+
+.summary {
+  margin-top: 18px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.summary-row b {
+  white-space: nowrap;
+}
+
+.summary-row.total {
+  border-bottom: 0;
+}
+
+.summary-row.total b:last-child {
+  font-size: 20px;
+}
+
+.progress {
+  height: 8px;
+  background: var(--track);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progress span {
+  display: block;
+  height: 100%;
+  background: var(--brand);
+}
+
+.progress span.over {
+  background: var(--red);
+}
+
+.budget {
+  margin-top: 22px;
+}
+
+.chart {
+  height: 220px;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 25px 3px 28px;
+}
+
+.bar {
+  flex: 1;
+  min-height: 5px;
+  background: var(--bar);
+  border-radius: 6px 6px 2px 2px;
+  position: relative;
+}
+
+.bar:hover {
+  background: var(--bar-hover);
+}
+
+.bar i {
+  position: absolute;
+  bottom: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: var(--muted);
+  font-style: normal;
+  white-space: nowrap;
+}
+
+/* With many months show only every second label so they don't overlap */
+.chart:has(.bar:nth-child(8)) .bar:nth-last-child(even) i {
+  visibility: hidden;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  font-size: 14px;
+  margin: 16px 0;
+}
+
+.chart-legend span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.chart-legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.income-dot {
+  background: var(--green);
+}
+
+.spending-dot {
+  background: var(--spending);
+}
+
+.compare-row {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.compare-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 9px;
+}
+
+.compare-values {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 9px;
+}
+
+.income-value {
+  color: var(--green);
+}
+
+.spent-value {
+  color: var(--spending-text);
+}
+
+.compare-track {
+  height: 7px;
+  background: var(--soft);
+  margin: 5px 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.compare-track span {
+  display: block;
+  height: 100%;
+  border-radius: 8px;
+}
+
+.compare-track.income span {
+  background: var(--green);
+}
+
+.compare-track.spent span {
+  background: var(--spending);
+}
+
+.category-row {
+  padding: 13px 0;
+}
+
+.category-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  font-size: 14px;
+  margin-bottom: 10px;
+  overflow-wrap: anywhere;
+}
+
+.category-label b {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.category-row .progress {
+  height: 7px;
+}
+
+/* Getting started (new accounts) */
+
+.onboarding {
+  margin-bottom: 14px;
+  border-color: color-mix(in srgb, var(--brand) 25%, var(--line));
+  background: linear-gradient(var(--panel), color-mix(in srgb, var(--brand-soft) 35%, var(--panel)));
+}
+
+.onboarding-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.onboarding-head .note {
+  margin: 4px 0 0;
+}
+
+.onboarding-close {
+  min-height: 0;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.onboarding-close:hover:not(:disabled) {
+  transform: none;
+  color: var(--ink);
+}
+
+.onboarding-steps {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  counter-reset: step;
+}
+
+.onboarding-steps li {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+
+.onboarding-steps li strong {
+  display: block;
+  font-size: 15px;
+}
+
+.onboarding-steps li .note {
+  font-size: 13px;
+}
+
+.step-check {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.step-check::before {
+  content: counter(step);
+}
+
+.onboarding-steps li.done .step-check {
+  border-color: var(--green);
+  background: var(--green);
+  color: #fff;
+}
+
+.onboarding-steps li.done .step-check::before {
+  content: "✓";
+}
+
+.onboarding-steps li.done strong {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.onboarding-steps li.done button {
+  visibility: hidden;
+}
+
+@media (max-width: 760px) {
+  .onboarding-steps li {
+    grid-template-columns: 30px 1fr;
+  }
+
+  .onboarding-steps li button {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .onboarding-steps li.done button {
+    display: none;
+  }
+}
+
+/* Account balances (spending account + savings accounts) */
+
+.account-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.account-card {
+  display: grid;
+  gap: 4px;
+  padding: 16px 19px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--brand);
+  border-radius: 16px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.account-card.saving {
+  border-left-color: var(--orange);
+}
+
+.account-type {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.3px;
+}
+
+.account-card b {
+  font-size: 15px;
+}
+
+.account-card strong {
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+}

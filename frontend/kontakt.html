@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Kontakt – Finance OS</title>
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f4f6fa" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e131b" media="(prefers-color-scheme: dark)" />
+    <meta name="description" content="Fragen, Ideen oder Probleme mit Finance OS? Schreib mir über das Kontaktformular." />
+    <link rel="icon" href="img/favicon.svg" type="image/svg+xml" />
+    <script src="js/translations.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/site.js"></script>
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/login.css" />
+    <link rel="stylesheet" href="css/contact.css" />
+  </head>
+  <body>
+    <main class="legal-page contact-page">
+      <div class="legal-top">
+        <a class="back" href="index.html" data-back>← Zurück</a>
+        <div class="page-tools">
+          <select class="lang-select" data-lang-select aria-label="Sprache">
+            <option value="de">DE</option>
+            <option value="en">EN</option>
+            <option value="fr">FR</option>
+            <option value="it">IT</option>
+          </select>
+          <button type="button" class="icon-button" data-theme-toggle><svg class="bulb" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path class="bulb-rays" d="M12 1.5v2M4.2 4.2l1.4 1.4M1.5 12h2M20.5 12h2M18.4 5.6l1.4-1.4"/><path class="bulb-glass" d="M8.5 15.5c-1.6-1.2-2.5-3-2.5-5a6 6 0 0 1 12 0c0 2-.9 3.8-2.5 5v2h-7z"/><path d="M9.5 20.5h5M10 17.5h4"/></svg></button>
+        </div>
+      </div>
+      <h1>Kontakt</h1>
+      <p class="note">Fragen, Ideen oder ein Problem mit Finance OS? Schreib mir – ich antworte per E-Mail.</p>
+
+      <section class="card">
+        <p id="contactNotice" class="auth-notice" role="status" hidden></p>
+
+        <form id="contactForm" class="contact-form" novalidate>
+          <div class="field">
+            <div class="label-row">
+              <label for="contactName">Vor- und Nachname</label>
+              <span class="char-count" data-count-for="contactName" aria-hidden="true"></span>
+            </div>
+            <input id="contactName" name="name" autocomplete="name" maxlength="30" required />
+          </div>
+
+          <div class="field">
+            <div class="label-row">
+              <label for="contactEmail">E-Mail</label>
+              <span class="char-count" data-count-for="contactEmail" aria-hidden="true"></span>
+            </div>
+            <input id="contactEmail" name="email" type="email" autocomplete="email" maxlength="30" required />
+          </div>
+
+          <div class="field">
+            <div class="label-row">
+              <label for="contactSubject">Betreff</label>
+              <span class="char-count" data-count-for="contactSubject" aria-hidden="true"></span>
+            </div>
+            <input id="contactSubject" name="subject" maxlength="30" required />
+          </div>
+
+          <div class="field">
+            <div class="label-row">
+              <label for="contactMessage">Nachricht</label>
+              <span class="char-count" data-count-for="contactMessage" aria-hidden="true"></span>
+            </div>
+            <textarea id="contactMessage" name="message" rows="7" maxlength="2000" required></textarea>
+          </div>
+
+          <!-- Hidden from people; spam bots fill it in and are ignored by the backend -->
+          <div class="contact-trap" aria-hidden="true">
+            <label for="contactWebsite">Website</label>
+            <input id="contactWebsite" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <p id="contactError" class="auth-error" role="alert" hidden></p>
+
+          <button type="submit" class="primary contact-submit" id="contactSubmit">Nachricht senden</button>
+
+          <p class="note contact-legal">
+            Deine Angaben werden nur verwendet, um dir zu antworten. Mehr dazu in der
+            <a href="datenschutz.html">Datenschutzerklärung</a>.
+          </p>
+        </form>
+      </section>
+    </main>
+    <script src="js/api.js"></script>
+    <script src="js/back.js"></script>
+    <script src="js/contact.js"></script>
+  </body>
+</html>

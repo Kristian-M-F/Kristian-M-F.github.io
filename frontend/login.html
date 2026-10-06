@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Login – Finance OS</title>
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f4f6fa" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e131b" media="(prefers-color-scheme: dark)" />
+    <meta name="description" content="Einloggen oder registrieren bei Finance OS, deinem persönlichen Finance Tracker." />
+    <link rel="icon" href="img/favicon.svg" type="image/svg+xml" />
+    <script src="js/translations.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/site.js"></script>
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/login.css" />
+  </head>
+  <body>
+    <div class="auth-layout">
+      <aside class="auth-intro">
+        <a class="logo auth-logo" href="index.html">
+          <img src="img/favicon.svg" alt="" width="28" height="28" /><span>Finance OS</span>
+        </a>
+
+        <div class="auth-intro-text">
+          <h1>Deine Finanzen. Klar und übersichtlich.</h1>
+          <p>Lohn, Ausgaben, Daueraufträge und Sparziele – pro Lohnmonat auf einen Blick.</p>
+          <ul class="auth-points">
+            <li><span aria-hidden="true">▦</span>Dashboard mit Sparquote und Kategorien</li>
+            <li><span aria-hidden="true">↻</span>Daueraufträge werden automatisch berücksichtigt</li>
+            <li><span aria-hidden="true">✓</span>Daten verschlüsselt in deinem Konto gespeichert</li>
+          </ul>
+        </div>
+
+        <p class="auth-foot">Datenbearbeitung nach Schweizer Datenschutzgesetz (DSG)</p>
+      </aside>
+
+      <main class="auth-panel">
+        <div class="page-tools">
+          <select class="lang-select" data-lang-select aria-label="Sprache">
+            <option value="de">DE</option>
+            <option value="en">EN</option>
+            <option value="fr">FR</option>
+            <option value="it">IT</option>
+          </select>
+          <button type="button" class="icon-button" data-theme-toggle><svg class="bulb" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path class="bulb-rays" d="M12 1.5v2M4.2 4.2l1.4 1.4M1.5 12h2M20.5 12h2M18.4 5.6l1.4-1.4"/><path class="bulb-glass" d="M8.5 15.5c-1.6-1.2-2.5-3-2.5-5a6 6 0 0 1 12 0c0 2-.9 3.8-2.5 5v2h-7z"/><path d="M9.5 20.5h5M10 17.5h4"/></svg></button>
+        </div>
+        <div class="card auth-card">
+          <!-- Views (data-show): login, register, forgot, reset -->
+          <div class="auth-tabs" role="tablist" aria-label="Anmelden oder registrieren" data-show="login register">
+            <button type="button" class="auth-tab active" data-mode="login" role="tab" aria-selected="true">
+              Einloggen
+            </button>
+            <button type="button" class="auth-tab" data-mode="register" role="tab" aria-selected="false">
+              Registrieren
+            </button>
+          </div>
+
+          <p id="authNotice" class="auth-notice" role="status" hidden></p>
+
+          <h2 id="authTitle">Willkommen zurück</h2>
+          <p class="note auth-subtitle" id="authSubtitle">Melde dich mit deiner E-Mail-Adresse an.</p>
+
+          <form id="authForm" novalidate>
+            <div class="field" data-show="register">
+              <label for="username">Benutzername</label>
+              <input id="username" name="username" autocomplete="nickname" maxlength="60" />
+            </div>
+
+            <!-- Only when changing the password: current password for confirmation -->
+            <div class="field" data-show="changePassword">
+              <label for="currentPassword">Aktuelles Passwort</label>
+              <input id="currentPassword" type="password" name="current-password" autocomplete="current-password" maxlength="100" />
+            </div>
+
+            <div class="field" data-show="login register forgot changeEmail">
+              <label for="email" id="emailLabel">E-Mail</label>
+              <input id="email" type="email" name="email" autocomplete="email" maxlength="100" />
+            </div>
+
+            <div class="field" data-show="login register reset changePassword changeEmail">
+              <div class="label-row">
+                <label for="password" id="passwordLabel">Passwort</label>
+                <button type="button" class="link-button" data-mode="forgot" data-show="login">
+                  Passwort vergessen?
+                </button>
+              </div>
+              <div class="password-wrap">
+                <input id="password" type="password" name="password" autocomplete="current-password" maxlength="100" />
+                <button type="button" class="password-toggle" id="togglePassword" aria-pressed="false">
+                  Anzeigen
+                </button>
+              </div>
+              <div class="pw-meter" data-show="register reset changePassword">
+                <div class="pw-meter-bar"><span id="pwMeterFill"></span></div>
+                <ul class="pw-rules" id="passwordRules">
+                  <li data-rule="length">Mindestens 8 Zeichen</li>
+                  <li data-rule="upper">Mindestens 1 Grossbuchstabe</li>
+                  <li data-rule="lower">Mindestens 1 Kleinbuchstabe</li>
+                  <li data-rule="special">Mindestens 1 Sonderzeichen (z. B. ! ? # %)</li>
+                </ul>
+              </div>
+            </div>
+
+            <p id="authError" class="auth-error" role="alert" hidden></p>
+
+            <button type="button" class="secondary auth-resend" id="resendBtn" hidden>
+              Bestätigungs-E-Mail erneut senden
+            </button>
+
+            <button type="submit" class="primary auth-submit" id="submitBtn">Einloggen</button>
+
+            <p class="note auth-legal" data-show="register">
+              Mit der Registrierung bestätigst du, die
+              <a href="datenschutz.html">Datenschutzerklärung</a> gelesen zu haben.
+            </p>
+
+            <button type="button" class="link-button auth-back" data-mode="login" data-show="forgot reset">
+              ← Zurück zum Login
+            </button>
+
+            <a class="link-button auth-back" href="app.html" data-show="changePassword changeEmail">← Zurück zur App</a>
+          </form>
+        </div>
+
+        <p class="auth-links"><a href="datenschutz.html">Datenschutz</a><a href="kontakt.html">Kontakt</a></p>
+      </main>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/login.js"></script>
+  </body>
+</html>

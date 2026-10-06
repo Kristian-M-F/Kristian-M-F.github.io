@@ -1,0 +1,62 @@
+/* Month page: pay month statement, planned payments, paid/open status. */
+
+.ledger-balance {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid var(--line);
+  padding: 18px 0 0;
+  margin-top: 12px;
+}
+
+.ledger-date {
+  white-space: nowrap;
+}
+
+.ledger-description {
+  overflow-wrap: anywhere;
+}
+
+.ledger-detail {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 5px;
+}
+
+.ledger-amount {
+  white-space: nowrap;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.payment-status {
+  display: inline-block;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.payment-status.paid {
+  color: var(--green);
+  background: var(--good-soft);
+}
+
+.payment-status.open {
+  color: var(--orange);
+  background: var(--warn-soft);
+}
+
+.payment-toggle {
+  min-height: 36px;
+  padding: 6px 9px;
+  white-space: nowrap;
+}
+
+.planned-label {
+  color: var(--warn-text);
+  background: var(--warn-soft);
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-size: 12px;
+}

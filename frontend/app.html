@@ -1,0 +1,739 @@
+<!doctype html>
+<html lang="de" class="checking-login" data-i18n-manual>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Finance OS</title>
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#111827" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Finance OS" />
+    <meta
+      name="description"
+      content="Dein persönlicher Finance Tracker mit Ausgaben, Sparen und Monatsbudget."
+    />
+    <link rel="icon" href="img/favicon.svg" type="image/svg+xml" />
+    <!-- Styles: base.css applies everywhere, then one file per page, responsive.css last -->
+    <script src="js/translations.js"></script>
+    <script src="js/i18n.js"></script>
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/dashboard.css" />
+    <link rel="stylesheet" href="css/month.css" />
+    <link rel="stylesheet" href="css/month-entry.css" />
+    <link rel="stylesheet" href="css/settings.css" />
+    <link rel="stylesheet" href="css/themes.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
+  </head>
+  <body>
+    <div id="toast" class="toast" role="status" hidden></div>
+
+    <!-- Start dialog "Which pay month do you want to open?" (css/month-entry.css) -->
+    <section id="monthEntry" class="month-entry" aria-labelledby="entryTitle" hidden>
+      <form class="card" id="monthEntryForm">
+        <b>FINANCE OS</b>
+        <h1 id="entryTitle">Welchen Lohnmonat möchtest du öffnen?</h1>
+        <p id="entryText"></p>
+        <b>Gespart pro Lehrjahr</b>
+        <div id="entryYearCards" class="grid4 section"></div>
+        <label for="entryMonth">Lohnmonat</label>
+        <select id="entryMonth" required></select>
+        <button class="primary" type="submit">Dashboard öffnen</button>
+      </form>
+    </section>
+
+    <!-- App: sidebar navigation and content (css/base.css) -->
+    <div class="app" id="financeApp">
+      <aside class="sidebar">
+        <div class="sidebar-top">
+          <span class="logo">
+            <svg class="logo-mark" viewBox="0 0 64 64" width="28" height="28" aria-hidden="true"><rect width="64" height="64" rx="14" /><path d="M22 46V18h22v6H29v6h13v6H29v10z" /></svg><span>Finance OS</span>
+          </span>
+          <button class="mobile-month" data-action="change-month" aria-label="Monat ändern">
+            <span id="mobileMonthLabel"></span><span aria-hidden="true"> ▾</span>
+          </button>
+          <button type="button" class="burger" id="appBurger" aria-controls="appMenu" aria-expanded="false" aria-label="Menü">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+        <nav class="nav">
+          <button class="active" data-page="dashboard">
+            <span class="nav-icon" aria-hidden="true">▦</span><span>Dashboard</span>
+          </button>
+          <button data-page="month">
+            <span class="nav-icon" aria-hidden="true">▣</span><span>Monat</span>
+          </button>
+          <button data-page="expenses">
+            <span class="nav-icon" aria-hidden="true">+/−</span><span>Einträge</span>
+          </button>
+          <button data-page="recurring">
+            <span class="nav-icon" aria-hidden="true">↻</span><span class="nav-long">Daueraufträge</span><span class="nav-short" aria-hidden="true">Aufträge</span>
+          </button>
+          <button data-page="settings">
+            <span class="nav-icon" aria-hidden="true">⚙</span><span>Einstellungen</span>
+          </button>
+        </nav>
+        <!-- Desktop: bottom of the sidebar. Phone: menu behind the burger icon -->
+        <div class="sidebar-menu" id="appMenu">
+          <div class="sidebar-menu-inner">
+            <div class="month-switch">
+              <span id="activeMonthLabel"></span>
+              <button class="secondary" data-action="change-month">Monat ändern</button>
+            </div>
+            <div class="month-switch account-box" id="accountBox" hidden>
+              <span><span id="accountName" translate="no"></span><small id="saveStatus" class="save-status"></small></span>
+              <button class="secondary" data-action="logout">Logout</button>
+            </div>
+            <div class="sidebar-tools">
+              <select class="lang-select" id="appLang" data-lang-select aria-label="Sprache">
+                <option value="de">DE</option>
+                <option value="en">EN</option>
+                <option value="fr">FR</option>
+                <option value="it">IT</option>
+              </select>
+              <button type="button" class="icon-button" id="appTheme" data-action="toggle-theme"><svg class="bulb" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path class="bulb-rays" d="M12 1.5v2M4.2 4.2l1.4 1.4M1.5 12h2M20.5 12h2M18.4 5.6l1.4-1.4"/><path class="bulb-glass" d="M8.5 15.5c-1.6-1.2-2.5-3-2.5-5a6 6 0 0 1 12 0c0 2-.9 3.8-2.5 5v2h-7z"/><path d="M9.5 20.5h5M10 17.5h4"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <main class="content">
+        <!-- Dashboard page (css/dashboard.css) -->
+        <section id="dashboard" class="page active">
+          <div class="head">
+            <div>
+              <h1>Dashboard</h1>
+              <p>Deine komplette Finanzübersicht.</p>
+            </div>
+            <button class="primary" data-action="new-entry">+/− Eintrag</button>
+          </div>
+          <!-- Getting started: only visible until everything is set up -->
+          <div class="card onboarding" id="onboarding" hidden>
+            <div class="onboarding-head">
+              <div>
+                <b>Willkommen bei Finance OS</b>
+                <p class="note">In drei Schritten ist dein Lohnmonat eingerichtet.</p>
+              </div>
+              <button class="onboarding-close" data-action="dismiss-onboarding" aria-label="Erste Schritte ausblenden">
+                Ausblenden
+              </button>
+            </div>
+            <ol class="onboarding-steps">
+              <li id="stepSettings">
+                <span class="step-check" aria-hidden="true"></span>
+                <div>
+                  <strong>Lehre und Lohn einrichten</strong>
+                  <span class="note">Lohntag, Lohn pro Lehrjahr, Pauschalen und was du automatisch sparst.</span>
+                </div>
+                <button class="secondary" data-page="settings">Zu den Einstellungen</button>
+              </li>
+              <li id="stepRecurring">
+                <span class="step-check" aria-hidden="true"></span>
+                <div>
+                  <strong>Fixkosten als Dauerauftrag erfassen</strong>
+                  <span class="note">Zum Beispiel Handy-Abo, Streaming oder Halbtax.</span>
+                </div>
+                <button class="secondary" data-page="recurring">Dauerauftrag erfassen</button>
+              </li>
+              <li id="stepEntries">
+                <span class="step-check" aria-hidden="true"></span>
+                <div>
+                  <strong>Erste Ausgabe erfassen</strong>
+                  <span class="note">Finance OS rechnet aus, wie viel noch verfügbar ist.</span>
+                </div>
+                <button class="secondary" data-action="new-entry">Eintrag erfassen</button>
+              </li>
+            </ol>
+          </div>
+          <!-- Account balances: spending account and savings accounts -->
+          <div class="account-cards" id="accountCards" aria-label="Kontostände"></div>
+          <div class="grid4">
+            <div class="card kpi">
+              <span class="label">Gesamt gespart</span>
+              <strong id="dSaved">CHF 0.00</strong>
+              <div class="sub">Seit Lehrbeginn</div>
+            </div>
+            <div class="card kpi">
+              <span class="label">Gesamte Einnahmen</span>
+              <strong id="dIncome">CHF 0.00</strong>
+              <div class="sub">Seit Lehrbeginn</div>
+            </div>
+            <div class="card kpi">
+              <span class="label">Gesamte Ausgaben</span>
+              <strong id="dSpent">CHF 0.00</strong>
+              <div class="sub">Ausgaben + Daueraufträge</div>
+            </div>
+            <div class="card kpi">
+              <span class="label">Sparquote</span>
+              <strong id="dRate">0 %</strong>
+              <div class="sub">Gespart / Einnahmen</div>
+            </div>
+          </div>
+          <div class="two section">
+            <details class="card fold" data-fold="dash-month" open>
+              <summary><span class="fold-title">Gewählter Lohnmonat · Stand heute</span></summary>
+              <div class="fold-body">
+                <div class="summary" id="currentSummary"></div>
+              </div>
+            </details>
+            <details class="card fold" data-fold="dash-savings" data-mobile="closed" open>
+              <summary><span class="fold-title">Sparentwicklung</span></summary>
+              <div class="fold-body">
+                <div class="chart" id="saveChart"></div>
+              </div>
+            </details>
+          </div>
+          <div class="two section">
+            <details class="card fold" data-fold="dash-compare" data-mobile="closed" open>
+              <summary><span class="fold-title">Einnahmen und Ausgaben</span></summary>
+              <div class="fold-body">
+              <p class="note">Letzte sechs Lohnmonate</p>
+              <div class="chart-legend">
+                <span><i class="income-dot"></i>Einnahmen</span>
+                <span><i class="spending-dot"></i>Ausgaben</span>
+              </div>
+              <div id="comparisonChart"></div>
+              </div>
+            </details>
+            <details class="card fold" data-fold="dash-categories" data-mobile="closed" open>
+              <summary><span class="fold-title">Ausgaben nach Kategorie</span></summary>
+              <div class="fold-body">
+              <p class="note">Seit Lehrbeginn, inklusive Daueraufträge</p>
+              <div id="categoryChart"></div>
+              </div>
+            </details>
+          </div>
+          <details class="card fold section" data-fold="dash-years" data-mobile="closed" open>
+              <summary><span class="fold-title">Gespart pro Lehrjahr</span></summary>
+              <div class="fold-body">
+              <div class="grid4 year-grid" id="yearCards"></div>
+            </div>
+          </details>
+        </section>
+
+        <!-- Month page (css/month.css) -->
+        <section id="month" class="page">
+          <div class="head">
+            <div>
+              <h1>Monatsübersicht</h1>
+              <p>Ein Monat, eine klare Übersicht.</p>
+            </div>
+            <div class="head-actions">
+              <select id="monthPicker" aria-label="Lohnmonat auswählen"></select>
+            </div>
+          </div>
+          <p id="monthPeriod" class="note"></p>
+          <div class="grid4">
+            <div class="card kpi">
+              <span class="label">Einnahmen</span><strong id="mIncome"></strong>
+            </div>
+            <div class="card kpi">
+              <span class="label">Gespart</span><strong id="mSaved"></strong>
+            </div>
+            <div class="card kpi">
+              <span class="label">Ausgaben</span><strong id="mSpent"></strong>
+            </div>
+            <div class="card kpi">
+              <span class="label">Verfügbar</span><strong id="mAvail"></strong>
+            </div>
+          </div>
+          <div class="two section">
+            <details class="card fold" data-fold="month-ledger" open>
+              <summary><span class="fold-title">Monatsrechnung</span><span class="fold-count" data-count-for="monthMath"></span></summary>
+              <div class="fold-body">
+              <p class="note">Neueste zuerst · nur Buchungen bis heute.</p>
+              <table class="compact-list">
+                <thead>
+                  <tr>
+                    <th>Datum</th>
+                    <th>Beschreibung</th>
+                    <th class="money">Betrag</th>
+                  </tr>
+                </thead>
+                <tbody id="monthMath"></tbody>
+              </table>
+              <div class="ledger-balance">
+                <b>Verfügbar</b><strong id="ledgerBalance"></strong>
+              </div>
+              </div>
+            </details>
+            <details class="card fold" data-fold="month-budget" open>
+              <summary><span class="fold-title">Budget-Nutzung</span></summary>
+              <div class="fold-body">
+              <div class="budget">
+                <div class="progress"><span id="budgetBar"></span></div>
+                <p class="note" id="budgetText"></p>
+              </div>
+              </div>
+            </details>
+          </div>
+          <details class="card fold section" data-fold="month-planned" data-mobile="closed" open>
+              <summary><span class="fold-title">Geplante Zahlungen</span><span class="fold-count" data-count-for="plannedPaymentsRows"></span></summary>
+              <div class="fold-body">
+            <p class="note">Daueraufträge im ausgewählten Lohnmonat · Status manuell aktualisierbar.</p>
+            <table class="compact-list">
+              <thead>
+                <tr>
+                  <th>Datum</th>
+                  <th>Zahlung</th>
+                  <th class="money">Betrag</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="plannedPaymentsRows"></tbody>
+            </table>
+            </div>
+          </details>
+          <details class="card fold section" data-fold="month-transactions" data-mobile="closed" open>
+              <summary><span class="fold-title">Transaktionen</span><span class="fold-count" data-count-for="monthRows"></span></summary>
+              <div class="fold-body">
+            <table class="compact-list">
+              <thead>
+                <tr>
+                  <th>Datum</th>
+                  <th>Beschreibung</th>
+                  <th>Kategorie</th>
+                  <th class="money">Betrag</th>
+                </tr>
+              </thead>
+              <tbody id="monthRows"></tbody>
+            </table>
+            </div>
+          </details>
+        </section>
+
+        <!-- Entries page: income, expenses, savings (css/base.css) -->
+        <section id="expenses" class="page">
+          <div class="head">
+            <div>
+              <h1>+/− Einträge</h1>
+              <p>Einnahmen, Ausgaben und Sparbeträge erfassen.</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="row">
+              <div class="field half">
+                <label for="entryKind">Art des Eintrags</label>
+                <select id="entryKind">
+                  <option value="expense">Ausgabe (−)</option>
+                  <option value="income">Einnahme (+)</option>
+                  <option value="saving">Aufs Sparkonto (↗)</option>
+                  <option value="withdraw">Vom Sparkonto nehmen (↙)</option>
+                </select>
+              </div>
+              <div class="field half">
+                <label for="exDate">Datum</label>
+                <input id="exDate" type="date" />
+              </div>
+              <div class="field">
+                <label for="exDesc">Beschreibung</label>
+                <input id="exDesc" placeholder="Beschreibung" />
+              </div>
+              <div class="field half">
+                <label for="exCat" id="exCatLabel">Kategorie</label>
+                <select id="exCat"></select>
+              </div>
+              <div class="field half">
+                <label for="exPay">Zahlungsart</label>
+                <select id="exPay"></select>
+              </div>
+              <div class="field half">
+                <label for="exAmount">Betrag CHF</label>
+                <input id="exAmount" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" />
+              </div>
+              <button class="primary" id="expenseSave" data-action="save-entry">Speichern</button>
+              <button class="secondary" id="expenseCancel" data-action="cancel-edit" data-form="expenses" hidden>
+                Abbrechen
+              </button>
+            </div>
+          </div>
+          <details class="card fold section" data-fold="entries-list" open>
+              <summary><span class="fold-title">Alle Einträge</span><span class="fold-count" data-count-for="allExpenses"></span></summary>
+              <div class="fold-body">
+            <table class="compact-list">
+              <thead>
+                <tr>
+                  <th>Datum</th>
+                  <th>Beschreibung</th>
+                  <th>Kategorie</th>
+                  <th>Zahlungsart</th>
+                  <th class="money">Betrag</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="allExpenses"></tbody>
+            </table>
+            </div>
+          </details>
+        </section>
+
+        <!-- Recurring payments page (css/base.css) -->
+        <section id="recurring" class="page">
+          <div class="head">
+            <div>
+              <h1>Daueraufträge</h1>
+              <p>Regelmässige Zahlungen – Abos, Nebenjob, Sparplan. Sie zählen erst ab dem Fälligkeitstag.</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="row">
+              <div class="field half">
+                <label for="recKind">Art</label>
+                <select id="recKind">
+                  <option value="expense">Ausgabe (−)</option>
+                  <option value="income">Einnahme (+)</option>
+                  <option value="saving">Sparen (↗)</option>
+                </select>
+              </div>
+              <div class="field half">
+                <label for="recName">Name</label>
+                <input id="recName" />
+              </div>
+              <div class="field half">
+                <label for="recAmount">Betrag CHF</label>
+                <input id="recAmount" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" />
+              </div>
+              <div class="field half">
+                <label for="recInterval">Wiederholung</label>
+                <select id="recInterval">
+                  <option value="monthly">Monatlich</option>
+                  <option value="quarterly">Vierteljährlich</option>
+                  <option value="halfyearly">Halbjährlich</option>
+                  <option value="yearly">Jährlich</option>
+                </select>
+              </div>
+              <div class="field half">
+                <label for="recStart">Erste Fälligkeit</label>
+                <input id="recStart" type="date" />
+              </div>
+              <div class="field half">
+                <label for="recEnd">Ende (optional)</label>
+                <input id="recEnd" type="date" />
+              </div>
+              <div class="field">
+                <label for="recCat" id="recCatLabel">Kategorie</label>
+                <select id="recCat"></select>
+              </div>
+              <button class="primary" id="recurringSave" data-action="save-recurring">Hinzufügen</button>
+              <button class="secondary" id="recurringCancel" data-action="cancel-edit" data-form="recurring" hidden>
+                Abbrechen
+              </button>
+            </div>
+          </div>
+          <details class="card fold section" data-fold="recurring-list" open>
+              <summary><span class="fold-title">Alle Daueraufträge</span><span class="fold-count" data-count-for="recurringRows"></span></summary>
+              <div class="fold-body">
+            <table class="compact-list">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Kategorie</th>
+                  <th>Wiederholung</th>
+                  <th>Start</th>
+                  <th>Ende</th>
+                  <th class="money">Betrag</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="recurringRows"></tbody>
+            </table>
+            </div>
+          </details>
+        </section>
+
+        <!-- Settings page (css/settings.css) -->
+        <section id="settings" class="page">
+          <div class="head">
+            <div>
+              <h1>Einstellungen</h1>
+              <p>Lohn und Pauschalen, Konten und Kategorien, Darstellung und Profil.</p>
+            </div>
+          </div>
+          <!-- Tabs: only one group of settings is shown at a time -->
+          <div class="settings-tabs" role="tablist" aria-label="Bereiche der Einstellungen">
+            <button role="tab" data-settings-tab-button="pay">Lohn &amp; Pauschalen</button>
+            <button role="tab" data-settings-tab-button="lists">Konten &amp; Kategorien</button>
+            <button role="tab" data-settings-tab-button="look">Darstellung</button>
+            <button role="tab" data-settings-tab-button="account">Profil</button>
+          </div>
+          <details class="card fold section" data-fold="settings-basics" data-settings-tab="pay" open>
+            <summary><span class="fold-title">Lehre</span></summary>
+            <div class="fold-body">
+              <p class="note">Grunddaten deiner Lehre. Änderungen werden sofort gespeichert.</p>
+              <div class="row">
+                <div class="field half">
+                  <label for="setStart">Beginn der Lehre</label>
+                  <input id="setStart" type="date" />
+                </div>
+                <div class="field half">
+                  <label for="setYears">Dauer der Lehre</label>
+                  <select id="setYears">
+                    <option value="2">2 Jahre (EBA)</option>
+                    <option value="3">3 Jahre (EFZ)</option>
+                    <option value="4">4 Jahre (EFZ)</option>
+                  </select>
+                </div>
+                <div class="field half">
+                  <label for="setPayday">Lohn kommt am</label>
+                  <select id="setPayday"></select>
+                </div>
+                <div class="field half">
+                  <label for="setThirteenth">13. Monatslohn</label>
+                  <select id="setThirteenth">
+                    <option value="none">Nein</option>
+                    <option value="11">Mit Novemberlohn</option>
+                    <option value="12">Mit Dezemberlohn</option>
+                  </select>
+                </div>
+              </div>
+              <p class="note" id="paydayNote"></p>
+            </div>
+          </details>
+
+          <!-- Salary, allowances and automatic saving belong together: everything that happens on payday -->
+          <details class="card fold section" data-fold="settings-pay" data-settings-tab="pay" open>
+            <summary><span class="fold-title">Lohn, Pauschalen und Sparen am Lohntag</span></summary>
+            <div class="fold-body">
+              <h3 class="group-title">1 · Lohn pro Lehrjahr</h3>
+              <p class="note">
+                Nettolohn = was auf deinem Lohnkonto ankommt. „Automatisch sparen“ geht jeden Monat am Lohntag
+                vom Lohnkonto auf dein Sparkonto, z. B. per Dauerauftrag.
+              </p>
+              <table class="year-table">
+                <thead id="yearSettingsHead"></thead>
+                <tbody id="yearSettings"></tbody>
+              </table>
+              <div class="row section">
+                <div class="field">
+                  <label for="setAutoAccount">Automatisch sparen auf</label>
+                  <select id="setAutoAccount"></select>
+                </div>
+              </div>
+
+              <hr class="sep" />
+              <h3 class="group-title">2 · Pauschalen zum Lohn</h3>
+              <p class="note">
+                Feste Beträge zusätzlich zum Lohn, z. B. für Essen oder den ÖV. Schalte ein, was du bekommst,
+                und trage pro Lehrjahr den Betrag ein – und wie viel du davon direkt sparst.
+              </p>
+              <div id="allowanceList" class="allowance-list"></div>
+              <div class="row section">
+                <div class="field">
+                  <label for="allowanceName">Eigene Pauschale</label>
+                  <input id="allowanceName" maxlength="60" placeholder="z. B. Schulmaterial" />
+                </div>
+                <button class="secondary" data-action="add-allowance">Hinzufügen</button>
+              </div>
+            </div>
+          </details>
+
+          <div class="grid3 section settings-kpis" data-settings-tab="pay">
+            <div class="card kpi">
+              <span class="label">Gesamt gespart</span><strong id="sTotal"></strong>
+            </div>
+            <div class="card kpi" id="sAllowanceCard">
+              <span class="label">Aus Pauschalen gespart</span><strong id="sAllowance"></strong>
+            </div>
+            <div class="card kpi">
+              <span class="label">Weitere Sparbeträge</span><strong id="sExtra"></strong>
+              <div class="sub">Automatisch und selbst erfasst</div>
+            </div>
+          </div>
+
+          <details class="card fold section" data-fold="settings-appearance" data-settings-tab="look" open>
+            <summary><span class="fold-title">Darstellung</span></summary>
+            <div class="fold-body appearance">
+              <p class="note">Gilt sofort und wird mit deinem Konto gespeichert.</p>
+              <fieldset>
+                <legend>Farbe</legend>
+                <div class="swatches">
+                  <label class="swatch">
+                    <input type="radio" name="accent" value="green" />
+                    <span class="swatch-dot swatch-green" aria-hidden="true"></span>
+                    <span>Grün</span>
+                  </label>
+                  <label class="swatch">
+                    <input type="radio" name="accent" value="blue" />
+                    <span class="swatch-dot swatch-blue" aria-hidden="true"></span>
+                    <span>Blau</span>
+                  </label>
+                  <label class="swatch">
+                    <input type="radio" name="accent" value="violet" />
+                    <span class="swatch-dot swatch-violet" aria-hidden="true"></span>
+                    <span>Lila</span>
+                  </label>
+                  <label class="swatch">
+                    <input type="radio" name="accent" value="orange" />
+                    <span class="swatch-dot swatch-orange" aria-hidden="true"></span>
+                    <span>Orange</span>
+                  </label>
+                  <label class="swatch">
+                    <input type="radio" name="accent" value="pink" />
+                    <span class="swatch-dot swatch-pink" aria-hidden="true"></span>
+                    <span>Pink</span>
+                  </label>
+                </div>
+              </fieldset>
+              <fieldset>
+                <legend>Modus</legend>
+                <div class="segmented">
+                  <label><input type="radio" name="mode" value="light" /><span>Hell</span></label>
+                  <label><input type="radio" name="mode" value="dark" /><span>Dunkel</span></label>
+                  <label><input type="radio" name="mode" value="system" /><span>Wie Gerät</span></label>
+                </div>
+              </fieldset>
+              <fieldset>
+                <legend>Schriftgrösse</legend>
+                <div class="segmented">
+                  <label><input type="radio" name="text" value="normal" /><span>Normal</span></label>
+                  <label><input type="radio" name="text" value="large" /><span>Gross</span></label>
+                </div>
+              </fieldset>
+              <div class="field">
+                <label for="startPage">Beim Öffnen zeigen</label>
+                <select id="startPage" name="startPage">
+                  <option value="dashboard">Dashboard</option>
+                  <option value="month">Monat</option>
+                  <option value="expenses">+/− Einträge</option>
+                </select>
+              </div>
+              <label class="switch">
+                <span class="switch-text">
+                  <span>Beträge verbergen</span>
+                  <small>Alle Frankenbeträge werden unscharf – praktisch in der Schule oder im Zug.</small>
+                </span>
+                <input type="checkbox" name="hideAmounts" />
+              </label>
+            </div>
+          </details>
+
+          <!-- Accounts: one spending account and any number of savings accounts -->
+          <details class="card fold section" data-fold="settings-accounts" data-settings-tab="lists" open>
+            <summary><span class="fold-title">Konten</span></summary>
+            <div class="fold-body">
+              <p class="note">
+                Lohn, Pauschalen und Ausgaben laufen über das Lohnkonto. Was du sparst, geht auf ein Sparkonto und ist
+                danach nicht mehr verfügbar. Mit „Anfangsbestand“ trägst du ein, was beim Start schon auf dem Konto war.
+              </p>
+              <div id="accountList" class="account-list"></div>
+              <div class="row section">
+                <div class="field">
+                  <label for="accountNewName">Neues Sparkonto</label>
+                  <input id="accountNewName" maxlength="60" placeholder="z. B. Ferien, Führerschein, ETF" />
+                </div>
+                <button class="secondary" data-action="add-account">Hinzufügen</button>
+              </div>
+            </div>
+          </details>
+
+          <details class="card fold section" data-fold="settings-lists" data-settings-tab="lists" open>
+              <summary><span class="fold-title">Kategorien und Zahlungsarten</span></summary>
+              <div class="fold-body">
+            <p class="note">
+              Neue Bezeichnungen hinzufügen, bestehende umbenennen oder aus der
+              Auswahl entfernen. Frühere Buchungen bleiben beim Entfernen
+              erhalten.
+            </p>
+            <div class="row">
+              <div class="field">
+                <label for="listType">Liste</label>
+                <select id="listType">
+                  <option value="categories">Kategorien</option>
+                  <option value="incomeCategories">Kategorien für Einnahmen</option>
+                  <option value="payments">Zahlungsarten</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="listName">Neue Bezeichnung</label>
+                <input id="listName" maxlength="80" />
+              </div>
+              <button class="primary" data-action="add-list-item">Hinzufügen</button>
+            </div>
+            <div id="listItems" class="section"></div>
+            </div>
+          </details>
+
+          <details class="card fold section" data-fold="settings-manage" data-settings-tab="lists" open>
+              <summary><span class="fold-title">Gespeicherte Einträge bearbeiten</span></summary>
+              <div class="fold-body">
+            <p class="note">
+              Hier kannst du auch künftige Einträge und Daueraufträge bearbeiten
+              oder löschen. In den Finanzübersichten erscheinen sie erst ab
+              ihrem Datum.
+            </p>
+            <div class="row">
+              <div class="field">
+                <label for="manageRecord">Eintrag</label>
+                <select id="manageRecord"></select>
+              </div>
+              <button class="secondary" data-action="manage-edit">Bearbeiten</button>
+              <button class="danger" data-action="manage-delete">Löschen</button>
+            </div>
+            </div>
+          </details>
+
+          <!-- Only visible when logged in (via http://localhost:8080) -->
+          <details id="accountCard" hidden class="card fold section" data-fold="settings-account" data-settings-tab="account" open>
+              <summary><span class="fold-title">Mein Konto</span></summary>
+              <div class="fold-body">
+            <p class="note">Angemeldet als <strong id="accountEmail"></strong></p>
+
+            <div class="row section">
+              <div class="field">
+                <label for="newUsername">Benutzername</label>
+                <input id="newUsername" maxlength="60" autocomplete="nickname" />
+              </div>
+              <button class="secondary" data-action="change-username">Benutzername speichern</button>
+            </div>
+
+            <hr class="sep" />
+            <b>Anmeldedaten</b>
+            <p class="note">
+              Passwort und E-Mail-Adresse änderst du sicher auf der Anmeldeseite: mit deinem aktuellen Passwort,
+              und eine neue E-Mail-Adresse bestätigst du über einen Link.
+            </p>
+            <div class="row">
+              <a class="button-link secondary" href="login.html?change=password">Passwort ändern</a>
+              <a class="button-link secondary" href="login.html?change=email">E-Mail-Adresse ändern</a>
+            </div>
+            </div>
+          </details>
+
+          <details id="privacyCard" hidden class="card fold section" data-fold="settings-privacy" data-settings-tab="account" data-default="closed" open>
+              <summary><span class="fold-title">Datenschutz: Daten herunterladen oder Konto löschen</span></summary>
+              <div class="fold-body">
+            <p class="note">
+              Nach dem Schweizer Datenschutzgesetz (DSG) kannst du jederzeit alle über dich
+              gespeicherten Daten herunterladen oder dein Konto mit allen Daten löschen.
+              <a href="datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a>
+            </p>
+            <div class="row">
+              <button class="secondary" data-action="export-account">Meine Daten herunterladen</button>
+            </div>
+            <hr class="sep" />
+            <div class="row">
+              <div class="field">
+                <label for="deletePassword">Konto löschen – zur Bestätigung Passwort eingeben</label>
+                <input id="deletePassword" type="password" autocomplete="current-password" maxlength="100" />
+              </div>
+              <button class="danger delete-account" data-action="delete-account">Konto endgültig löschen</button>
+            </div>
+            </div>
+          </details>
+
+          <details class="card fold section" data-fold="settings-reset" data-settings-tab="account" data-default="closed" open>
+              <summary><span class="fold-title">Datenverwaltung</span></summary>
+              <div class="fold-body">
+            <p class="note" id="storageNote">Deine Eingaben werden automatisch in diesem Browser gespeichert.</p>
+            <button class="secondary" data-action="reset-all">Alle Finanzdaten auf 0 zurücksetzen</button>
+            </div>
+          </details>
+        </section>
+      </main>
+    </div>
+
+    <!-- api.js: connection to the backend (login + database). app.js: the app logic -->
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>

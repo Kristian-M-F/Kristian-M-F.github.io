@@ -1,0 +1,246 @@
+/* Settings page: lists (categories, payment methods), account and privacy. */
+
+/* Categories and payment methods */
+
+.list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.list-item > span {
+  overflow-wrap: anywhere;
+}
+
+/* Account and privacy */
+
+.note a {
+  color: var(--ink);
+  font-weight: 600;
+  text-underline-offset: 3px;
+}
+
+.danger.delete-account {
+  border: 1px solid var(--danger-line);
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-weight: 650;
+}
+
+/* Allowances */
+
+.allowance-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.allowance {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.allowance.on {
+  border-color: color-mix(in srgb, var(--brand) 35%, var(--line));
+  background: color-mix(in srgb, var(--brand-soft) 40%, var(--panel));
+}
+
+.allowance-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.allowance-head .switch {
+  flex: 1;
+  min-width: 0;
+}
+
+.allowance-head .danger {
+  min-height: 36px;
+  padding: 4px 6px;
+  font-size: 13px;
+}
+
+/* Per apprentice year: amount and "of which saved" */
+.allowance-years {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.allowance-year {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 8px;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--panel);
+}
+
+.allowance-year b {
+  grid-column: 1 / -1;
+  font-size: 13px;
+}
+
+.allowance-year label {
+  display: grid;
+  gap: 4px;
+  color: var(--label);
+  font-size: 12px;
+}
+
+.allowance-year input {
+  min-height: 40px;
+  padding: 8px;
+}
+
+/* Tabs at the top of the settings */
+
+.settings-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 4px;
+  padding: 4px;
+  overflow-x: auto;
+  border-radius: 12px;
+  background: var(--soft);
+  scrollbar-width: none;
+}
+
+.settings-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.settings-tabs button {
+  flex: 1 0 auto;
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.settings-tabs button:hover:not(:disabled) {
+  transform: none;
+  color: var(--ink);
+}
+
+.settings-tabs button.active {
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.tab-hidden {
+  display: none !important;
+}
+
+/* Accounts (settings) */
+
+.account-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.account-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 170px 210px;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.account-row-name {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.account-row-name b {
+  overflow-wrap: anywhere;
+}
+
+.account-badge {
+  justify-self: start;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.account-badge.spending {
+  background: var(--brand-soft);
+  color: var(--brand-text);
+}
+
+.account-badge.saving {
+  background: var(--warn-soft);
+  color: var(--warn-text);
+}
+
+.account-start {
+  display: grid;
+  gap: 4px;
+  color: var(--label);
+  font-size: 12px;
+}
+
+.account-start input {
+  min-height: 40px;
+  padding: 8px;
+}
+
+/* Headings inside a card: show what belongs together */
+.group-title {
+  margin: 4px 0 2px;
+  font-size: 15px;
+}
+
+@media (max-width: 760px) {
+  .account-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .account-row-name {
+    grid-column: 1 / -1;
+  }
+
+  .account-row .actions {
+    justify-content: flex-end;
+  }
+}
+
+/* Compact categories: two columns on wide screens, smaller buttons */
+#listItems {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  column-gap: 28px;
+}
+
+#listItems .list-item {
+  padding: 6px 0;
+}
+
+#listItems .actions button,
+.account-row .actions button {
+  min-height: 36px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.account-row .actions {
+  justify-content: flex-end;
+}

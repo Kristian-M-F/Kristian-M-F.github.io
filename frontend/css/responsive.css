@@ -1,0 +1,562 @@
+/* Tablet and phone adjustments. Loaded last so it overrides the other files on
+   small screens: 1000px = tablet, 760px = phone, 360px = very small phone. */
+
+@media (max-width: 1000px) {
+  .grid4,
+  .grid3 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .two {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .app {
+    display: block;
+  }
+
+  /* Phone header: logo | month | burger, everything else in the menu */
+  .sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 15;
+    display: block;
+    height: auto;
+    overflow: visible;
+    padding: 10px 12px 10px 16px;
+  }
+
+  .sidebar-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+  }
+
+  .logo {
+    gap: 8px;
+    font-size: 18px;
+  }
+
+  .logo img,
+  .logo-mark {
+    width: 24px;
+    height: 24px;
+  }
+
+  .mobile-month {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    min-height: 38px;
+    padding: 6px 12px;
+    border: 1px solid #303849;
+    border-radius: 99px;
+    background: var(--nav-hover);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .sidebar .burger {
+    display: flex;
+  }
+
+  .sidebar .burger:hover:not(:disabled) {
+    background: var(--nav-hover);
+  }
+
+  /* The menu opens below the header */
+  .sidebar-menu {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    display: grid;
+    grid-template-rows: 0fr;
+    margin: 0;
+    background: var(--nav);
+    box-shadow: 0 18px 30px -18px rgba(0, 0, 0, 0.6);
+    transition: grid-template-rows 0.3s ease;
+  }
+
+  .sidebar-menu.open {
+    grid-template-rows: 1fr;
+  }
+
+  .sidebar-menu-inner {
+    overflow: hidden;
+    padding: 0 16px;
+  }
+
+  .sidebar-menu.open .sidebar-menu-inner {
+    padding-bottom: 16px;
+    border-top: 1px solid #303849;
+  }
+
+  .sidebar-menu .month-switch:first-child {
+    display: none; /* the month is already shown in the header */
+  }
+
+  .account-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 14px 0 0;
+    color: #e1e6f0;
+  }
+
+  .sidebar-tools {
+    margin: 14px 0 0;
+  }
+
+  .save-status:not(.error) {
+    display: block;
+  }
+
+  .month-switch button {
+    flex-shrink: 0;
+    width: auto;
+    margin: 0;
+    min-height: 36px;
+    padding: 6px 11px;
+    font-size: 13px;
+  }
+
+  .nav button.active {
+    box-shadow: inset 0 -3px 0 var(--brand-light);
+  }
+
+  .nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    background: var(--nav);
+    border-top: 1px solid #303849;
+    padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
+  }
+
+  .nav button {
+    min-height: 54px;
+    margin: 0;
+    padding: 7px 1px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: -0.2px;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+  }
+
+  .nav button.active {
+    background: #33415c;
+  }
+
+  /* Short labels in the bottom bar so nothing wraps */
+  .nav-long {
+    display: none;
+  }
+
+  .nav-short {
+    display: inline;
+  }
+
+  table.compact-list td.no-end {
+    display: none;
+  }
+
+  .nav-icon {
+    display: block;
+    margin: 0 0 5px;
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .content {
+    margin: 0;
+    padding: 20px 16px calc(110px + env(safe-area-inset-bottom));
+  }
+
+  .head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .head h1 {
+    font-size: 26px;
+  }
+
+  .head p {
+    line-height: 1.5;
+  }
+
+  .head-actions {
+    flex-direction: column;
+  }
+
+  .head-actions select {
+    max-width: none;
+  }
+
+  .grid4,
+  .grid3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .card {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .kpi strong {
+    font-size: clamp(15px, 4.5vw, 22px);
+    white-space: nowrap;
+  }
+
+  .kpi .label,
+  .kpi .sub {
+    font-size: 12px;
+    letter-spacing: 0.3px;
+  }
+
+  .row .field {
+    flex-basis: 100%;
+    min-width: 0;
+  }
+
+  .row > button,
+  .row > .button-link {
+    width: 100%;
+  }
+
+  /* Date/amount/category etc.: two fields side by side instead of stacked */
+  .row .field.half {
+    flex: 1 1 calc(50% - 6px);
+  }
+
+  .card.fold {
+    padding: 14px 16px;
+  }
+
+  .fold-body .chart-legend {
+    margin-top: 6px;
+  }
+
+  .chart {
+    gap: 5px;
+  }
+
+  .month-entry {
+    padding: 20px;
+  }
+
+  .month-entry .card {
+    padding: 24px;
+  }
+
+  .month-entry h1 {
+    font-size: 26px;
+  }
+
+  /* Tables as cards */
+  table.mobile-cards thead {
+    display: none;
+  }
+
+  table.mobile-cards,
+  table.mobile-cards tbody,
+  table.mobile-cards tr {
+    display: block;
+    width: 100%;
+  }
+
+  table.mobile-cards tr {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px;
+    margin-top: 12px;
+  }
+
+  table.mobile-cards td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    padding: 8px 3px;
+    border: 0;
+    overflow-wrap: anywhere;
+  }
+
+  table.mobile-cards td::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    max-width: 46%;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--muted);
+  }
+
+  table.mobile-cards td > div {
+    text-align: right;
+  }
+
+  table.mobile-cards td:empty,
+  table.mobile-cards td[data-label=""]::before,
+  table.mobile-cards td.empty::before {
+    display: none;
+  }
+
+  table.mobile-cards td.empty {
+    justify-content: center;
+  }
+
+  table.mobile-cards td input {
+    max-width: 52%;
+    min-width: 0;
+  }
+
+  /* Salary per apprentice year: year on top, then the fields two per row */
+  table.year-table tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 8px;
+    padding: 12px;
+  }
+
+  table.year-table td {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    padding: 0;
+  }
+
+  table.year-table td:first-child {
+    grid-column: 1 / -1;
+  }
+
+  table.year-table td:first-child::before {
+    display: none;
+  }
+
+  table.year-table td::before {
+    max-width: none;
+    overflow-wrap: normal;
+    hyphens: auto;
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  table.year-table td input {
+    max-width: none;
+    margin-top: auto;
+  }
+
+  .settings-kpis > :last-child {
+    grid-column: 1 / -1;
+  }
+
+  /* Allowances: one row per apprentice year (year | amount | of which saved), labels only on top */
+  .allowance-years {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .allowance-year {
+    grid-template-columns: 58px 1fr 1fr;
+    align-items: end;
+    padding: 6px 8px;
+  }
+
+  .allowance-year b {
+    grid-column: auto;
+    padding-bottom: 11px;
+    font-size: 12px;
+  }
+
+  .allowance-year:not(:first-child) label {
+    gap: 0;
+    font-size: 0;
+  }
+
+  .allowance-year input {
+    font-size: 16px;
+  }
+
+  /* Compact long lists: description left, amount right, date/category small below */
+  table.compact-list tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 3px 10px;
+    margin: 0;
+    padding: 12px 0;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+  }
+
+  table.compact-list td {
+    order: 3;
+    display: block;
+    width: auto;
+    padding: 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  table.compact-list td::before {
+    display: none;
+  }
+
+  /* Line break after description + amount */
+  table.compact-list tr::after {
+    content: "";
+    order: 2;
+    flex-basis: 100%;
+    height: 0;
+  }
+
+  table.compact-list tr.more-row::after {
+    display: none;
+  }
+
+  table.compact-list td > div {
+    text-align: left;
+  }
+
+  table.compact-list td.ledger-description,
+  table.compact-list td.item-name {
+    order: 1;
+    flex: 1 1 0;
+    min-width: 0;
+    color: var(--ink);
+    font-size: 15px;
+  }
+
+  table.compact-list td.money {
+    order: 2;
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  table.compact-list td.good {
+    color: var(--green);
+  }
+
+  table.compact-list td.bad {
+    color: var(--red);
+  }
+
+  table.compact-list td.transfer {
+    color: var(--orange);
+  }
+
+  table.compact-list td.row-status {
+    order: 3;
+  }
+
+  table.compact-list td.row-actions {
+    order: 4;
+    margin-left: auto;
+  }
+
+  table.compact-list td.row-actions .actions {
+    flex-wrap: nowrap;
+    gap: 4px;
+  }
+
+  table.compact-list td.row-actions button {
+    min-width: 0;
+    min-height: 32px;
+    padding: 4px 10px;
+    font-size: 13px;
+  }
+
+  table.compact-list .ledger-detail {
+    margin-top: 3px;
+    font-size: 12px;
+  }
+
+  table.compact-list td.empty,
+  table.compact-list .more-row td {
+    flex-basis: 100%;
+    text-align: center;
+  }
+
+  table.compact-list tr.more-row,
+  table.compact-list tr:last-child {
+    border-bottom: 0;
+  }
+
+  table.compact-list tr.more-row {
+    padding-bottom: 0;
+  }
+
+  .toast {
+    bottom: calc(94px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 360px) {
+  .content {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .grid4,
+  .grid3 {
+    gap: 8px;
+  }
+
+  .card {
+    padding: 12px;
+  }
+}
+
+/* Phone: compact account balances, hide the logo text when space is short */
+@media (max-width: 760px) {
+  .account-cards {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+  }
+
+  .account-card {
+    padding: 12px 14px;
+  }
+
+  .account-card.spending {
+    grid-column: 1 / -1;
+  }
+
+  .account-card b {
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+
+  .account-card strong {
+    font-size: clamp(16px, 4.6vw, 20px);
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 420px) {
+  .sidebar .logo > span {
+    display: none;
+  }
+}
