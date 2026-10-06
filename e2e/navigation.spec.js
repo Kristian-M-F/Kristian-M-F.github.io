@@ -1,27 +1,43 @@
 // "Back" returns to exactly the same place: same page, same view, same scroll position.
 const { test, expect } = require("./fixtures");
 
+/** The landing page scrolls smoothly: wait until the position no longer changes. */
+async function settledScrollY(page) {
+  let last = -1;
+  await expect
+    .poll(
+      async () => {
+        const y = await page.evaluate(() => Math.round(scrollY));
+        const settled = y === last;
+        last = y;
+        return settled;
+      },
+      { intervals: [150] },
+    )
+    .toBe(true);
+  return last;
+}
+
 test("landing page → privacy policy → back: same scroll position", async ({ page }) => {
   await page.goto("/");
   await page.locator(".security-link").scrollIntoViewIfNeeded();
-  const before = await page.evaluate(() => scrollY);
+  const before = await settledScrollY(page);
   expect(before).toBeGreaterThan(500);
   await page.click(".security-link");
   await expect(page).toHaveURL(/datenschutz\.html/);
   await page.click("a[data-back]");
   await expect(page).toHaveURL(/\/(index\.html)?$/);
-  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(before - 5);
-  expect(Math.abs((await page.evaluate(() => scrollY)) - before)).toBeLessThan(5);
+  expect(Math.abs((await settledScrollY(page)) - before)).toBeLessThan(5);
 });
 
 test("browser back button also returns to the same place", async ({ page }) => {
   await page.goto("/");
   await page.locator(".site-footer").scrollIntoViewIfNeeded();
-  const before = await page.evaluate(() => scrollY);
+  const before = await settledScrollY(page);
   await page.click('.site-footer a[href="datenschutz.html"]');
   await expect(page).toHaveURL(/datenschutz\.html/);
   await page.goBack();
-  await expect.poll(async () => Math.abs((await page.evaluate(() => scrollY)) - before)).toBeLessThan(5);
+  expect(Math.abs((await settledScrollY(page)) - before)).toBeLessThan(5);
 });
 
 test("registration → privacy policy → back: registration with the typed name", async ({ page }) => {

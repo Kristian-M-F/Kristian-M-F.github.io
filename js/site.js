@@ -86,23 +86,32 @@ function isReturning() {
   return type === "back_forward" || type === "reload" || returnTo === pageKey();
 }
 
+// Images, fonts and animations can still change the page height after the jump. For a
+// short time the position is corrected whenever the page size changes, until the visitor
+// scrolls or clicks themselves.
+const RESTORE_WATCH_MS = 3000;
+
 function restoreScroll() {
   const savedY = readNavigation().scroll[pageKey()] || 0;
   if (savedY <= 0) return;
-  let userScrolled = false;
-  const stop = () => (userScrolled = true);
-  for (const type of ["wheel", "touchstart", "keydown"]) window.addEventListener(type, stop, { once: true, passive: true });
-  window.scrollTo({ top: savedY, behavior: "instant" });
-  // Images, fonts and the hero animation can still change the page height a little;
-  // correct the position again once they are done (unless the visitor scrolled already).
+
+  let watching = true;
   const correct = () => {
-    if (!userScrolled && Math.abs(window.scrollY - savedY) > 2) window.scrollTo({ top: savedY, behavior: "instant" });
+    if (watching && Math.abs(window.scrollY - savedY) > 1) window.scrollTo({ top: savedY, behavior: "instant" });
   };
+  const stop = () => {
+    watching = false;
+    resizeObserver.disconnect();
+  };
+  for (const type of ["wheel", "touchstart", "keydown", "pointerdown"]) {
+    window.addEventListener(type, stop, { once: true, passive: true });
+  }
+  const resizeObserver = new ResizeObserver(correct);
+  resizeObserver.observe(document.documentElement);
   document.fonts?.ready.then(correct);
-  window.addEventListener("load", () => {
-    correct();
-    setTimeout(correct, 400);
-  });
+  window.addEventListener("load", correct);
+  setTimeout(stop, RESTORE_WATCH_MS);
+  correct();
 }
 
 const returning = isReturning();
