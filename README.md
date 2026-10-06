@@ -68,7 +68,7 @@ Die Website merkt selbst, ob sie lokal läuft (dann Backend `localhost:8080`) od
 ## Veröffentlichen
 
 Änderungen committen und auf `main` pushen – GitHub Pages ist nach 1–2 Minuten aktualisiert.
-Läuft das Backend bei Render unter einer anderen Adresse als `https://finance-os-api.onrender.com`,
+Läuft das Backend bei Render unter einer anderen Adresse als `https://finance-tracker-backend-5rru.onrender.com`,
 diese an zwei Stellen anpassen: `PUBLIC_API_URL` in `js/api.js` und `connect-src` im
 `<meta http-equiv="Content-Security-Policy">` oben in jeder HTML-Datei.
 
