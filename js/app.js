@@ -98,13 +98,22 @@ function newAllowance(id, name, enabled = false) {
   return { id, name, enabled, amounts: Array(MAX_YEARS).fill(0), save: Array(MAX_YEARS).fill(0) };
 }
 
+// Default names in German; they are shown in the chosen language (see localizeDefaultNames).
+const DEFAULT_ALLOWANCE_NAMES = {
+  food: "Essenspauschale",
+  transport: "Fahrkosten / ÖV",
+  phone: "Handy",
+  clothes: "Arbeitskleider / Werkzeug",
+};
+const DEFAULT_ACCOUNT_NAMES = { main: "Lohnkonto", save: "Sparkonto" };
+const DEFAULT_LISTS = {
+  categories: ["Essen", "Freizeit/Ausgang", "Motorrad/Auto", "Kleidung", "Abos", "Schule", "Technik", "Sport", "Ferien", "Sonstiges"],
+  incomeCategories: ["Nebenjob", "Geschenk", "Rückzahlung", "Sonstiges"],
+  payments: ["Karte", "TWINT", "Bar", "Überweisung"],
+};
+
 function defaultAllowances() {
-  return [
-    newAllowance("food", t("Essenspauschale"), true),
-    newAllowance("transport", t("Fahrkosten / ÖV")),
-    newAllowance("phone", t("Handy")),
-    newAllowance("clothes", t("Arbeitskleider / Werkzeug")),
-  ];
+  return Object.entries(DEFAULT_ALLOWANCE_NAMES).map(([id, name]) => newAllowance(id, t(name), id === "food"));
 }
 
 const enabledAllowances = () => state.allowances.filter((allowance) => allowance.enabled);
@@ -118,26 +127,16 @@ function createEmptyData() {
     thirteenth: "none", // 13th-month salary: "none", "11" (with November pay) or "12" (December)
     // Exactly one spending account plus any number of savings accounts
     accounts: [
-      { id: "main", name: t("Lohnkonto"), kind: "spending", start: 0 },
-      { id: "save", name: t("Sparkonto"), kind: "saving", start: 0 },
+      { id: "main", name: t(DEFAULT_ACCOUNT_NAMES.main), kind: "spending", start: 0 },
+      { id: "save", name: t(DEFAULT_ACCOUNT_NAMES.save), kind: "saving", start: 0 },
     ],
     autoAccount: "save", // receives automatic savings and the saved part of allowances
     salaries: [0, 0, 0, 0],
     extraSave: [0, 0, 0, 0],
-    categories: [
-      "Essen",
-      "Freizeit/Ausgang",
-      "Motorrad/Auto",
-      "Kleidung",
-      "Abos",
-      "Schule",
-      "Technik",
-      "Sport",
-      "Ferien",
-      "Sonstiges",
-    ].map((name) => t(name)), // defaults in the current language; users can rename them
-    incomeCategories: ["Nebenjob", "Geschenk", "Rückzahlung", "Sonstiges"].map((name) => t(name)),
-    payments: ["Karte", "TWINT", "Bar", "Überweisung"].map((name) => t(name)),
+    // Defaults in the current language; users can rename them.
+    categories: DEFAULT_LISTS.categories.map((name) => t(name)),
+    incomeCategories: DEFAULT_LISTS.incomeCategories.map((name) => t(name)),
+    payments: DEFAULT_LISTS.payments.map((name) => t(name)),
     expenses: [],
     savingEntries: [],
     withdrawEntries: [],
@@ -246,12 +245,18 @@ function loadData(saved) {
       ...data.savingEntries.map((entry) => entry.cat),
       ...data.recurring.filter((order) => order.kind === "saving").map((order) => order.cat),
     ]);
-    const names = [...new Set([data.accounts[1].name, ...[...used].filter(Boolean)])];
+    // "Sparkonto" in any language is the default savings account.
+    const defaultName = data.accounts[1].name;
+    const isDefault = (name) => !name || spellingsOf(DEFAULT_ACCOUNT_NAMES.save).has(name);
+    const names = [defaultName, ...[...used].filter((name) => !isDefault(name))];
     data.accounts = [
       data.accounts[0],
       ...names.map((name, i) => ({ id: i === 0 ? "save" : "s" + i, name, kind: "saving", start: 0 })),
     ];
-    data.savingEntries.forEach((entry) => (entry.cat = entry.cat || names[0]));
+    const savingRecords = [...data.savingEntries, ...data.recurring.filter((order) => order.kind === "saving")];
+    savingRecords.forEach((record) => {
+      if (isDefault(record.cat)) record.cat = defaultName;
+    });
   }
   if (!data.accounts.some((account) => account.id === data.autoAccount && account.kind === "saving")) {
     data.autoAccount = data.accounts.find((account) => account.kind === "saving")?.id;
@@ -261,6 +266,81 @@ function loadData(saved) {
   delete data.countFrom;
   data.recurring = data.recurring.map((order) => ({ kind: "expense", interval: "monthly", ...order }));
   return data;
+}
+
+// Renaming a list item or a savings account also renames it in all bookings.
+function bookingsUsing(type) {
+  const ofKind = (kind) => state.recurring.filter((order) => order.kind === kind);
+  return {
+    categories: [...state.expenses, ...ofKind("expense")],
+    incomeCategories: [...state.incomeEntries, ...ofKind("income")],
+    payments: [...state.expenses, ...state.savingEntries, ...state.withdrawEntries, ...state.incomeEntries],
+    accounts: [...state.savingEntries, ...state.withdrawEntries, ...ofKind("saving")],
+  }[type];
+}
+
+function renameInBookings(type, oldName, name) {
+  const key = type === "payments" ? "pay" : "cat";
+  bookingsUsing(type).forEach((record) => {
+    if (record[key] === oldName) record[key] = name;
+  });
+}
+
+// Half-filled forms keep pointing at the renamed item.
+function renameInDrafts(oldName, name) {
+  for (const id of ["exCat", "exPay", "recCat"]) {
+    if (state.drafts?.[id] === oldName) state.drafts[id] = name;
+  }
+}
+
+// The German name and all its translations.
+function spellingsOf(germanName) {
+  return new Set([germanName, ...(window.TRANSLATIONS?.[germanName] || [])]);
+}
+
+// Default names (categories, accounts, allowances …) follow the chosen language, also when the
+// language is changed later. Names the user typed in are never touched.
+function localizeDefaultNames() {
+  // Every spelling of a default name (German and all translations) → its current translation.
+  const localized = (germanName) => {
+    const spellings = spellingsOf(germanName);
+    return (name) => (spellings.has(name) ? t(germanName) : null);
+  };
+  let changed = false;
+
+  for (const [type, defaults] of Object.entries(DEFAULT_LISTS)) {
+    const list = state[type];
+    defaults.forEach((germanName) => {
+      const translate = localized(germanName);
+      list.forEach((name, index) => {
+        const next = translate(name);
+        if (!next || next === name || list.includes(next)) return;
+        list[index] = next;
+        renameInBookings(type, name, next);
+        renameInDrafts(name, next);
+        changed = true;
+      });
+    });
+  }
+
+  for (const account of state.accounts) {
+    const germanName = DEFAULT_ACCOUNT_NAMES[account.id];
+    const next = germanName && localized(germanName)(account.name);
+    if (!next || next === account.name || state.accounts.some((other) => other.name === next)) continue;
+    if (account.kind === "saving") renameInBookings("accounts", account.name, next);
+    renameInDrafts(account.name, next);
+    account.name = next;
+    changed = true;
+  }
+
+  for (const allowance of state.allowances) {
+    const germanName = DEFAULT_ALLOWANCE_NAMES[allowance.id];
+    const next = germanName && localized(germanName)(allowance.name);
+    if (!next || next === allowance.name) continue;
+    allowance.name = next;
+    changed = true;
+  }
+  return changed;
 }
 
 function loadEditing() {
@@ -324,7 +404,7 @@ function flushData() {
     method: "PUT",
     keepalive: true,
     credentials: "same-origin",
-    headers: { "Content-Type": "application/json" },
+    headers: requestHeaders(true),
     body: JSON.stringify(state),
   }).catch(() => {});
 }
@@ -1191,13 +1271,7 @@ function renameAccount(id) {
   if (state.accounts.some((other) => other !== account && other.name.toLowerCase() === name.toLowerCase())) {
     return notify("Dieses Konto gibt es schon.");
   }
-  if (account.kind === "saving") {
-    // Rename the account in its bookings too.
-    const records = [...state.savingEntries, ...state.withdrawEntries, ...state.recurring.filter((order) => order.kind === "saving")];
-    records.forEach((record) => {
-      if (record.cat === account.name) record.cat = name;
-    });
-  }
+  if (account.kind === "saving") renameInBookings("accounts", account.name, name);
   account.name = name;
   persist();
   notify("Umbenannt");
@@ -1439,6 +1513,18 @@ function toggleTheme() {
   applyAppearance(state.appearance);
   renderAppearance();
   save();
+}
+
+// Guided tour (js/tour.js): shown once per account, can be restarted in the settings.
+function startTour() {
+  const page = document.querySelector(".page.active")?.id;
+  Tour.start({
+    onFinish: () => {
+      state.tourDone = true;
+      if (page) showPage(page);
+      persist();
+    },
+  });
 }
 
 function openMonthEntry() {
@@ -1723,16 +1809,7 @@ function renameListItem(index) {
   }
 
   state[type][index] = name;
-  const key = type === "payments" ? "pay" : "cat";
-  const ofKind = (kind) => state.recurring.filter((order) => order.kind === kind);
-  const records = {
-    categories: [...state.expenses, ...ofKind("expense")],
-    incomeCategories: [...state.incomeEntries, ...ofKind("income")],
-    payments: [...state.expenses, ...state.savingEntries, ...state.withdrawEntries, ...state.incomeEntries],
-  }[type];
-  records.forEach((record) => {
-    if (record[key] === oldName) record[key] = name;
-  });
+  renameInBookings(type, oldName, name);
 
   // Rename the selected values in the forms too.
   const selected = LIST_SELECTS[type].filter((id) => $(id).value === oldName);
@@ -1798,6 +1875,7 @@ async function deleteAccount() {
     clearTimeout(saveOnline.timer);
     saveOnline.pending = false;
     await api("/account", { method: "DELETE", body: { password } });
+    forgetLogin();
     location.replace("login.html?deleted");
   } catch (error) {
     $("deletePassword").value = "";
@@ -1809,6 +1887,7 @@ async function deleteAccount() {
 
 const actions = {
   "change-month": openMonthEntry,
+  "start-tour": startTour,
   "new-entry": openNewEntry,
   "toggle-recurring-payment": toggleRecurringPayment,
   "toggle-theme": toggleTheme,
@@ -1979,6 +2058,7 @@ async function start() {
   document.documentElement.classList.remove("checking-login"); // login confirmed, show the app
 
   state = loadData(saved);
+  localizeDefaultNames();
   editing = loadEditing();
   $("setPayday").innerHTML = Array.from({ length: 28 }, (_, i) => i + 1)
     .map((day) => `<option value="${day}">${day}.${day === 1 ? ` (= ${t("Kalendermonat")})` : ""}</option>`)
@@ -1994,6 +2074,7 @@ async function start() {
   render();
   if (appearance.startPage !== "dashboard") showPage(appearance.startPage);
   save();
+  if (!state.tourDone) startTour();
 }
 
 start();

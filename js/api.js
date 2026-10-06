@@ -1,9 +1,54 @@
-// Client for the Spring Boot backend. The pages are served by Spring Boot itself,
-// so a relative "/api" base path is enough.
+// Client for the Spring Boot backend (repository finance-tracker-backend).
 //
-// The login token lives in an HttpOnly cookie that JavaScript cannot read, so injected
-// scripts cannot steal it. The browser sends the cookie with every request to /api.
-const API_BASE = "/api";
+// The website and the backend run on different addresses:
+//   published:  https://kristian-m-f.github.io  →  backend on Render (PUBLIC_API_URL)
+//   locally:    Live Server (port 5500)         →  backend in IntelliJ (http://localhost:8080)
+// Browsers block login cookies between different addresses, so the login token is kept in
+// localStorage and sent in the Authorization header.
+const PUBLIC_API_URL = "https://finance-os-api.onrender.com/api";
+const LOCAL_API_URL = "http://localhost:8080/api";
+const RUNS_LOCALLY = ["localhost", "127.0.0.1"].includes(location.hostname);
+// The end-to-end tests point the website at their own test backend.
+const API_BASE = window.FINANCE_OS_API_URL || (RUNS_LOCALLY ? LOCAL_API_URL : PUBLIC_API_URL);
+const TOKEN_KEY = "financeOS_token";
+
+function readToken() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(TOKEN_KEY));
+    return saved && saved.expiresAt > Date.now() ? saved.token : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Keeps the token from a login response. */
+function rememberLogin(result) {
+  if (!result?.token) return;
+  const minutes = result.expiresInMinutes || 120;
+  try {
+    localStorage.setItem(TOKEN_KEY, JSON.stringify({ token: result.token, expiresAt: Date.now() + minutes * 60000 }));
+  } catch {
+    // Without storage the login cannot be kept.
+  }
+}
+
+/** Request headers, including the login token. */
+function requestHeaders(withJsonBody) {
+  const headers = withJsonBody ? { "Content-Type": "application/json" } : {};
+  // Emails from the backend (confirmation, password reset …) use the website's language.
+  if (typeof I18N !== "undefined") headers["Accept-Language"] = I18N.language;
+  const token = readToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+}
+
+function forgetLogin() {
+  try {
+    localStorage.removeItem(TOKEN_KEY);
+  } catch {
+    // Nothing stored.
+  }
+}
 
 // Older versions kept the token in localStorage; remove those leftovers.
 try {
@@ -23,13 +68,18 @@ async function api(path, { method = "GET", body, redirectOn401 = true } = {}) {
     response = await fetch(API_BASE + path, {
       method,
       credentials: "same-origin",
-      headers: body === undefined ? {} : { "Content-Type": "application/json" },
+      headers: requestHeaders(body !== undefined),
       body: body === undefined ? undefined : JSON.stringify(body),
     });
   } catch {
-    throw new Error("Backend nicht erreichbar – läuft Spring Boot auf Port 8080?");
+    throw new Error(
+      RUNS_LOCALLY
+        ? "Backend nicht erreichbar – läuft Spring Boot auf Port 8080?"
+        : "Server nicht erreichbar – bitte in einer Minute nochmals versuchen.",
+    );
   }
 
+  if (response.status === 401) forgetLogin();
   if (response.status === 401 && redirectOn401) {
     location.replace("login.html");
     throw new Error("Bitte neu einloggen");
@@ -53,5 +103,6 @@ async function logoutAndRedirect() {
   } catch {
     // Go to the login page even if the backend does not answer.
   }
+  forgetLogin();
   location.replace("login.html");
 }

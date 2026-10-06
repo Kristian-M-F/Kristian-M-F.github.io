@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' http://localhost:* https://finance-os-api.onrender.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
     <title>Datenschutz – Finance OS</title>
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#f4f6fa" media="(prefers-color-scheme: light)" />
@@ -91,30 +92,36 @@
 
       <section class="card">
         <h2>4. Speicherort und Weitergabe</h2>
+        <p>Für den Betrieb von Finance OS werden folgende Anbieter eingesetzt (Auftragsbearbeiter):</p>
+        <ul>
+          <li>
+            <b>Website:</b> GitHub Pages (GitHub Inc., USA). Beim Aufruf der Seiten verarbeitet GitHub
+            technisch notwendige Daten wie deine IP-Adresse.
+          </li>
+          <li><b>Server:</b> Render (Render Services Inc., USA), Rechenzentrum in Frankfurt (Deutschland).</li>
+          <li><b>Datenbank:</b> Aiven (Aiven Oy, Finnland).</li>
+          <li><b>E-Mail-Versand:</b> Brevo (Sendinblue SAS, Frankreich).</li>
+        </ul>
         <p>
-          Die Daten werden in einer MySQL-Datenbank auf dem Computer des Verantwortlichen in der
-          Schweiz gespeichert. Sie werden <b>nicht an Dritte weitergegeben</b> und nicht ins Ausland
-          übermittelt. Es werden keine Analyse-, Tracking- oder Werbedienste eingesetzt und keine
-          Inhalte von fremden Servern geladen.
-        </p>
-        <p>
-          Für den Versand der Konto-E-Mails und der Nachrichten aus dem Kontaktformular wird ein E-Mail-Anbieter genutzt
-          <!-- TODO: enter the provider, e.g. Infomaniak (Switzerland) -->
-          Kristian Maras. Dabei werden nur Empfängeradresse und Inhalt der E-Mail übermittelt.
+          Deine Finanzdaten werden verschlüsselt, bevor sie in der Datenbank gespeichert werden. Daten
+          werden nur an diese Anbieter übermittelt, soweit es für den Betrieb nötig ist, und
+          <b>nie verkauft</b>. Anbieter in den USA sind vertraglich zu einem angemessenen Datenschutz
+          verpflichtet (Standardvertragsklauseln). Es werden keine Analyse-, Tracking- oder
+          Werbedienste eingesetzt.
         </p>
       </section>
 
       <section class="card">
         <h2>5. Cookies und lokale Speicherung</h2>
         <p>
-          Finance OS verwendet genau <b>ein technisch notwendiges Cookie</b> (<code>ft_token</code>).
-          Es hält dich eingeloggt, ist für JavaScript nicht lesbar (HttpOnly), wird nur an diese
-          Website gesendet und läuft nach 2 Stunden oder beim Logout ab. Ohne dieses Cookie ist kein
-          Login möglich. Tracking-Cookies werden keine verwendet.
+          Finance OS verwendet <b>keine Tracking-Cookies</b>. Damit du eingeloggt bleibst, wird ein
+          Login-Schlüssel gespeichert: auf dieser Website im Speicher deines Browsers (localStorage),
+          bei einer eigenen Installation als technisch notwendiges Cookie (<code>ft_token</code>). Er ist
+          2 Stunden gültig und wird beim Logout gelöscht.
         </p>
         <p>
-          Wird Finance OS ohne Login direkt als Datei geöffnet, werden die Eingaben nur im
-          Speicher deines Browsers (localStorage) abgelegt und nie übertragen.
+          Zusätzlich merkt sich dein Browser Einstellungen wie Sprache, Hell/Dunkel und welche
+          Bereiche aufgeklappt sind. Diese Angaben bleiben auf deinem Gerät.
         </p>
       </section>
 

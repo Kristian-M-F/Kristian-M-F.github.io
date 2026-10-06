@@ -1,0 +1,132 @@
+/* Guided tour through the app (js/tour.js). */
+
+/* Catches clicks on the page while the tour is open */
+.tour-blocker {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+
+/* The highlighted element: everything around it is darkened by the huge shadow */
+.tour-spotlight {
+  position: fixed;
+  z-index: 1001;
+  border-radius: 12px;
+  box-shadow: 0 0 0 9999px rgba(10, 15, 25, 0.55);
+  outline: 2px solid var(--brand-light);
+  pointer-events: none;
+  transition: left 0.25s ease, top 0.25s ease, width 0.25s ease, height 0.25s ease;
+}
+
+.tour-card {
+  position: fixed;
+  z-index: 1002;
+  width: min(340px, calc(100vw - 24px));
+  padding: 20px 20px 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: 0 18px 50px rgba(10, 15, 25, 0.28);
+  animation: tour-in 0.2s ease;
+}
+
+/* Steps without a target: in the middle of a darkened screen */
+.tour-card.centered {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.tour-blocker.dim {
+  background: rgba(10, 15, 25, 0.55);
+}
+
+.tour-card h2 {
+  margin: 0 0 6px;
+  padding-right: 24px;
+  font-size: 18px;
+}
+
+.tour-card p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.tour-card .tour-progress {
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tour-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  min-height: 32px;
+  width: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--muted);
+  font-size: 22px;
+  line-height: 1;
+}
+
+.tour-close:hover:not(:disabled) {
+  transform: none;
+  background: var(--soft);
+  color: var(--ink);
+}
+
+.tour-skip {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--label);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.tour-skip:hover:not(:disabled) {
+  transform: none;
+  color: var(--ink);
+}
+
+.tour-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.tour-nav {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.tour-nav button {
+  min-height: 40px;
+  padding: 8px 14px;
+}
+
+@keyframes tour-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tour-spotlight,
+  .tour-card {
+    transition: none;
+    animation: none;
+  }
+}

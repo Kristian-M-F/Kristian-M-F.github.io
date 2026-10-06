@@ -244,3 +244,17 @@
 .account-row .actions {
   justify-content: flex-end;
 }
+
+/* "Start tour" in the appearance settings */
+.tour-row {
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.tour-row .note {
+  flex: 1 1 220px;
+  margin: 0;
+}

@@ -1,0 +1,8 @@
+# GitHub Pages: these files belong to the tests and are not published.
+exclude:
+  - e2e
+  - node_modules
+  - package.json
+  - package-lock.json
+  - playwright.config.js
+  - README.md

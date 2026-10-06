@@ -1,0 +1,13 @@
+{
+  "name": "finance-os-website",
+  "private": true,
+  "description": "Finance OS website (GitHub Pages) with end-to-end tests",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report e2e/report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0"
+  }
+}

@@ -161,7 +161,8 @@ async function submit() {
   setBusy(true);
   try {
     if (mode === "login") {
-      await api("/auth/login", { method: "POST", body: { email, password }, redirectOn401: false });
+      const result = await api("/auth/login", { method: "POST", body: { email, password }, redirectOn401: false });
+      rememberLogin(result);
       passwordField.value = "";
       // Continue with a password/email change that required logging in first.
       const pendingChange = readPendingChange();
@@ -241,6 +242,7 @@ async function submitAccountChange(email, password) {
             redirectOn401: false,
           })
         : await api("/account/email", { method: "POST", body: { newEmail: email, password }, redirectOn401: false });
+    if (mode === "changePassword") rememberLogin(result);
     const changedMode = mode;
     setMode(changedMode, { keepMessages: true });
     $("email").value = "";
