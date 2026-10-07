@@ -1071,7 +1071,8 @@ function renderOnboarding() {
   };
   for (const [id, done] of Object.entries(steps)) $(id).classList.toggle("done", done);
   const allDone = Object.values(steps).every(Boolean);
-  $("onboarding").hidden = allDone || Boolean(state.onboardingDismissed);
+  // After the first-time setup the questions are answered already, so the card is not needed.
+  $("onboarding").hidden = allDone || Boolean(state.onboardingDismissed) || Boolean(state.setupDone);
 }
 
 function renderSavingsChart() {
@@ -1091,26 +1092,41 @@ function renderSavingsChart() {
     : `<div class="empty">${t("Noch keine Daten.")}</div>`;
 }
 
-function renderComparisonChart() {
-  const months = countedMonths().slice(-6);
+// Wage + allowances, expenses and savings per pay month as three bars.
+function comparisonRows(months) {
   const summaries = months.map((month) => ({ month, ...monthSummary(month) }));
-  const peak = Math.max(1, ...summaries.flatMap((summary) => [summary.income, summary.spent]));
+  const peak = Math.max(1, ...summaries.flatMap((summary) => [summary.income, summary.spent, summary.saved]));
+  const bar = (kind, value) =>
+    `<div class="compare-track ${kind}" aria-hidden="true"><span style="width:${(Math.max(0, value) / peak) * 100}%"></span></div>`;
 
-  $("comparisonChart").innerHTML = summaries.length
+  return summaries.length
     ? summaries
         .map(
           (summary) => `<div class="compare-row">
             <div class="compare-title">${monthName(summary.month)}</div>
             <div class="compare-values">
-              <span class="income-value">${chf(summary.income)}</span>
-              <span class="spent-value">${chf(summary.spent)}</span>
+              <span class="income-value" title="${t("Lohn + Pauschalen")}">${chf(summary.income)}</span>
+              <span class="spent-value" title="${t("Ausgaben")}">${chf(summary.spent)}</span>
+              <span class="saved-value" title="${t("Gespart")}">${chf(summary.saved)}</span>
             </div>
-            <div class="compare-track income" aria-hidden="true"><span style="width:${(summary.income / peak) * 100}%"></span></div>
-            <div class="compare-track spent" aria-hidden="true"><span style="width:${(summary.spent / peak) * 100}%"></span></div>
+            ${bar("income", summary.income)}
+            ${bar("spent", summary.spent)}
+            ${bar("saved", summary.saved)}
           </div>`,
         )
         .join("")
     : `<div class="empty">${t("Noch keine Monate erfasst.")}</div>`;
+}
+
+// Dashboard: the last three pay months; "Seit Lehrbeginn" opens all of them in a pop-up.
+function renderComparisonChart() {
+  $("comparisonChart").innerHTML = comparisonRows(countedMonths().slice(-3));
+}
+
+function showComparison() {
+  $("comparisonAll").innerHTML = comparisonRows(countedMonths());
+  $("comparisonDialog").showModal();
+  $("comparisonAll").scrollTop = $("comparisonAll").scrollHeight; // newest month at the bottom
 }
 
 function categoryChart(totalsByCategory, emptyText) {
@@ -1827,6 +1843,10 @@ function setMenuOpen(open) {
   $("appMenu").classList.toggle("open", open);
 }
 
+// Clicking beside the pop-up closes it
+$("comparisonDialog").addEventListener("click", (event) => {
+  if (event.target === $("comparisonDialog")) $("comparisonDialog").close();
+});
 $("appBurger").addEventListener("click", () => setMenuOpen($("appBurger").getAttribute("aria-expanded") !== "true"));
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") setMenuOpen(false);
@@ -2266,16 +2286,18 @@ async function exportAccount() {
   }
 }
 
+// Deleting needs two steps: the password here sends an email, and only the link in it
+// (login.html?delete=…) deletes the account with all data.
 async function deleteAccount() {
   const password = $("deletePassword").value;
   if (!password) return notify("Bitte zur Bestätigung dein Passwort eingeben.");
-  if (!(await confirmAction({ title: t("Konto und alle Daten endgültig löschen? Das kann nicht rückgängig gemacht werden."), okLabel: t("Konto endgültig löschen") }))) return;
+  if (!(await confirmAction({ title: t("Konto löschen? Wir schicken dir zuerst eine E-Mail zur Bestätigung."), okLabel: t("E-Mail schicken") }))) return;
   try {
-    clearTimeout(saveOnline.timer);
-    saveOnline.pending = false;
-    await api("/account", { method: "DELETE", body: { password } });
-    forgetLogin();
-    location.replace("login.html?deleted");
+    const result = await api("/account", { method: "DELETE", body: { password } });
+    $("deletePassword").value = "";
+    $("deleteSent").textContent = t(result.message);
+    $("deleteSent").hidden = false;
+    notify(result.message);
   } catch (error) {
     $("deletePassword").value = "";
     notify(error.message);
@@ -2289,6 +2311,8 @@ const actions = {
   arrange: toggleArranging,
   "reset-layout": resetLayout,
   "start-tour": startTour,
+  "show-comparison": showComparison,
+  "close-comparison": () => $("comparisonDialog").close(),
   "new-entry": openNewEntry,
   "toggle-recurring-payment": toggleRecurringPayment,
   "toggle-theme": toggleTheme,

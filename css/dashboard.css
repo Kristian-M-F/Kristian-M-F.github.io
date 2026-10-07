@@ -123,6 +123,10 @@
   background: var(--spending);
 }
 
+.saving-dot {
+  background: var(--saved);
+}
+
 .compare-row {
   padding: 14px 0;
   border-bottom: 1px solid var(--line);
@@ -135,8 +139,9 @@
 }
 
 .compare-values {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  white-space: nowrap;
   gap: 10px;
   font-size: 14px;
   font-variant-numeric: tabular-nums;
@@ -149,6 +154,12 @@
 
 .spent-value {
   color: var(--spending-text);
+  text-align: center;
+}
+
+.saved-value {
+  color: var(--saved);
+  text-align: right;
 }
 
 .compare-track {
@@ -171,6 +182,34 @@
 
 .compare-track.spent span {
   background: var(--spending);
+}
+
+.compare-track.saved span {
+  background: var(--saved);
+}
+
+.compare-all {
+  width: 100%;
+  margin-top: 14px;
+}
+
+/* Pop-up with every pay month since the start of the apprenticeship */
+.comparison-dialog {
+  width: min(560px, calc(100vw - 32px));
+}
+
+.comparison-dialog .chart-legend {
+  margin: 10px 0 4px;
+}
+
+.comparison-all {
+  max-height: min(60vh, 520px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.comparison-all .compare-row:last-child {
+  border-bottom: 0;
 }
 
 .category-row {

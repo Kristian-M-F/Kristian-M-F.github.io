@@ -15,8 +15,7 @@ body.setup-open .app {
   position: fixed;
   inset: 0;
   z-index: 900;
-  display: grid;
-  place-items: center;
+  display: flex;
   overflow-y: auto;
   padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
   background: var(--backdrop);
@@ -26,7 +25,9 @@ body.setup-open .app {
   display: none;
 }
 
+/* margin: auto centres the card; a card taller than the screen starts at the top and scrolls */
 .setup-card {
+  margin: auto;
   width: min(560px, 100%);
   padding: 26px 26px 20px;
   border: 1px solid var(--line);
@@ -268,10 +269,6 @@ body.setup-open .app {
 }
 
 @media (max-width: 560px) {
-  .setup {
-    place-items: start center;
-  }
-
   .setup-card {
     padding: 20px 18px 16px;
     border-radius: 16px;

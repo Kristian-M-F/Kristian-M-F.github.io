@@ -46,6 +46,20 @@
       </form>
     </dialog>
 
+    <!-- Wage, expenses and savings of every pay month since the start (renderComparisonDialog in app.js) -->
+    <dialog id="comparisonDialog" class="app-dialog comparison-dialog" aria-labelledby="comparisonDialogTitle">
+      <h2 id="comparisonDialogTitle">Lohn, Ausgaben und Sparen seit Lehrbeginn</h2>
+      <div class="chart-legend">
+        <span><i class="income-dot"></i>Lohn + Pauschalen</span>
+        <span><i class="spending-dot"></i>Ausgaben</span>
+        <span><i class="saving-dot"></i>Gespart</span>
+      </div>
+      <div id="comparisonAll" class="comparison-all"></div>
+      <div class="dialog-buttons">
+        <button type="button" class="primary" data-action="close-comparison">Schliessen</button>
+      </div>
+    </dialog>
+
     <!-- Start dialog "Which pay month do you want to open?" (css/month-entry.css) -->
     <section id="monthEntry" class="month-entry" aria-labelledby="entryTitle" hidden>
       <form class="card" id="monthEntryForm">
@@ -250,12 +264,14 @@
                     </div>
                     <div>
                       <h3 class="group-title">Lohn und Ausgaben</h3>
-                      <p class="note">Letzte sechs Lohnmonate</p>
+                      <p class="note">Letzte drei Lohnmonate</p>
                       <div class="chart-legend">
                         <span><i class="income-dot"></i>Lohn + Pauschalen</span>
                         <span><i class="spending-dot"></i>Ausgaben</span>
+                        <span><i class="saving-dot"></i>Gespart</span>
                       </div>
                       <div id="comparisonChart"></div>
+                      <button type="button" class="secondary compare-all" data-action="show-comparison">Seit Lehrbeginn</button>
                     </div>
                   </div>
                   <div class="two section">
@@ -761,8 +777,10 @@
                 <label for="deletePassword">Konto löschen – zur Bestätigung Passwort eingeben</label>
                 <input id="deletePassword" type="password" autocomplete="current-password" maxlength="100" />
               </div>
-              <button class="danger delete-account" data-action="delete-account">Konto endgültig löschen</button>
+              <button class="danger delete-account" data-action="delete-account">Konto löschen</button>
             </div>
+            <p class="note">Zur Sicherheit bekommst du zuerst eine E-Mail. Gelöscht wird erst, wenn du den Link darin bestätigst.</p>
+            <p class="delete-sent" id="deleteSent" role="status" hidden></p>
             </div>
           </details>
 

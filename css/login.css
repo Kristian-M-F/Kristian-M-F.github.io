@@ -466,3 +466,28 @@ a {
     margin: -14px -6px;
   }
 }
+
+/* Confirming the account deletion from the email link (login.html?delete=…) */
+.delete-confirm {
+  display: grid;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.delete-confirm .note {
+  margin: 0;
+}
+
+.danger-fill {
+  width: 100%;
+  background: var(--red);
+  color: var(--on-dark);
+}
+
+.primary.danger-fill:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--red) 85%, #000);
+}
+
+.delete-confirm .auth-back {
+  justify-self: center;
+}

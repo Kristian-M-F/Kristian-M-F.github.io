@@ -67,11 +67,22 @@ test("all data can be downloaded", async ({ page, request }) => {
   expect(content).toContain(email);
 });
 
-test("the account can be deleted with the password", async ({ page, request }) => {
+test("deleting the account needs the password and the link from the email", async ({ page, request }) => {
   const { email } = await openApp(page, request);
   await openPrivacySection(page);
   await page.fill("#deletePassword", PASSWORD);
   await page.click('[data-action="delete-account"]');
+
+  // Only an email is sent; the account still exists.
+  await expect(page.locator("#deleteSent")).toContainText("E-Mail");
+  await expect(page).toHaveURL(/app\.html/);
+  const link = await linkFromMail(request, email, "delete");
+
+  // The link asks once more before anything is deleted.
+  await page.goto(link);
+  await expect(page.locator("#deleteConfirm")).toBeVisible();
+  await expect(page.locator("#authForm")).toBeHidden();
+  await page.click("#deleteConfirmBtn");
   await page.waitForURL("**/login.html*");
   await expect(page.locator("#authNotice")).toContainText("gelöscht");
 
@@ -79,4 +90,9 @@ test("the account can be deleted with the password", async ({ page, request }) =
   await page.fill("#password", PASSWORD);
   await page.click("#submitBtn");
   await expect(page.locator("#authError")).toHaveText("E-Mail oder Passwort falsch");
+
+  // A used link does not work again.
+  await page.goto(link);
+  await page.click("#deleteConfirmBtn");
+  await expect(page.locator("#authError")).toContainText("ungültig");
 });

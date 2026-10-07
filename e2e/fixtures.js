@@ -110,11 +110,13 @@ async function logIn(page, { email, password = PASSWORD }) {
  * no allowances and no subscriptions.
  */
 async function completeSetup(page, answers = {}) {
-  const { years = 4, payday = 25, thirteenth = "none", wage = 1000 } = answers;
+  const { years = 4, payday = 25, thirteenth = "none", wage = 1000, startYear = null } = answers;
   const setup = page.locator("#setup");
   const next = page.locator("#setupNext");
   await base.expect(setup).toBeVisible();
-  await next.click(); // start of the apprenticeship: keep August of this year
+  // Start of the apprenticeship: August of this year unless another year is given
+  if (startYear) await setup.locator('[data-answer="startYear"]').selectOption(String(startYear));
+  await next.click();
   await setup.locator(`[data-choice="years"][data-value="${years}"]`).click();
   await next.click();
   await setup.locator(`[data-choice="payday"][data-value="${payday}"]`).click();

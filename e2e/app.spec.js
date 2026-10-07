@@ -234,3 +234,21 @@ test("another pay month can be chosen", async ({ page, request }) => {
   await expect(page.locator("#financeApp")).toBeVisible();
   await expect(page.locator("#activeMonthLabel")).not.toHaveText(label);
 });
+
+test("the dashboard compares wage, expenses and savings; all months open in a pop-up", async ({ page, request }) => {
+  await openApp(page, request, { setup: { startYear: new Date().getFullYear() - 1 } });
+  await page.locator("#dashboard details", { hasText: "Statistik seit Lehrbeginn" }).locator("summary").click();
+
+  // Last three pay months, each with wage, expenses and savings
+  const rows = page.locator("#comparisonChart .compare-row");
+  await expect(rows).toHaveCount(3);
+  await expect(rows.first().locator(".saved-value")).toBeVisible();
+  await expect(rows.first().locator(".compare-track.saved")).toHaveCount(1);
+
+  // "Seit Lehrbeginn": every pay month in a pop-up
+  await page.click('[data-action="show-comparison"]');
+  await expect(page.locator("#comparisonDialog")).toBeVisible();
+  expect(await page.locator("#comparisonAll .compare-row").count()).toBeGreaterThan(3);
+  await page.click('[data-action="close-comparison"]');
+  await expect(page.locator("#comparisonDialog")).toBeHidden();
+});

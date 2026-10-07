@@ -42,7 +42,7 @@ for (const [language, expected] of Object.entries(LANGUAGES)) {
     test.use({ language });
 
     test("public pages are fully translated", async ({ page }) => {
-      for (const path of ["/", "/login.html", "/login.html?register", "/login.html?forgot", "/datenschutz.html", "/kontakt.html", "/impressum.html", "/nutzungsbedingungen.html"]) {
+      for (const path of ["/", "/login.html", "/login.html?register", "/login.html?forgot", "/login.html?delete=x", "/datenschutz.html", "/kontakt.html", "/impressum.html", "/nutzungsbedingungen.html"]) {
         await page.goto(path);
         await expect(page.locator("html")).toHaveAttribute("lang", language);
         expect(await untranslatedTexts(page), path).toEqual([]);

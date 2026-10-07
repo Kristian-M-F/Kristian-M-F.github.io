@@ -656,3 +656,268 @@
     font-size: 11px;
   }
 }
+
+/* Compact phone layout: tidy header, smaller headings and cards, more side by side */
+
+@media (max-width: 760px) {
+  /* Header: logo left, month in the middle, menu right – with even margins (also beside a notch) */
+  .sidebar {
+    padding: env(safe-area-inset-top) max(14px, env(safe-area-inset-right)) 0 max(14px, env(safe-area-inset-left));
+    border-bottom: 1px solid var(--nav-line);
+  }
+
+  .sidebar-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    min-height: 56px;
+  }
+
+  .sidebar-top .logo {
+    justify-self: start;
+    min-width: 0;
+    gap: 8px;
+    font-size: 17px;
+    white-space: nowrap;
+  }
+
+  .sidebar-top .logo-mark {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+  }
+
+  .mobile-month {
+    justify-self: center;
+    margin-left: 0;
+    min-height: 36px;
+    padding: 6px 14px;
+    font-size: 13px;
+  }
+
+  .sidebar .burger {
+    justify-self: end;
+    margin-right: -6px;
+  }
+
+  /* Page head: smaller title, "Anordnen" as a small button beside it */
+  .content {
+    padding-top: 16px;
+  }
+
+  .head {
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .head h1 {
+    font-size: 23px;
+    line-height: 1.2;
+  }
+
+  .head p {
+    margin-top: 3px;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .head:has(.arrange-toggle) > div:first-child {
+    padding-right: 96px;
+  }
+
+  .head .arrange-toggle {
+    min-height: 34px;
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .blocks {
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .card {
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .card.fold {
+    padding: 12px 14px;
+  }
+
+  /* Dashboard: "Noch verfügbar" more compact */
+  .hero-period {
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+
+  .hero-label {
+    font-size: 14px;
+  }
+
+  .hero-amount {
+    margin: 0 0 10px;
+    font-size: 34px;
+  }
+
+  .hero-progress {
+    height: 8px;
+  }
+
+  .available-hero > .note {
+    font-size: 13px;
+  }
+
+  .summary-row {
+    padding: 9px 0;
+    font-size: 15px;
+  }
+
+  /* Accounts side by side (two per row); while arranging they use the full width */
+  .blocks[data-sortable="dashboard"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .blocks[data-sortable="dashboard"] > .block {
+    grid-column: 1 / -1;
+  }
+
+  .blocks[data-sortable="dashboard"]:not(.arranging) > .block[data-block^="account-"] {
+    grid-column: auto;
+  }
+
+  .account-card {
+    gap: 2px;
+    height: 100%;
+    padding: 10px 12px;
+    border-radius: 14px;
+  }
+
+  .account-card .account-type {
+    font-size: 11px;
+    line-height: 1.3;
+  }
+
+  .account-card b {
+    font-size: 13px;
+  }
+
+  .account-card strong {
+    font-size: clamp(15px, 4.4vw, 18px);
+  }
+
+  .upcoming li {
+    gap: 10px;
+    padding: 8px 0;
+  }
+
+  .compare-values {
+    font-size: 13px;
+  }
+
+  .compare-row {
+    padding: 10px 0;
+  }
+
+  /* Month page: smaller key figures */
+  .grid4,
+  .grid3 {
+    gap: 8px;
+  }
+
+  .kpi {
+    padding: 10px 12px;
+  }
+
+  .kpi strong {
+    font-size: clamp(15px, 4.4vw, 19px);
+  }
+
+  .kpi .label,
+  .kpi .sub {
+    font-size: 11px;
+  }
+
+  table.compact-list tr {
+    padding: 9px 0;
+  }
+
+  table.compact-list td.ledger-description,
+  table.compact-list td.item-name,
+  table.compact-list td.money {
+    font-size: 14px;
+  }
+
+  /* Settings: wage per apprentice year as one compact row each (labels only on the first row) */
+  table.year-table tr {
+    grid-template-columns: 74px minmax(0, 1fr) minmax(0, 1fr);
+    gap: 4px 8px;
+    margin: 0;
+    padding: 6px 0;
+    border: 0;
+    border-radius: 0;
+  }
+
+  table.year-table td:first-child {
+    grid-column: auto;
+    align-self: end;
+    justify-content: center;
+    min-height: 42px;
+    font-size: 12px;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  table.year-table tr:not(:first-child) td::before {
+    display: none;
+  }
+
+  table.year-table td.computed {
+    grid-column: 2 / -1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0 8px;
+    font-size: 12px;
+  }
+
+  table.year-table tr td.computed::before {
+    display: block;
+  }
+
+  .allowance {
+    padding: 10px 12px;
+  }
+
+  /* Forms and fields a little tighter (fields stay 16px, otherwise iPhones zoom in) */
+  .row {
+    gap: 10px;
+  }
+
+  .field {
+    gap: 4px;
+  }
+
+  .field label {
+    font-size: 13px;
+  }
+
+  input,
+  select {
+    min-height: 42px;
+    padding: 8px 10px;
+  }
+
+  .primary,
+  .secondary {
+    padding: 10px 14px;
+  }
+}
+
+/* Phones: logo only, so the month fits exactly in the middle */
+@media (max-width: 480px) {
+  .sidebar-top .logo > span {
+    display: none;
+  }
+}

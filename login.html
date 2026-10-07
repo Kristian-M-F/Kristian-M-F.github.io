@@ -62,6 +62,16 @@
           <h2 id="authTitle">Willkommen zurück</h2>
           <p class="note auth-subtitle" id="authSubtitle">Melde dich mit deiner E-Mail-Adresse an.</p>
 
+          <!-- Link from the "delete account" email (?delete=…): deleted only after this click -->
+          <div id="deleteConfirm" class="delete-confirm" hidden>
+            <p class="note">
+              Dabei werden dein Konto und alle deine Daten (Einträge, Einstellungen, Login-Protokoll) endgültig
+              gelöscht. Das kann nicht rückgängig gemacht werden.
+            </p>
+            <button type="button" class="primary danger-fill" id="deleteConfirmBtn">Konto endgültig löschen</button>
+            <a class="link-button auth-back" href="app.html">Abbrechen und behalten</a>
+          </div>
+
           <form id="authForm" novalidate>
             <div class="field" data-show="register">
               <label for="username">Benutzername</label>

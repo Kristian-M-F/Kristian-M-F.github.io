@@ -323,6 +323,11 @@ async function handleUrlParameters() {
     return true;
   }
 
+  if (params.has("delete")) {
+    showDeleteConfirm(params.get("delete"));
+    return true;
+  }
+
   for (const [param, path] of [["verify", "/auth/verify-email"], ["email", "/auth/confirm-email"]]) {
     if (!params.has(param)) continue;
     try {
@@ -333,6 +338,32 @@ async function handleUrlParameters() {
     }
   }
   return true;
+}
+
+// Link from the deletion email: asks once more; mail programs that open links to check them
+// therefore cannot delete the account by themselves.
+function showDeleteConfirm(token) {
+  form.hidden = true;
+  document.querySelector(".auth-tabs").hidden = true;
+  $("authTitle").textContent = t("Konto endgültig löschen?");
+  $("authSubtitle").hidden = true;
+  $("deleteConfirm").hidden = false;
+  $("deleteConfirmBtn").addEventListener("click", async () => {
+    $("deleteConfirmBtn").disabled = true;
+    try {
+      await api("/auth/confirm-delete", { method: "POST", body: { token }, redirectOn401: false });
+      forgetLogin();
+      location.replace("login.html?deleted");
+    } catch (error) {
+      // e.g. expired link: back to the normal login with the error
+      $("deleteConfirm").hidden = true;
+      $("authSubtitle").hidden = false;
+      document.querySelector(".auth-tabs").hidden = false;
+      form.hidden = false;
+      setMode("login");
+      showError(error.message);
+    }
+  });
 }
 
 document.querySelectorAll("[data-mode]").forEach((button) =>

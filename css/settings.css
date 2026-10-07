@@ -112,6 +112,15 @@
   font-weight: 650;
 }
 
+.delete-sent {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: var(--good-soft);
+  color: var(--green);
+  font-size: 14px;
+}
+
 /* Allowances */
 
 .allowance-list {
