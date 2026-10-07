@@ -12,13 +12,14 @@ test("allowances can be switched on, filled in, set to yearly, added and removed
   await openApp(page, request);
   await openTab(page, "pay");
 
-  // Public transport is on by default: 200 per month, 50 of it saved.
+  // The setup was answered with "no allowances": switch public transport on, 200 per month, 50 of it saved.
+  await page.check('[data-allowance-toggle="transport"]');
   await page.fill("#al-transport-amounts-0", "200");
   await page.locator("#al-transport-amounts-0").blur();
   await page.fill("#al-transport-save-0", "50");
   await page.locator("#al-transport-save-0").blur();
   await goTo(page, "month");
-  await expect.poll(async () => chf(await page.locator("#mIncome").textContent())).toBe(200);
+  await expect.poll(async () => chf(await page.locator("#mIncome").textContent())).toBe(1200); // wage 1000 + 200
   await expect.poll(async () => chf(await page.locator("#mSaved").textContent())).toBe(50);
 
   // Yearly: paid only with the first wage of the apprenticeship year (August), not in this month.
@@ -26,7 +27,7 @@ test("allowances can be switched on, filled in, set to yearly, added and removed
   await page.selectOption('[data-allowance-per="transport"]', "year");
   await expect(page.locator(".allowance", { hasText: "ÖV" })).toContainText("CHF pro Jahr");
   await goTo(page, "month");
-  await expect.poll(async () => chf(await page.locator("#mIncome").textContent())).toBe(0);
+  await expect.poll(async () => chf(await page.locator("#mIncome").textContent())).toBe(1000);
 
   await openTab(page, "pay");
   await page.check('[data-allowance-toggle="food"]');
@@ -88,13 +89,12 @@ test("categories can be added, renamed and removed", async ({ page, request }) =
   await expect(page.locator('[data-list-items="payments"]')).toContainText("Kreditkarte");
 });
 
-test("new accounts start with public transport (on) and the meal allowance (off) only", async ({ page, request }) => {
+test("new accounts list public transport and the meal allowance; both off after answering \"no allowances\"", async ({ page, request }) => {
   await openApp(page, request);
   await openTab(page, "pay");
   await expect(page.locator(".allowance")).toHaveCount(2);
-  await expect(page.locator('[data-allowance-toggle="transport"]')).toBeChecked();
+  await expect(page.locator('[data-allowance-toggle="transport"]')).not.toBeChecked();
   await expect(page.locator('[data-allowance-toggle="food"]')).not.toBeChecked();
-  await expect(page.locator('[data-allowance-per="transport"]')).toHaveValue("month");
 });
 
 test("the 13th-month salary per year is calculated", async ({ page, request }) => {

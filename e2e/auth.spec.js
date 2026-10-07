@@ -1,5 +1,5 @@
 // Registration, email confirmation, login, password rules, forgotten password, logout.
-const { test, expect, PASSWORD, uniqueEmail, mailsTo, linkFromMail, register, verifyEmail, logIn, createUser, skipTour } =
+const { test, expect, PASSWORD, uniqueEmail, mailsTo, linkFromMail, register, verifyEmail, logIn, createUser, completeSetup, skipTour } =
   require("./fixtures");
 
 test("password rules are shown and ticked while typing", async ({ page }) => {
@@ -57,6 +57,7 @@ test("register, confirm the email and log in", async ({ page, request }) => {
   await verifyEmail(page, request, email);
   await expect(page.locator("#authNotice")).toContainText("bestätigt");
   await logIn(page, { email });
+  await completeSetup(page);
   await skipTour(page);
   await expect(page.locator("#accountName")).toHaveText("Lea");
 });

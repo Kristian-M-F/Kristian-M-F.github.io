@@ -1,0 +1,297 @@
+/* First-time setup for new accounts (js/setup.js).
+   The app behind it is blurred and cannot be used until the questions are answered. */
+
+body.setup-open {
+  overflow: hidden;
+}
+
+body.setup-open .app {
+  filter: blur(9px) saturate(0.7);
+  pointer-events: none;
+  user-select: none;
+}
+
+.setup {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: grid;
+  place-items: center;
+  overflow-y: auto;
+  padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+  background: var(--backdrop);
+}
+
+.setup[hidden] {
+  display: none;
+}
+
+.setup-card {
+  width: min(560px, 100%);
+  padding: 26px 26px 20px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: var(--shadow-dialog);
+}
+
+.setup-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.setup-brand {
+  color: var(--brand-text);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+}
+
+.setup-progress {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.setup-track {
+  height: 6px;
+  margin: 12px 0 22px;
+  border-radius: 99px;
+  background: var(--track);
+  overflow: hidden;
+}
+
+.setup-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--brand);
+  transition: width 0.3s ease;
+}
+
+.setup-card h1 {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.25;
+  outline: none;
+}
+
+.setup-card > .note {
+  margin: 8px 0 0;
+}
+
+.setup-card > .note:empty {
+  display: none;
+}
+
+.setup-body {
+  display: grid;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+/* Answer buttons: a pressed one is the chosen answer */
+.setup-choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.setup-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+  min-height: 56px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: var(--field);
+  color: var(--ink);
+  text-align: left;
+}
+
+.setup-choice:hover:not(:disabled) {
+  border-color: var(--line-strong);
+}
+
+.setup-choice small {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.setup-choice[aria-checked="true"] {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+  box-shadow: inset 0 0 0 1px var(--brand);
+}
+
+.setup-choice[aria-checked="true"] small {
+  color: var(--brand-text);
+}
+
+.setup-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.setup-body .field > span:first-child {
+  color: var(--label);
+  font-size: 14px;
+}
+
+.setup-other {
+  max-width: 220px;
+}
+
+.setup-wages {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+/* Amount field with "CHF" at the right */
+.setup-money {
+  position: relative;
+  display: block;
+  flex: 1;
+  min-width: 140px;
+}
+
+.setup-money input {
+  padding-right: 48px;
+}
+
+.setup-money small {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 13px;
+  pointer-events: none;
+}
+
+.setup-row > select {
+  flex: 0 1 150px;
+  min-width: 130px;
+}
+
+.setup-allowances,
+.setup-orders {
+  display: grid;
+  gap: 10px;
+}
+
+.setup-allowance,
+.setup-order {
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.setup-allowance.on {
+  border-color: var(--brand);
+}
+
+.setup-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+  cursor: pointer;
+}
+
+.setup-check input {
+  width: 20px;
+  min-height: 20px;
+  height: 20px;
+  accent-color: var(--brand);
+}
+
+.setup-remove {
+  align-self: flex-end;
+}
+
+.setup-orders > .secondary {
+  justify-self: start;
+}
+
+.setup-summary {
+  display: grid;
+  margin: 0;
+  border-top: 1px solid var(--line);
+}
+
+.setup-summary div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.setup-summary dt {
+  color: var(--label);
+}
+
+.setup-summary dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+}
+
+.setup-error {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--warn-soft);
+  color: var(--warn-text);
+  font-size: 14px;
+}
+
+.setup-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.setup-buttons .primary {
+  margin-left: auto;
+  min-width: 130px;
+}
+
+@media (max-width: 560px) {
+  .setup {
+    place-items: start center;
+  }
+
+  .setup-card {
+    padding: 20px 18px 16px;
+    border-radius: 16px;
+  }
+
+  .setup-card h1 {
+    font-size: 21px;
+  }
+
+  .setup-other {
+    max-width: none;
+  }
+
+  .setup-buttons .primary {
+    min-width: 110px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .setup-track span {
+    transition: none;
+  }
+}

@@ -71,6 +71,39 @@ for (const [language, expected] of Object.entries(LANGUAGES)) {
       await page.fill("#password", PASSWORD);
       await page.click("#submitBtn");
       await page.waitForURL("**/app.html");
+
+      // First-time setup: every question is translated (with allowances and a subscription).
+      const setup = page.locator("#setup");
+      const check = async (name) => expect(await untranslatedTexts(page), name).toEqual([]);
+      await expect(setup).toBeVisible();
+      await check("setup start");
+      await page.click("#setupNext");
+      await setup.locator('[data-choice="years"][data-value="3"]').click();
+      await check("setup years");
+      await page.click("#setupNext");
+      await setup.locator('[data-choice="payday"][data-value="25"]').click();
+      await check("setup payday");
+      await page.click("#setupNext");
+      await setup.locator('[data-choice="thirteenth"][data-value="spread"]').click();
+      await check("setup 13th");
+      await page.click("#setupNext");
+      for (const i of [0, 1, 2]) await setup.locator(`[data-wage="${i}"]`).fill("900");
+      await check("setup wages");
+      await page.click("#setupNext");
+      await setup.locator('[data-choice="allowances"][data-value="yes"]').click();
+      await setup.locator('[data-allowance-on="0"]').check();
+      await setup.locator('[data-allowance-amount="0"]').fill("120");
+      await check("setup allowances");
+      await page.click("#setupNext");
+      await setup.locator('[data-setup="add-order"]').click();
+      await setup.locator('[data-order="0"][data-key="name"]').fill("Netflix");
+      await setup.locator('[data-order="0"][data-key="amount"]').fill("12");
+      await check("setup subscriptions");
+      await page.click("#setupNext");
+      await check("setup summary");
+      await page.click("#setupNext");
+      await expect(setup).toBeHidden();
+
       expect(await untranslatedTexts(page)).toEqual([]); // with the tour
       await skipTour(page);
 

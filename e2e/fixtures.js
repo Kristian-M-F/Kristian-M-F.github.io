@@ -104,12 +104,40 @@ async function logIn(page, { email, password = PASSWORD }) {
   await base.expect(page.locator("#financeApp")).toBeVisible();
 }
 
-/** Registers, confirms the email and logs in. The app is open afterwards (tour still showing). */
+/**
+ * Answers the first-time setup of a new account like a person would.
+ * Defaults: 4-year apprenticeship, paid on the 25th, no 13th salary, CHF 1000 every year,
+ * no allowances and no subscriptions.
+ */
+async function completeSetup(page, answers = {}) {
+  const { years = 4, payday = 25, thirteenth = "none", wage = 1000 } = answers;
+  const setup = page.locator("#setup");
+  const next = page.locator("#setupNext");
+  await base.expect(setup).toBeVisible();
+  await next.click(); // start of the apprenticeship: keep August of this year
+  await setup.locator(`[data-choice="years"][data-value="${years}"]`).click();
+  await next.click();
+  await setup.locator(`[data-choice="payday"][data-value="${payday}"]`).click();
+  await next.click();
+  await setup.locator(`[data-choice="thirteenth"][data-value="${thirteenth}"]`).click();
+  await next.click();
+  for (let i = 0; i < years; i++) await setup.locator(`[data-wage="${i}"]`).fill(String(wage));
+  await next.click();
+  await setup.locator('[data-choice="allowances"][data-value="no"]').click();
+  await next.click();
+  await page.locator("#setupSkip").click(); // subscriptions
+  await next.click(); // summary: "Los geht's"
+  await base.expect(setup).toBeHidden();
+}
+
+/** Registers, confirms the email, logs in and answers the setup. The tour is still showing afterwards. */
 async function createUser(page, request, options = {}) {
-  const user = { email: uniqueEmail(options.prefix), password: PASSWORD, username: "Lea", ...options };
+  const { setup = true, ...rest } = options;
+  const user = { email: uniqueEmail(rest.prefix), password: PASSWORD, username: "Lea", ...rest };
   await register(page, user);
   await verifyEmail(page, request, user.email);
   await logIn(page, user);
+  if (setup) await completeSetup(page, setup === true ? {} : setup);
   return user;
 }
 
@@ -150,6 +178,7 @@ module.exports = {
   verifyEmail,
   logIn,
   createUser,
+  completeSetup,
   skipTour,
   openApp,
   goTo,

@@ -23,13 +23,15 @@ Kristian-M-F.github.io/
 │   ├── settings.css        Seite Einstellungen
 │   ├── themes.css          Darstellung: Farben, dunkler Modus, grosse Schrift
 │   ├── tour.css            Geführte Tour durch die App
+│   ├── setup.css           Einrichtung für neue Konten (Fragen beim ersten Login)
 │   ├── responsive.css      Handy/Tablet in der App (wird zuletzt geladen)
 │   ├── landing.css         Startseite
 │   ├── login.css           Login, Datenschutz, Impressum, Nutzungsbedingungen, Kontakt
 │   └── contact.css         Kontaktformular
 ├── js/
 │   ├── app.js              Logik von Finance OS (Konten, Lohn, Pauschalen, Einträge …)
-│   ├── tour.js             Geführte Tour (startet nach dem ersten Login)
+│   ├── setup.js            Einrichtung für neue Konten: Lehre, Lohn, 13. Monatslohn, Pauschalen, Abos
+│   ├── tour.js             Geführte Tour (startet nach der Einrichtung)
 │   ├── login.js            Login-Seite inkl. Passwort-Regeln
 │   ├── contact.js          Kontaktformular prüfen und senden
 │   ├── landing.js          Animationen der Startseite
@@ -46,6 +48,7 @@ Kristian-M-F.github.io/
 │   ├── serve.js            Kleiner Webserver für die Tests (Port 5510)
 │   ├── landing.spec.js     Startseite, Sprachen, Hell/Dunkel
 │   ├── auth.spec.js        Registrieren, Bestätigen, Login, Passwort-Regeln, Passwort vergessen
+│   ├── setup.spec.js       Einrichtung für neue Konten
 │   ├── tour.spec.js        Geführte Tour
 │   ├── app.spec.js         Einträge, Sparen, Daueraufträge, Monat wechseln
 │   ├── settings.spec.js    Pauschalen, Konten, Kategorien, Darstellung
@@ -81,9 +84,17 @@ Deutsch ist die Grundsprache. Jeder deutsche Text hat in `js/translations.js` ei
 Standard-Kategorien, Konten und Pauschalen wechseln die Sprache mit; selbst eingetippte Namen
 bleiben, wie sie sind. Die E-Mails des Backends kommen in der Sprache der Website.
 
+## Einrichtung für neue Konten
+
+Beim ersten Login erscheint ein Fenster mit Fragen (`js/setup.js`); die App dahinter ist verschwommen
+und nicht bedienbar. Pflicht: Lehrbeginn, Dauer der Lehre, Lohntag, 13. Monatslohn, Lohn pro Lehrjahr
+und Pauschalen. Überspringbar: Abos/feste Zahlungen. Die Antworten werden direkt in die Einstellungen
+und als Daueraufträge gespeichert (`applySetup` in `js/app.js`) und können dort jederzeit geändert werden.
+Konten, die schon einen Lohn eingetragen haben, sehen die Einrichtung nicht.
+
 ## Geführte Tour
 
-Startet nach dem ersten Login automatisch und kann unter *Einstellungen → Darstellung → Tour starten*
+Startet nach der Einrichtung automatisch und kann unter *Einstellungen → Darstellung → Tour starten*
 wiederholt werden. Die Schritte stehen oben in `js/tour.js` (Ziel-Element, Titel, Text).
 
 ## End-to-End-Tests

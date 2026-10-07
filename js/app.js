@@ -1844,6 +1844,56 @@ function toggleTheme() {
   save();
 }
 
+// First-time setup (js/setup.js): new accounts answer a few questions first; the answers are
+// written into the settings and standing orders. Accounts that already have a wage skip it.
+const needsSetup = () => !state.setupDone && !state.salaries.some((amount) => Number(amount) > 0);
+
+function openSetup() {
+  Setup.open({ categories: state.categories, onFinish: applySetup });
+}
+
+function applySetup(answers) {
+  const money = (value) => Math.round(Math.max(0, Number(String(value).replace(",", ".")) || 0) * 100) / 100;
+  const perYear = (value) => Array.from({ length: MAX_YEARS }, (_, i) => (i < answers.years ? money(value) : 0));
+
+  state.start = `${answers.startYear}-${pad2(answers.startMonth)}-01`;
+  state.years = answers.years;
+  state.payday = answers.payday;
+  state.thirteenth = answers.thirteenth;
+  state.salaries = Array.from({ length: MAX_YEARS }, (_, i) => (i < answers.years ? money(answers.wages[i]) : 0));
+
+  const wanted = answers.allowances === "yes";
+  for (const item of answers.allowanceItems) {
+    const allowance = state.allowances.find((entry) => entry.id === item.id);
+    if (!allowance) continue;
+    allowance.enabled = wanted && item.on;
+    if (allowance.enabled) Object.assign(allowance, { amounts: perYear(item.amount), per: item.per });
+  }
+  const own = answers.ownAllowance;
+  if (wanted && own.name.trim()) {
+    state.allowances.push({ ...newAllowance("p" + newId(), own.name.trim(), true), amounts: perYear(own.amount), per: own.per });
+  }
+
+  for (const order of answers.orders) {
+    state.recurring.push({
+      id: newId(),
+      kind: "expense",
+      name: order.name.trim(),
+      amount: money(order.amount),
+      interval: order.interval,
+      start: order.start,
+      end: "",
+      cat: order.cat,
+    });
+  }
+
+  state.setupDone = true;
+  setCurrentMonth(todaysMonth());
+  persist();
+  showPage("dashboard");
+  if (!state.tourDone) startTour();
+}
+
 // Guided tour (js/tour.js): shown once per account, can be restarted in the settings.
 function startTour() {
   const page = document.querySelector(".page.active")?.id;
@@ -2115,7 +2165,8 @@ function saveSettings() {
 
 async function resetAll() {
   if (!(await confirmAction({ title: t("Wirklich alle Finanzwerte und Einträge auf 0 zurücksetzen?"), okLabel: t("Zurücksetzen") }))) return;
-  state = { ...createEmptyData(), appearance: state.appearance, layout: state.layout }; // keep appearance and layout
+  // Keep appearance and layout; the first-time setup is not shown again.
+  state = { ...createEmptyData(), appearance: state.appearance, layout: state.layout, setupDone: true };
   editing = loadEditing();
   setCurrentMonth(initialMonth());
   $("entryKind").value = "expense";
@@ -2422,6 +2473,8 @@ async function start() {
   renderAppearance();
   render();
   if (appearance.startPage !== "dashboard") showPage(appearance.startPage);
+  if (needsSetup()) return openSetup();
+  if (!state.setupDone) state.setupDone = true; // accounts from before the setup existed
   save();
   if (!state.tourDone) startTour();
 }
