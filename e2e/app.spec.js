@@ -37,8 +37,13 @@ test("expenses, income and savings change the month and are saved", async ({ pag
   await expect.poll(async () => chf(await page.locator("#mSaved").textContent())).toBe(100);
   await expect.poll(async () => chf(await page.locator("#mAvail").textContent())).toBe(921.5);
 
-  // The savings account on the dashboard shows the transfer.
+  await expect(page.locator("#mIncomeSplit")).toContainText("000.00");
+  await expect(page.locator("#mIncomeSplit")).toContainText("40.00");
+
+  // The dashboard shows the same "available" first; the savings account shows the transfer.
   await goTo(page, "dashboard");
+  await expect.poll(async () => chf(await page.locator("#heroAmount").textContent())).toBe(921.5);
+  await expect(page.locator("#currentSummary")).toContainText("40.00");
   await expect(page.locator("#accountCards .saving").first()).toContainText("100.00");
 
   // Everything is stored on the server.
@@ -62,6 +67,27 @@ test("an entry can be edited and deleted", async ({ page, request }) => {
 
   await page.locator("#allExpenses tr", { hasText: "Pizza mit Freunden" }).locator('[data-action="delete-record"]').click();
   await expect(page.locator("#allExpenses")).not.toContainText("Pizza");
+});
+
+test("income has no payment method and says where the money goes", async ({ page, request }) => {
+  await openApp(page, request);
+  await goTo(page, "expenses");
+  await expect(page.locator("#exPay")).toBeVisible();
+  await page.selectOption("#entryKind", "income");
+  await expect(page.locator("#exPay")).toBeHidden();
+  await expect(page.locator("#entryHint")).toContainText("Verfügbar");
+  await page.selectOption("#entryKind", "saving");
+  await expect(page.locator("#exPay")).toBeHidden();
+});
+
+test("an entry in another pay month says where it was booked", async ({ page, request }) => {
+  await openApp(page, request);
+  await goTo(page, "expenses");
+  await page.fill("#exDate", "2030-01-15");
+  await page.fill("#exDesc", "Konzert");
+  await page.fill("#exAmount", "60");
+  await page.click("#expenseSave");
+  await expect(page.locator("#toast")).toContainText("15.01.2030");
 });
 
 test("a withdrawal cannot exceed the savings balance", async ({ page, request }) => {

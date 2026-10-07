@@ -46,6 +46,13 @@ const INTERVALS = {
   halfyearly: { label: t("Halbjährlich"), months: 6 },
   yearly: { label: t("Jährlich"), months: 12 },
 };
+// Shown under the entry form: what the chosen kind does with "available".
+const ENTRY_HINTS = {
+  expense: t("Wird vom Lohnkonto abgezogen und verringert „Verfügbar“."),
+  income: t("Kommt aufs Lohnkonto und erhöht „Verfügbar“ – zusätzlich zu Lohn und Pauschalen."),
+  saving: t("Geht vom Lohnkonto aufs Sparkonto und ist danach nicht mehr verfügbar."),
+  withdraw: t("Kommt vom Sparkonto zurück aufs Lohnkonto und erhöht „Verfügbar“."),
+};
 const RECURRING_KIND_LABELS = {
   expense: t("Ausgabe"),
   income: t("Einnahme"),
@@ -588,6 +595,14 @@ function countedMonths() {
   return monthList().filter(hasStarted);
 }
 
+// The pay month of today, or the nearest month of the apprenticeship.
+function todaysMonth() {
+  const months = monthList();
+  const thisMonth = payrollMonth(todayISO());
+  if (months.includes(thisMonth)) return thisMonth;
+  return thisMonth > months.at(-1) ? months.at(-1) : months[0];
+}
+
 function initialMonth() {
   const months = monthList();
   if (months.includes(state.currentMonth)) return state.currentMonth;
@@ -689,12 +704,19 @@ function monthSummary(month) {
   const extra = amount(state.extraSave);
   const total = (list) => sumBy(list, (item) => item.amount);
 
-  const income = salary + bonus + allowanceTotal + total(entriesIn(state.incomeEntries, month)) + total(dueRecurring(month, "income"));
+  // Wage, 13th-month salary and allowances arrive automatically on payday; further income
+  // (side job, gifts …) comes from entries and standing orders. Both go to the spending account.
+  const wageAndAllowances = salary + bonus + allowanceTotal;
+  const otherIncome = total(entriesIn(state.incomeEntries, month)) + total(dueRecurring(month, "income"));
+  const income = wageAndAllowances + otherIncome;
   const withdrawn = total(entriesIn(state.withdrawEntries, month));
   const saved =
     allowanceSave + extra + total(entriesIn(state.savingEntries, month)) + total(dueRecurring(month, "saving")) - withdrawn;
   const spent = total(entriesIn(state.expenses, month)) + total(dueRecurring(month, "expense"));
-  return { salary, bonus, allowances, allowanceSave, extra, withdrawn, income, saved, spent, available: income - saved - spent };
+  return {
+    salary, bonus, allowances, allowanceSave, extra, withdrawn, wageAndAllowances, otherIncome,
+    income, saved, spent, available: income - saved - spent,
+  };
 }
 
 function totals() {
@@ -709,13 +731,13 @@ function totals() {
   return total;
 }
 
-function categoryTotals() {
+function categoryTotals(months = countedMonths()) {
   const result = {};
   const add = (category, amount) => {
     const key = category || t("Sonstiges");
     result[key] = (result[key] || 0) + (Number(amount) || 0);
   };
-  for (const month of countedMonths()) {
+  for (const month of months.filter(hasStarted)) {
     entriesIn(state.expenses, month).forEach((entry) => add(entry.cat, entry.amount));
     dueRecurring(month, "expense").forEach((order) => add(order.cat, order.amount));
   }
@@ -855,8 +877,10 @@ function fillSelects() {
   const accountKind = (kind) => kind === "saving" || kind === "withdraw";
   $("exCatLabel").textContent = accountKind(entryKind) ? t("Sparkonto") : t("Kategorie");
   $("recCatLabel").textContent = accountKind(recKind) ? t("Sparkonto") : t("Kategorie");
-  // Transfers to and from savings have no payment method.
-  $("exPay").closest(".field").hidden = accountKind(entryKind);
+  // Only expenses have a payment method: income always goes to the spending account,
+  // transfers move money between the spending account and a savings account.
+  $("exPay").closest(".field").hidden = entryKind !== "expense";
+  $("entryHint").textContent = ENTRY_HINTS[entryKind] || "";
   fillSelect("exCat", choicesFor(entryKind), Boolean(editing.expenses));
   fillSelect("exPay", state.payments, Boolean(editing.expenses));
   fillSelect("recCat", choicesFor(recKind), Boolean(editing.recurring));
@@ -878,30 +902,79 @@ function yearCards() {
 }
 
 function renderDashboard() {
+  renderAvailableHero();
+  renderOnboarding();
+  renderAccountCards();
+  renderUpcoming();
+  $("monthCategoryChart").innerHTML = categoryChart(categoryTotals([currentMonth]), t("Noch keine Ausgaben in diesem Lohnmonat."));
+
+  // Statistics since the start of the apprenticeship (closed by default)
   const total = totals();
   $("dSaved").textContent = chf(total.saved);
   $("dIncome").textContent = chf(total.income);
   $("dSpent").textContent = chf(total.spent);
   $("dRate").textContent = percent(total.income ? (total.saved / total.income) * 100 : 0);
-
-  const summary = monthSummary(currentMonth);
-  const line = (label, amount) =>
-    `<div class="summary-row"><span class="note">${label}</span><b>${chf(amount)}</b></div>`;
-  $("currentSummary").innerHTML = `
-    ${line(t("Einnahmen"), summary.income)}
-    ${line(t("Sparen"), summary.saved)}
-    ${line(t("Ausgaben"), summary.spent)}
-    <div class="summary-row total">
-      <b>${t("Verfügbar")}</b>
-      <b class="${summary.available < 0 ? "bad" : "good"}">${chf(summary.available)}</b>
-    </div>`;
-
-  renderOnboarding();
-  renderAccountCards();
   renderSavingsChart();
   renderComparisonChart();
-  renderCategoryChart();
+  $("categoryChart").innerHTML = categoryChart(categoryTotals(), t("Noch keine Ausgaben."));
   $("yearCards").innerHTML = yearCards();
+}
+
+// The big number: what is left in the selected pay month, and how it comes about.
+function renderAvailableHero() {
+  const month = currentMonth;
+  const summary = monthSummary(month);
+  const { end } = period(month);
+  const today = todayISO();
+  let status;
+  if (!hasStarted(month)) status = t("Beginnt am {date}", { date: formatDate(period(month).start) });
+  else if (today > end) status = t("Abgeschlossen");
+  else {
+    const days = Math.round((Date.parse(end) - Date.parse(today)) / 86400000) + 1;
+    status = days === 1 ? t("Noch 1 Tag bis zum nächsten Lohn") : t("Noch {n} Tage bis zum nächsten Lohn", { n: days });
+  }
+  $("heroPeriod").textContent = `${monthName(month)} · ${periodLabel(month)} · ${status}`;
+
+  $("heroAmount").textContent = chf(summary.available);
+  $("heroAmount").classList.toggle("bad", summary.available < 0);
+  const used = summary.income ? ((summary.saved + summary.spent) / summary.income) * 100 : 0;
+  $("heroBar").style.width = Math.min(100, Math.max(0, used)) + "%";
+  $("heroBar").classList.toggle("over", summary.available < 0);
+  $("heroUsed").textContent = summary.income
+    ? t("{percent} von {income} sind ausgegeben oder gespart.", { percent: percent(Math.max(0, used)), income: chf(summary.income) })
+    : t("Trage in den Einstellungen deinen Lohn ein, dann rechnet Finance OS aus, was verfügbar ist.");
+
+  const line = (sign, label, amount, always = false) =>
+    amount || always
+      ? `<div class="summary-row"><span><span class="sign" aria-hidden="true">${sign}</span>${label}</span><b>${chf(amount)}</b></div>`
+      : "";
+  $("currentSummary").innerHTML = `
+    ${line("+", t("Lohn + Pauschalen"), summary.wageAndAllowances, true)}
+    ${line("+", t("Weitere Einnahmen"), summary.otherIncome)}
+    ${line("−", t("Ausgaben"), summary.spent, true)}
+    ${line("−", t("Gespart"), summary.saved, true)}`;
+}
+
+// Standing orders that are still to come in the selected pay month.
+function renderUpcoming() {
+  const today = todayISO();
+  const upcoming = plannedRecurring(currentMonth)
+    .filter((payment) => payment.date > today)
+    .sort((a, b) => a.date.localeCompare(b.date));
+  $("upcomingRows").innerHTML = upcoming.length
+    ? upcoming
+        .map(({ order, date }) => {
+          const { sign, className } = AMOUNT_STYLES[order.kind] || AMOUNT_STYLES.expense;
+          return `<li>
+            <span class="upcoming-date">${formatDate(date).slice(0, 6)}</span>
+            <span class="upcoming-name">${escapeHTML(order.name)}</span>
+            <span class="money ${className}">${sign} ${chf(order.amount)}</span>
+          </li>`;
+        })
+        .join("")
+    : `<li><span class="empty">${t("Keine Daueraufträge mehr bis zum nächsten Lohn.")}</span></li>`;
+  const counter = document.querySelector('[data-count-for="upcomingRows"]');
+  if (counter) counter.textContent = upcoming.length || "";
 }
 
 // "First steps" card for new accounts; disappears once every step is done.
@@ -955,13 +1028,13 @@ function renderComparisonChart() {
     : `<div class="empty">${t("Noch keine Monate erfasst.")}</div>`;
 }
 
-function renderCategoryChart() {
-  const categories = Object.entries(categoryTotals())
+function categoryChart(totalsByCategory, emptyText) {
+  const categories = Object.entries(totalsByCategory)
     .filter(([, value]) => value > 0)
     .sort((a, b) => b[1] - a[1]);
   const total = sumBy(categories, ([, value]) => value);
 
-  $("categoryChart").innerHTML = categories.length
+  return categories.length
     ? categories
         .map(([label, value]) => {
           const share = (value / total) * 100;
@@ -972,7 +1045,7 @@ function renderCategoryChart() {
           </div>`;
         })
         .join("")
-    : `<div class="empty">${t("Noch keine Ausgaben.")}</div>`;
+    : `<div class="empty">${emptyText}</div>`;
 }
 
 function renderMonthPage() {
@@ -989,6 +1062,9 @@ function renderMonthPage() {
 
   const availableClass = summary.available < 0 ? "bad" : "good";
   $("mIncome").textContent = chf(summary.income);
+  $("mIncomeSplit").textContent = summary.otherIncome
+    ? t("Lohn + Pauschalen {wage} · weitere {other}", { wage: chf(summary.wageAndAllowances), other: chf(summary.otherIncome) })
+    : t("Lohn + Pauschalen");
   $("mSaved").textContent = chf(summary.saved);
   $("mSpent").textContent = chf(summary.spent);
   $("mAvail").textContent = chf(summary.available);
@@ -1061,7 +1137,7 @@ function renderEntryList() {
             <td>${formatDate(entry.date)}</td>
             ${descriptionCell(entry.desc, entry.kind === "expense" ? plannedLabel(entry.date) : KIND_LABELS[entry.kind] + plannedLabel(entry.date, " · "))}
             <td>${escapeHTML(entry.cat)}</td>
-            <td>${escapeHTML(entry.pay)}</td>
+            <td>${entry.kind === "expense" ? escapeHTML(entry.pay) : ""}</td>
             ${amountCell(entry.kind, entry.amount)}
             <td class="row-actions">${recordActions(entry.type, entry.id)}</td>
           </tr>`,
@@ -1213,6 +1289,7 @@ function renderAccountCards() {
         <span class="account-type">${spending ? t("Zum Ausgeben") : t("Gespart")}</span>
         <b translate="no">${escapeHTML(account.name)}</b>
         <strong class="${amount < 0 ? "bad" : ""}">${chf(amount)}</strong>
+        ${spending ? `<span class="account-type">${t("Stand heute, mit Rest aus früheren Monaten")}</span>` : ""}
       </div>`;
     })
     .join("");
@@ -1651,13 +1728,28 @@ function saveEntry() {
       });
     }
   }
-  saveRecord(ENTRY_TYPES[$("entryKind").value], {
+  const kind = $("entryKind").value;
+  saveRecord(ENTRY_TYPES[kind], {
     date,
     desc,
     cat: $("exCat").value,
-    pay: $("exPay").value,
+    pay: kind === "expense" ? $("exPay").value : "",
     amount,
   });
+  explainBooking(date);
+}
+
+// After saving: say so when the entry counts in another pay month or only from a later date,
+// otherwise it seems to be missing from "available".
+function explainBooking(date) {
+  if (date > todayISO()) {
+    notify("Gespeichert – zählt erst ab {date} (geplant).", { date: formatDate(date) });
+  } else if (payrollMonth(date) !== currentMonth) {
+    notify("Gespeichert im Lohnmonat {month} – der gewählte Monat ist {current}.", {
+      month: monthName(payrollMonth(date)),
+      current: monthName(currentMonth),
+    });
+  }
 }
 
 function saveRecurring() {
@@ -2064,7 +2156,9 @@ async function start() {
     .map((day) => `<option value="${day}">${day}.${day === 1 ? ` (= ${t("Kalendermonat")})` : ""}</option>`)
     .join("");
   buildYearSettings();
-  setCurrentMonth(initialMonth());
+  // Always start in today's pay month; otherwise a month chosen earlier stays open after payday
+  // and new entries seem to be missing.
+  setCurrentMonth(todaysMonth());
   fillSelects();
   Object.keys(FORMS).forEach((form) => resetForm(form));
   restoreDrafts();

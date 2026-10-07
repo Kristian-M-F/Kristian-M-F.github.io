@@ -37,7 +37,7 @@ const Tour = (() => {
     {
       target: ['.nav [data-page="dashboard"]'],
       title: "Dashboard",
-      text: "Der Überblick über alle Monate: Sparquote, Kategorien und Kontostände.",
+      text: "Wie viel du in diesem Lohnmonat noch ausgeben kannst – und deine Kontostände. Die Statistik seit Lehrbeginn klappst du unten auf.",
     },
     {
       target: [".mobile-month", '.month-switch [data-action="change-month"]'],

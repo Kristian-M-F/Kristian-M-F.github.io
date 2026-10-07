@@ -1,4 +1,4 @@
-/* Dashboard page: KPI cards and charts (savings, income/expenses, categories). */
+/* Dashboard page: what is still available, account balances, upcoming payments, statistics. */
 
 .kpi .label {
   color: var(--muted);
@@ -343,4 +343,124 @@
 .account-card strong {
   font-size: 22px;
   font-variant-numeric: tabular-nums;
+}
+
+/* "Still available" in the pay month: the first and largest thing on the dashboard */
+
+.available-hero {
+  margin-bottom: 14px;
+  border-top: 4px solid var(--brand);
+}
+
+.hero-period {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.hero-label {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.hero-amount {
+  display: block;
+  margin: 2px 0 14px;
+  font-size: clamp(34px, 6vw, 48px);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  color: var(--green);
+}
+
+.hero-amount.bad {
+  color: var(--red);
+}
+
+.hero-progress {
+  height: 10px;
+}
+
+.hero-progress span.over {
+  background: var(--red);
+}
+
+.available-hero > .note {
+  margin: 8px 0 0;
+}
+
+/* Breakdown under the big number: + wage and allowances, + income, − expenses, − savings */
+.available-hero .summary {
+  margin-top: 10px;
+}
+
+.summary-row .sign {
+  display: inline-block;
+  width: 1.2em;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+/* Upcoming standing orders in this pay month */
+
+.upcoming {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.upcoming li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.upcoming li:last-child {
+  border-bottom: 0;
+}
+
+.upcoming-date {
+  min-width: 3.4em;
+  color: var(--muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.upcoming-name {
+  overflow-wrap: anywhere;
+}
+
+.upcoming .money {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.upcoming .empty {
+  display: block;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* Statistics since the start: tiles without their own card frame */
+
+.stats .grid4 .kpi {
+  padding: 4px 0;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.stats .group-title {
+  margin-bottom: 6px;
+}
+
+.available-hero .summary-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
 }
