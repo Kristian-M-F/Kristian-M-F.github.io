@@ -128,7 +128,7 @@
             </div>
           </div>
           <p class="note arrange-help" data-arrange-help="dashboard" hidden>
-            Ziehe die Bereiche an der Leiste oder verschiebe sie mit ↑ ↓. Die Reihenfolge wird mit deinem Konto gespeichert.
+            Ziehe die Bereiche an der Leiste oder verschiebe sie mit ↑ ↓. Mit ↔ wird ein Bereich breiter oder schmaler. Alles wird mit deinem Konto gespeichert.
             <button class="link-button" data-action="reset-layout" data-sortable-for="dashboard">Standard wiederherstellen</button>
           </p>
           <!-- Getting started: only visible until everything is set up -->
@@ -181,9 +181,7 @@
                 <div class="summary" id="currentSummary"></div>
               </div>
             </div>
-            <div class="block span-2" data-block="accounts" data-block-name="Konten">
-              <div class="account-cards" id="accountCards" aria-label="Konten in diesem Lohnmonat"></div>
-            </div>
+            <!-- One block per account (wage account, savings accounts) is added here by app.js -->
             <div class="block" data-block="upcoming" data-block-name="Kommt noch in diesem Lohnmonat">
               <details class="card fold" data-fold="dash-upcoming" open>
                 <summary><span class="fold-title">Kommt noch in diesem Lohnmonat</span><span class="fold-count" data-count-for="upcomingRows"></span></summary>
@@ -205,9 +203,7 @@
               <details class="card fold stats" data-fold="dash-stats" data-default="closed">
                 <summary><span class="fold-title">Statistik seit Lehrbeginn</span></summary>
                 <div class="fold-body">
-                  <h3 class="group-title">Kontostände heute</h3>
-                  <div class="account-cards totals" id="accountTotals" aria-label="Kontostände heute"></div>
-                  <div class="grid4 section">
+                  <div class="grid4">
                     <div class="kpi">
                       <span class="label">Gesamt gespart</span>
                       <strong id="dSaved">CHF 0.00</strong>
@@ -271,7 +267,7 @@
             </div>
           </div>
           <p class="note arrange-help" data-arrange-help="month" hidden>
-            Ziehe die Bereiche an der Leiste oder verschiebe sie mit ↑ ↓. Die Reihenfolge wird mit deinem Konto gespeichert.
+            Ziehe die Bereiche an der Leiste oder verschiebe sie mit ↑ ↓. Mit ↔ wird ein Bereich breiter oder schmaler. Alles wird mit deinem Konto gespeichert.
             <button class="link-button" data-action="reset-layout" data-sortable-for="month">Standard wiederherstellen</button>
           </p>
           <p id="monthPeriod" class="note"></p>
@@ -396,8 +392,9 @@
             <p class="note entry-hint" id="entryHint" aria-live="polite"></p>
           </div>
           <details class="card fold section" data-fold="entries-list" open>
-              <summary><span class="fold-title">Alle Einträge</span><span class="fold-count" data-count-for="allExpenses"></span></summary>
+              <summary><span class="fold-title">Einträge in diesem Lohnmonat</span><span class="fold-count" data-count-for="allExpenses"></span></summary>
               <div class="fold-body">
+            <p class="note" id="entriesMonth"></p>
             <table class="compact-list">
               <thead>
                 <tr>
@@ -470,6 +467,8 @@
           <details class="card fold section" data-fold="recurring-list" open>
               <summary><span class="fold-title">Alle Daueraufträge</span><span class="fold-count" data-count-for="recurringRows"></span></summary>
               <div class="fold-body">
+            <p class="note">Ab dem Fälligkeitstag gilt ein Dauerauftrag als bezahlt und wird von „Verfügbar“ abgezogen. Unter Monat → Geplante Zahlungen kannst du das ändern.</p>
+            <p class="note"><span>Status im Lohnmonat</span> <b id="recurringMonth"></b></p>
             <table class="compact-list">
               <thead>
                 <tr>
@@ -478,6 +477,7 @@
                   <th>Wiederholung</th>
                   <th>Start</th>
                   <th>Ende</th>
+                  <th>Status</th>
                   <th class="money">Betrag</th>
                   <th></th>
                 </tr>

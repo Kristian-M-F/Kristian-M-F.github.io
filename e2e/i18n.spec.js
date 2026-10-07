@@ -106,7 +106,7 @@ test("default categories and accounts follow a language change", async ({ page, 
   await expect(page.locator("#allExpenses")).toContainText("Food");
   await expect(page.locator("#allExpenses")).toContainText("Mittagessen"); // own texts stay as typed
   await goTo(page, "dashboard");
-  await expect(page.locator("#accountCards")).toContainText("Savings account");
+  await expect(page.locator("#dashboard .account-card.saving").first()).toContainText("Savings account");
 
   await page.selectOption("#appLang", "it");
   await goTo(page, "expenses");

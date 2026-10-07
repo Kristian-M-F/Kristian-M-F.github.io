@@ -695,11 +695,10 @@ function recurringDueDate(order, month) {
   );
 }
 
-// Standing orders due up to today; kind filters "expense", "income" or "saving".
+// Standing orders that count in a month: the paid ones. kind filters "expense", "income" or "saving".
 function dueRecurring(month, kind) {
-  const end = cutoff(month);
   return plannedRecurring(month)
-    .filter((payment) => payment.date <= end && (!kind || payment.order.kind === kind))
+    .filter((payment) => isPaid(payment) && (!kind || payment.order.kind === kind))
     .map((payment) => payment.order);
 }
 
@@ -717,10 +716,23 @@ function recurringPaymentKey(id, date) {
   return `${id}:${date}`;
 }
 
+// A payment is paid automatically from its due date on (the same day included) and then
+// counts against "available". Before that it is open. Under "Geplante Zahlungen" it can be
+// marked the other way; state.paidRecurring only keeps such changes (true = paid, false = open).
+function isPaid({ order, date }) {
+  const changed = state.paidRecurring[recurringPaymentKey(order.id, date)];
+  return typeof changed === "boolean" ? changed : date <= todayISO();
+}
+
 function toggleRecurringPayment(data) {
-  const key = recurringPaymentKey(Number(data.id), data.date);
-  if (state.paidRecurring[key]) delete state.paidRecurring[key];
-  else state.paidRecurring[key] = true;
+  const id = Number(data.id);
+  const order = state.recurring.find((item) => item.id === id);
+  if (!order) return;
+  const key = recurringPaymentKey(id, data.date);
+  const paid = !isPaid({ order, date: data.date });
+  const automatic = data.date <= todayISO();
+  if (paid === automatic) delete state.paidRecurring[key];
+  else state.paidRecurring[key] = paid;
   persist();
 }
 
@@ -856,8 +868,8 @@ function monthLedger(month) {
     add(start, t("{name} sparen", { name: allowance.name }), allowance.save, "saving", toSavings);
   }
   add(start, t("Automatisch sparen"), summary.extra, "saving", toSavings);
-  for (const order of dueRecurring(month)) {
-    add(recurringDueDate(order, month), order.name, order.amount, order.kind, t("Dauerauftrag"));
+  for (const payment of plannedRecurring(month).filter(isPaid)) {
+    add(payment.date, payment.order.name, payment.order.amount, payment.order.kind, t("Dauerauftrag"));
   }
   for (const entry of entriesIn(state.expenses, month)) {
     add(entry.date, entry.desc, entry.amount, "expense", "");
@@ -1023,11 +1035,10 @@ function renderAvailableHero() {
     ${line("−", t("Gespart"), summary.saved, true)}`;
 }
 
-// Standing orders that are still to come in the selected pay month.
+// Standing orders in the selected pay month that are still open.
 function renderUpcoming() {
-  const today = todayISO();
   const upcoming = plannedRecurring(currentMonth)
-    .filter((payment) => payment.date > today)
+    .filter((payment) => !isPaid(payment))
     .sort((a, b) => a.date.localeCompare(b.date));
   $("upcomingRows").innerHTML = upcoming.length
     ? upcoming
@@ -1157,7 +1168,7 @@ function renderMonthPage() {
   $("plannedPaymentsRows").innerHTML = plannedPayments.length
     ? plannedPayments
         .map(({ order, date }) => {
-          const paid = Boolean(state.paidRecurring[recurringPaymentKey(order.id, date)]);
+          const paid = isPaid({ order, date });
           return `<tr>
             <td>${formatDate(date)}</td>
             <td class="item-name">${escapeHTML(order.name)}</td>
@@ -1181,8 +1192,10 @@ function renderMonthPage() {
   }
 }
 
+// Only the entries of the selected pay month; other months show theirs when chosen.
 function renderEntryList() {
-  const entries = allEntries();
+  const entries = allEntries().filter((entry) => payrollMonth(entry.date) === currentMonth);
+  $("entriesMonth").textContent = `${monthName(currentMonth)} · ${periodLabel(currentMonth)}`;
   $("allExpenses").innerHTML = entries.length
     ? entries
         .map(
@@ -1196,26 +1209,36 @@ function renderEntryList() {
           </tr>`,
         )
         .join("")
-    : emptyRow(6, t("Noch keine Einträge."));
+    : emptyRow(6, t("Noch keine Einträge in diesem Lohnmonat."));
 }
 
+// With the status in the selected pay month: the amount only counts (− CHF 80.00) once it is paid.
 function renderRecurringList() {
+  const payments = plannedRecurring(currentMonth);
+  $("recurringMonth").textContent = `${monthName(currentMonth)} · ${periodLabel(currentMonth)}`;
   const orders = [...state.recurring].sort((a, b) => a.start.localeCompare(b.start));
   $("recurringRows").innerHTML = orders.length
     ? orders
-        .map(
-          (order) => `<tr>
-            ${descriptionCell(order.name, (order.kind !== "expense" ? RECURRING_KIND_LABELS[order.kind] : "") + plannedLabel(order.start, order.kind !== "expense" ? " · " : ""))}
+        .map((order) => {
+          const payment = payments.find((item) => item.order === order);
+          const paid = payment && isPaid(payment);
+          const status = payment
+            ? `<span class="payment-status ${paid ? "paid" : "open"}">${paid ? t("Bezahlt") : t("Offen")}</span>
+               <span class="ledger-detail">${paid ? t("am {date}", { date: formatDate(payment.date) }) : t("fällig am {date}", { date: formatDate(payment.date) })}</span>`
+            : `<span class="ledger-detail">${t("Nicht in diesem Lohnmonat")}</span>`;
+          return `<tr>
+            ${descriptionCell(order.name, order.kind !== "expense" ? RECURRING_KIND_LABELS[order.kind] : "")}
             <td>${escapeHTML(order.cat)}</td>
             <td>${(INTERVALS[order.interval] || INTERVALS.monthly).label}</td>
             <td>${formatDate(order.start)}</td>
             <td class="${order.end ? "" : "no-end"}">${order.end ? formatDate(order.end) : "–"}</td>
-            ${amountCell(order.kind, order.amount)}
+            <td class="row-status recurring-status">${status}</td>
+            ${paid ? amountCell(order.kind, order.amount) : `<td class="money not-counted">${chf(order.amount)}</td>`}
             <td class="row-actions">${recordActions("recurring", order.id)}</td>
-          </tr>`,
-        )
+          </tr>`;
+        })
         .join("")
-    : emptyRow(7, t("Noch keine Daueraufträge."));
+    : emptyRow(8, t("Noch keine Daueraufträge."));
 }
 
 // Wage table with one row per apprenticeship year. Rebuilt only when the length changes,
@@ -1345,26 +1368,47 @@ async function deleteAllowance(id) {
 
 // Account cards on the dashboard and account management in the settings
 
-// Dashboard: what happened on each account in the selected pay month.
-// The balances since the start are in the statistics (accountTotals).
+// Dashboard: one block per account with what happened on it in the selected pay month.
+// Each account can be moved and resized on its own while arranging.
 function renderAccountCards() {
+  syncAccountBlocks();
   const moves = accountMoves([currentMonth]);
-  $("accountCards").innerHTML = accountCardsHTML(moves, (spending) => (spending ? t("Übrig in diesem Lohnmonat") : t("In diesem Lohnmonat gespart")));
-  $("accountTotals").innerHTML = accountCardsHTML(accountBalances(), () => t("Stand heute"));
-}
-
-function accountCardsHTML(amounts, typeLabel) {
-  return state.accounts
-    .map((account) => {
-      const spending = account.kind === "spending";
-      const amount = amounts[account.id] || 0;
-      return `<div class="account-card ${spending ? "spending" : "saving"}">
-        <span class="account-type">${typeLabel(spending)}</span>
+  for (const account of state.accounts) {
+    const spending = account.kind === "spending";
+    const amount = moves[account.id] || 0;
+    const block = document.querySelector(`[data-block="account-${account.id}"]`);
+    block.dataset.blockName = account.name;
+    block.querySelector("[data-block-bar] .block-name").textContent = account.name;
+    block.querySelector(".account-card").outerHTML = `<div class="account-card ${spending ? "spending" : "saving"}">
+        <span class="account-type">${spending ? t("Übrig in diesem Lohnmonat") : t("In diesem Lohnmonat gespart")}</span>
         <b translate="no">${escapeHTML(account.name)}</b>
         <strong class="${amount < 0 ? "bad" : ""}">${chf(amount)}</strong>
       </div>`;
-    })
-    .join("");
+  }
+}
+
+// Adds a block for a new account and removes the block of a deleted one.
+function syncAccountBlocks() {
+  const container = document.querySelector('[data-sortable="dashboard"]');
+  const ids = state.accounts.map((account) => "account-" + account.id);
+  container.querySelectorAll('[data-block^="account-"]').forEach((block) => {
+    if (!ids.includes(block.dataset.block)) block.remove();
+  });
+  let added = false;
+  for (const account of state.accounts) {
+    if (container.querySelector(`[data-block="account-${account.id}"]`)) continue;
+    const block = document.createElement("div");
+    block.className = "block";
+    block.dataset.block = "account-" + account.id;
+    block.dataset.blockName = account.name;
+    block.dataset.blockPlain = "true"; // the user's own name, not translated
+    block.dataset.defaultSize = "narrow";
+    block.innerHTML = '<div class="account-card"></div>';
+    container.append(block);
+    addBlockBar(block);
+    added = true;
+  }
+  if (added) applyLayout();
 }
 
 let accountShape = "";
@@ -1579,26 +1623,46 @@ function render() {
 }
 
 // Arranging blocks on the dashboard and the month page.
-// "Anordnen" shows a bar on every block: drag it (mouse or finger) or use ↑ ↓.
-// The order is saved with the account in state.layout = { dashboard: [ids], month: [ids] }.
+// "Anordnen" shows a bar on every block: drag it (mouse or finger), move it with ↑ ↓ and make
+// it wide or narrow with ↔. Saved with the account:
+// state.layout = { dashboard: [ids], month: [ids], sizes: { "dashboard:available": "wide" | "narrow" } }
 
 const DEFAULT_LAYOUT = {};
 document.querySelectorAll("[data-sortable]").forEach((container) => {
   DEFAULT_LAYOUT[container.dataset.sortable] = [...container.children].map((block) => block.dataset.block);
+  [...container.children].forEach((block) => (block.dataset.defaultSize = block.classList.contains("span-2") ? "wide" : "narrow"));
 });
 
 function blocksOf(name) {
   return [...document.querySelector(`[data-sortable="${name}"]`).children];
 }
 
-// Puts the blocks in the saved order; unknown or new blocks keep their default place at the end.
+// Default order; the account blocks come right after "still available".
+function defaultOrder(name) {
+  const order = [...DEFAULT_LAYOUT[name]];
+  if (name === "dashboard") order.splice(order.indexOf("available") + 1, 0, ...state.accounts.map((account) => "account-" + account.id));
+  return order;
+}
+
+// Puts the blocks in the saved order and size; blocks without a saved place keep their default place.
 function applyLayout() {
   for (const name of Object.keys(DEFAULT_LAYOUT)) {
-    const saved = state.layout?.[name] || [];
-    const order = [...saved.filter((id) => DEFAULT_LAYOUT[name].includes(id)), ...DEFAULT_LAYOUT[name].filter((id) => !saved.includes(id))];
     const container = document.querySelector(`[data-sortable="${name}"]`);
     const byId = Object.fromEntries(blocksOf(name).map((block) => [block.dataset.block, block]));
+    const saved = (state.layout?.[name] || []).filter((id) => byId[id]);
+    const defaults = defaultOrder(name).filter((id) => byId[id]);
+    // Unsaved blocks (e.g. a new savings account) are put after the block before them by default.
+    const order = [...saved];
+    defaults.forEach((id, i) => {
+      if (order.includes(id)) return;
+      const previous = defaults.slice(0, i).reverse().find((other) => order.includes(other));
+      order.splice(previous ? order.indexOf(previous) + 1 : 0, 0, id);
+    });
     order.forEach((id) => container.append(byId[id]));
+    for (const block of blocksOf(name)) {
+      const size = state.layout?.sizes?.[`${name}:${block.dataset.block}`] || block.dataset.defaultSize;
+      block.classList.toggle("span-2", size === "wide");
+    }
   }
 }
 
@@ -1607,20 +1671,23 @@ function saveLayout(name) {
   save();
 }
 
-function addBlockBars() {
-  document.querySelectorAll("[data-sortable] > .block").forEach((block) => {
-    const name = t(block.dataset.blockName);
-    block.insertAdjacentHTML(
-      "afterbegin",
-      `<div class="block-bar" data-block-bar>
-        <span class="block-grip" aria-hidden="true">⠿</span>
-        <span class="block-name">${escapeHTML(name)}</span>
-        <button type="button" class="secondary" data-action="move-block" data-step="-1" aria-label="${t("{name} nach oben", { name: escapeHTML(name) })}">↑</button>
-        <button type="button" class="secondary" data-action="move-block" data-step="1" aria-label="${t("{name} nach unten", { name: escapeHTML(name) })}">↓</button>
-      </div>`,
-    );
-  });
+// The bar shown while arranging; added once per block.
+function addBlockBar(block) {
+  if (block.querySelector(":scope > [data-block-bar]")) return;
+  const name = escapeHTML(block.dataset.blockPlain ? block.dataset.blockName : t(block.dataset.blockName));
+  block.insertAdjacentHTML(
+    "afterbegin",
+    `<div class="block-bar" data-block-bar>
+      <span class="block-grip" aria-hidden="true">⠿</span>
+      <span class="block-name">${name}</span>
+      <button type="button" class="secondary" data-action="resize-block" aria-label="${t("{name} breiter oder schmaler", { name })}" title="${t("Breiter oder schmaler")}">↔</button>
+      <button type="button" class="secondary" data-action="move-block" data-step="-1" aria-label="${t("{name} nach oben", { name })}">↑</button>
+      <button type="button" class="secondary" data-action="move-block" data-step="1" aria-label="${t("{name} nach unten", { name })}">↓</button>
+    </div>`,
+  );
 }
+
+const addBlockBars = () => document.querySelectorAll("[data-sortable] > .block").forEach(addBlockBar);
 
 function setArranging(name, on) {
   const container = document.querySelector(`[data-sortable="${name}"]`);
@@ -1645,8 +1712,22 @@ function moveBlock(button) {
   button.focus();
 }
 
+function resizeBlock(button) {
+  const block = button.closest(".block");
+  const name = block.parentElement.dataset.sortable;
+  const wide = !block.classList.contains("span-2");
+  block.classList.toggle("span-2", wide);
+  state.layout = { ...state.layout, sizes: { ...state.layout?.sizes, [`${name}:${block.dataset.block}`]: wide ? "wide" : "narrow" } };
+  saveLayout(name);
+  button.focus();
+}
+
 function resetLayout(data) {
-  if (state.layout) delete state.layout[data.sortableFor];
+  const name = data.sortableFor;
+  if (state.layout) {
+    delete state.layout[name];
+    for (const key of Object.keys(state.layout.sizes || {})) if (key.startsWith(name + ":")) delete state.layout.sizes[key];
+  }
   applyLayout();
   save();
 }
@@ -2200,6 +2281,7 @@ document.addEventListener("click", (event) => {
   if (!button) return;
   if (button.dataset.page) showPage(button.dataset.page);
   if (button.dataset.action === "move-block") return moveBlock(button);
+  if (button.dataset.action === "resize-block") return resizeBlock(button);
   const action = actions[button.dataset.action];
   if (action) action(button.dataset);
 });
@@ -2315,6 +2397,7 @@ async function start() {
   state = loadData(saved);
   localizeDefaultNames();
   addBlockBars();
+  syncAccountBlocks();
   applyLayout();
   editing = loadEditing();
   $("setPayday").innerHTML = Array.from({ length: 28 }, (_, i) => i + 1)

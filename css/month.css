@@ -60,3 +60,14 @@
   padding: 3px 6px;
   font-size: 12px;
 }
+
+/* Standing orders page: status in the selected pay month */
+.recurring-status .ledger-detail {
+  display: block;
+  margin-top: 4px;
+}
+
+/* Not paid yet: shown, but not counted */
+td.money.not-counted {
+  color: var(--muted);
+}

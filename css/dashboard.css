@@ -314,14 +314,6 @@
   gap: 14px;
 }
 
-.account-cards.totals {
-  margin: 10px 0 4px;
-}
-
-.account-cards.totals .account-card {
-  background: var(--bg);
-  box-shadow: none;
-}
 
 .account-card {
   display: grid;
