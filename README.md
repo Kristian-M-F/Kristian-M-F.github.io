@@ -15,6 +15,7 @@ Kristian-M-F.github.io/
 ├── impressum.html          Impressum (wer die Seite betreibt)
 ├── nutzungsbedingungen.html  Nutzungsbedingungen (werden bei der Registrierung akzeptiert)
 ├── kontakt.html            Kontaktformular
+├── manifest.webmanifest    App auf dem Home-Bildschirm (Name, Icons, Farben)
 ├── css/
 │   ├── base.css            Farben, Schrift, Buttons, Felder, Sidebar (gilt überall)
 │   ├── dashboard.css       Seite Dashboard
@@ -42,7 +43,7 @@ Kristian-M-F.github.io/
 │   ├── translations.js     Alle Übersetzungen – neue Texte hier ergänzen
 │   └── api.js              Verbindung zum Backend (Adresse, Login-Schlüssel)
 ├── fonts/                  Schrift Inter (lokal, keine Google-Server)
-├── img/                    Symbol im Browser-Tab, Screenshots für die Startseite
+├── img/                    Symbol im Browser-Tab, App-Icons (icon-*.png, apple-touch-icon.png), Screenshots
 ├── e2e/                    End-to-End-Tests (werden nicht veröffentlicht)
 │   ├── fixtures.js         Gemeinsame Hilfen: Registrieren, Login, E-Mails lesen …
 │   ├── serve.js            Kleiner Webserver für die Tests (Port 5510)
@@ -124,3 +125,16 @@ dann `npm run test:e2e`.
 
 - `npm run test:e2e:ui` – Tests im Fenster ansehen und einzeln starten
 - `npm run test:e2e:report` – Bericht der letzten Ausführung (mit Screenshots bei Fehlern)
+
+## Neue Version veröffentlichen (Cache)
+
+Alle CSS- und JS-Dateien werden mit einer Versionsnummer eingebunden, z. B. `css/base.css?v=2026100701`.
+Damit Handys nach einem Push sicher die neuen Dateien laden, die Nummer bei jeder Änderung erhöhen:
+in IntelliJ **Strg+Shift+R** (Ersetzen in Dateien) → `?v=2026100701` durch die neue Nummer ersetzen
+(z. B. Datum + laufende Nummer: `?v=2026100801`).
+
+## App auf dem Home-Bildschirm
+
+`manifest.webmanifest` und die Icons in `img/` machen Finance OS installierbar:
+iPhone (Safari) → Teilen → „Zum Home-Bildschirm“; Android (Chrome) → ⋮ → „App installieren“.
+Die App öffnet dann ohne Browser-Leiste direkt `app.html`.

@@ -644,6 +644,30 @@ tr:hover td {
   font-size: 14px;
 }
 
+/* Message with a "Rückgängig" button */
+.toast.with-action {
+  display: flex;
+  white-space: nowrap;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 8px 8px 18px;
+}
+
+.toast-action {
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--on-dark) 16%, transparent);
+  color: var(--on-dark);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.toast-action:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--on-dark) 26%, transparent);
+}
+
 /* Collapsible sections (<details class="card fold">) */
 
 .fold {

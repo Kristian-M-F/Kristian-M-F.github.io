@@ -65,6 +65,11 @@ test("an entry can be edited and deleted", async ({ page, request }) => {
   await page.click("#expenseSave");
   await expect(page.locator("#allExpenses")).toContainText("Pizza mit Freunden");
 
+  // Deleted right away; "Rückgängig" brings it back, deleting again removes it for good
+  await page.locator("#allExpenses tr", { hasText: "Pizza mit Freunden" }).locator('[data-action="delete-record"]').click();
+  await expect(page.locator("#allExpenses")).not.toContainText("Pizza");
+  await page.click("#toast .toast-action");
+  await expect(page.locator("#allExpenses")).toContainText("Pizza mit Freunden");
   await page.locator("#allExpenses tr", { hasText: "Pizza mit Freunden" }).locator('[data-action="delete-record"]').click();
   await expect(page.locator("#allExpenses")).not.toContainText("Pizza");
 });

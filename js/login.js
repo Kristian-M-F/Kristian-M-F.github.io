@@ -178,7 +178,7 @@ async function submit() {
       return;
     }
     if (mode === "register") {
-      const result = await api("/auth/register", { method: "POST", body: { email, username, password }, redirectOn401: false });
+      const result = await api("/auth/register", { method: "POST", body: { email, username, password, acceptTerms: $("acceptTerms").checked }, redirectOn401: false });
       setMode("login");
       $("email").value = email;
       showNotice(t(result.message) + localMailHint());

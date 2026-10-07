@@ -463,14 +463,27 @@ function readAmount(id, allowZero = false) {
 }
 
 // Shows a toast message; German texts (also from the server) are translated.
-function notify(message, params) {
+// Short message at the bottom. With undo, it shows a "Rückgängig" button and stays a bit longer.
+function notify(message, params, undo = null) {
   message = t(message, params);
   const toast = $("toast");
   toast.textContent = message;
+  toast.classList.toggle("with-action", Boolean(undo));
+  if (undo) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "toast-action";
+    button.textContent = t("Rückgängig");
+    button.addEventListener("click", () => {
+      toast.hidden = true;
+      undo();
+    });
+    toast.append(" ", button);
+  }
   toast.hidden = false;
   clearTimeout(notify.timer);
   // Longer messages stay visible longer.
-  notify.timer = setTimeout(() => (toast.hidden = true), Math.max(3500, message.length * 60));
+  notify.timer = setTimeout(() => (toast.hidden = true), Math.max(undo ? 6000 : 3500, message.length * 60));
 }
 
 // Questions and new names in the page's own dialog (app.html #appDialog) instead of the
@@ -2148,13 +2161,20 @@ function editRecord(type, id) {
   firstField.focus({ preventScroll: true });
 }
 
-async function deleteRecord(type, id) {
-  if (!(await confirmAction({ title: t("Diesen Eintrag löschen?"), okLabel: t("Löschen") }))) return;
-  state[type] = state[type].filter((item) => item.id !== id);
+// Deletes right away; "Rückgängig" in the message brings the entry back at the same place.
+function deleteRecord(type, id) {
+  const index = state[type].findIndex((item) => item.id === id);
+  if (index < 0) return;
+  const [removed] = state[type].splice(index, 1);
   const form = formOf(type);
   if (editing[form]?.id === id) finishEdit(form);
   persist();
-  notify("Eintrag gelöscht");
+  notify("Eintrag gelöscht", null, () => {
+    if (state[type].some((item) => item.id === id)) return;
+    state[type].splice(Math.min(index, state[type].length), 0, removed);
+    persist();
+    notify("Eintrag wiederhergestellt");
+  });
 }
 
 function openNewEntry() {

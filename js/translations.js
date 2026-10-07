@@ -195,7 +195,7 @@ window.TRANSLATIONS = {
   "Finance OS ist ein privates, nicht kommerzielles Projekt. Es gibt keine Werbung und keinen Verkauf von Daten.": ["Finance OS is a private, non-commercial project. There is no advertising and no selling of data.", "Finance OS est un projet privé et non commercial. Il n'y a ni publicité ni vente de données.", "Finance OS è un progetto privato e non commerciale. Non c'è pubblicità né vendita di dati."],
   "2. Welche Daten gespeichert werden": ["2. What data is stored", "2. Quelles données sont enregistrées", "2. Quali dati vengono salvati"],
   "Konto:": ["Account:", "Compte :", "Account:"],
-  "E-Mail-Adresse, Benutzername, Zeitpunkt der Registrierung.": ["Email address, username, time of registration.", "Adresse e-mail, nom d'utilisateur, date d'inscription.", "Indirizzo e-mail, nome utente, data di registrazione."],
+  "E-Mail-Adresse, Benutzername, Zeitpunkt der Registrierung und wann du den Nutzungsbedingungen und dieser Datenschutzerklärung zugestimmt hast (mit Version).": ["Email address, username, time of registration and when you accepted the terms of use and this privacy policy (with version).", "Adresse e-mail, nom d'utilisateur, date d'inscription et date à laquelle tu as accepté les conditions d'utilisation et cette politique de confidentialité (avec version).", "Indirizzo e-mail, nome utente, data di registrazione e quando hai accettato le condizioni d'uso e questa informativa sulla privacy (con versione)."],
   "Passwort:": ["Password:", "Mot de passe :", "Password:"],
   "nur als nicht umkehrbarer Hash (BCrypt). Das Passwort selbst wird nie gespeichert und ist für niemanden einsehbar.": ["only as an irreversible hash (BCrypt). The password itself is never stored and cannot be seen by anyone.", "uniquement sous forme de hash irréversible (BCrypt). Le mot de passe lui-même n'est jamais enregistré et n'est visible par personne.", "solo come hash irreversibile (BCrypt). La password stessa non viene mai salvata e non è visibile a nessuno."],
   "Finanzdaten:": ["Financial data:", "Données financières :", "Dati finanziari:"],
@@ -808,4 +808,7 @@ window.TRANSLATIONS = {
   "bis {date}": ["until {date}", "jusqu'au {date}", "fino al {date}"],
   "Vorheriges Jahr": ["Previous year", "Année précédente", "Anno precedente"],
   "Nächstes Jahr": ["Next year", "Année suivante", "Anno successivo"],
+  // Undo after deleting
+  "Rückgängig": ["Undo", "Annuler", "Annulla"],
+  "Eintrag wiederhergestellt": ["Entry restored", "Entrée restaurée", "Voce ripristinata"],
 };

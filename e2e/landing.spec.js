@@ -70,3 +70,14 @@ test("imprint and terms of use are linked in the footer and readable", async ({ 
   await expect(page.locator("h1")).toHaveText("Nutzungsbedingungen");
   await expect(page.locator("main")).toContainText("Schweizer Recht");
 });
+
+test("the app can be added to the home screen (manifest and icons)", async ({ page, request }) => {
+  await page.goto("/index.html");
+  const href = await page.locator('link[rel="manifest"]').getAttribute("href");
+  const manifest = await (await request.get("/" + href)).json();
+  expect(manifest.display).toBe("standalone");
+  expect(manifest.start_url).toBe("app.html");
+  for (const icon of manifest.icons) expect((await request.get("/" + icon.src)).ok()).toBeTruthy();
+  const touchIcon = await page.locator('link[rel="apple-touch-icon"]').getAttribute("href");
+  expect((await request.get("/" + touchIcon)).ok()).toBeTruthy();
+});
