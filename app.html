@@ -60,19 +60,17 @@
       </div>
     </dialog>
 
-    <!-- Start dialog "Which pay month do you want to open?" (css/month-entry.css) -->
-    <section id="monthEntry" class="month-entry" aria-labelledby="entryTitle" hidden>
-      <form class="card" id="monthEntryForm">
-        <b>FINANCE OS</b>
-        <h1 id="entryTitle">Welchen Lohnmonat möchtest du öffnen?</h1>
-        <p id="entryText"></p>
-        <b>Gespart pro Lehrjahr</b>
-        <div id="entryYearCards" class="grid4 section"></div>
-        <label for="entryMonth">Lohnmonat</label>
-        <select id="entryMonth" required></select>
-        <button class="primary" type="submit">Dashboard öffnen</button>
+    <!-- "Monat ändern": small pop-up to choose the pay month (openMonthEntry in app.js) -->
+    <dialog id="monthEntry" class="app-dialog month-dialog" aria-labelledby="entryTitle">
+      <form id="monthEntryForm">
+        <h2 id="entryTitle">Lohnmonat wählen</h2>
+        <select id="entryMonth" aria-label="Lohnmonat" required></select>
+        <div class="dialog-buttons">
+          <button type="button" class="secondary" data-action="close-month-entry">Abbrechen</button>
+          <button class="primary" type="submit">Öffnen</button>
+        </div>
       </form>
-    </section>
+    </dialog>
 
     <!-- First-time setup for new accounts (js/setup.js, css/setup.css): the app behind is blurred -->
     <section id="setup" class="setup" role="dialog" aria-modal="true" aria-labelledby="setupTitle" hidden>
@@ -506,7 +504,7 @@
               <div class="fold-body">
             <p class="note">Ab dem Fälligkeitstag gilt ein Dauerauftrag als bezahlt und wird von „Verfügbar“ abgezogen. Unter Monat → Geplante Zahlungen kannst du das ändern.</p>
             <p class="note"><span>Status im Lohnmonat</span> <b id="recurringMonth"></b></p>
-            <table class="compact-list">
+            <table class="compact-list recurring-table">
               <thead>
                 <tr>
                   <th>Name</th>

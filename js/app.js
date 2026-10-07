@@ -1254,6 +1254,7 @@ function renderRecurringList() {
             <td>${(INTERVALS[order.interval] || INTERVALS.monthly).label}</td>
             <td>${formatDate(order.start)}</td>
             <td class="${order.end ? "" : "no-end"}">${order.end ? formatDate(order.end) : "–"}</td>
+            <td class="recurring-meta">${[escapeHTML(order.cat), (INTERVALS[order.interval] || INTERVALS.monthly).label, t("ab {date}", { date: formatDate(order.start) }), order.end ? t("bis {date}", { date: formatDate(order.end) }) : ""].filter(Boolean).join(" · ")}</td>
             <td class="row-status recurring-status">${status}</td>
             ${paid ? amountCell(order.kind, order.amount) : `<td class="money not-counted">${chf(order.amount)}</td>`}
             <td class="row-actions">${recordActions("recurring", order.id)}</td>
@@ -1640,7 +1641,6 @@ function render() {
   renderSettings();
   renderLists();
   updateEditButtons();
-  $("entryYearCards").innerHTML = yearCards();
   addMobileLabels();
   shortenLists();
 }
@@ -1843,10 +1843,12 @@ function setMenuOpen(open) {
   $("appMenu").classList.toggle("open", open);
 }
 
-// Clicking beside the pop-up closes it
-$("comparisonDialog").addEventListener("click", (event) => {
-  if (event.target === $("comparisonDialog")) $("comparisonDialog").close();
-});
+// Clicking beside a pop-up closes it
+for (const id of ["comparisonDialog", "monthEntry"]) {
+  $(id).addEventListener("click", (event) => {
+    if (event.target === $(id)) $(id).close();
+  });
+}
 $("appBurger").addEventListener("click", () => setMenuOpen($("appBurger").getAttribute("aria-expanded") !== "true"));
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") setMenuOpen(false);
@@ -1926,17 +1928,14 @@ function startTour() {
   });
 }
 
+// "Monat ändern": a small pop-up with the list of pay months, like the choice on the month page.
 function openMonthEntry() {
   setMenuOpen(false);
-  $("entryText").textContent = `${paydayText()} ${t("Den Lohntag kannst du in den Einstellungen ändern.")}`;
-  $("financeApp").hidden = true;
-  $("monthEntry").hidden = false;
-  $("entryMonth").innerHTML =
-    `<option value="">${t("Bitte Lohnmonat auswählen")}</option>` +
-    monthList()
-      .map((month) => `<option value="${month}">${monthName(month)} (${shortPeriod(month)})</option>`)
-      .join("");
+  $("entryMonth").innerHTML = monthList()
+    .map((month) => `<option value="${month}">${monthName(month)} (${shortPeriod(month)})</option>`)
+    .join("");
   $("entryMonth").value = currentMonth;
+  if (!$("monthEntry").open) $("monthEntry").showModal();
   $("entryMonth").focus();
 }
 
@@ -1954,9 +1953,7 @@ function closeMonthEntry(event) {
     }
   }
 
-  $("monthEntry").hidden = true;
-  $("financeApp").hidden = false;
-  showPage("dashboard");
+  $("monthEntry").close();
   persist();
 }
 
@@ -2308,6 +2305,7 @@ async function deleteAccount() {
 
 const actions = {
   "change-month": openMonthEntry,
+  "close-month-entry": () => $("monthEntry").close(),
   arrange: toggleArranging,
   "reset-layout": resetLayout,
   "start-tour": startTour,

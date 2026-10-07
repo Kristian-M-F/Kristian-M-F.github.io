@@ -800,4 +800,10 @@ window.TRANSLATIONS = {
   "Letzte drei Lohnmonate": ["Last three pay months", "Trois derniers mois de salaire", "Ultimi tre mesi di salario"],
   "Lohn, Ausgaben und Sparen seit Lehrbeginn": ["Wage, expenses and savings since the start of the apprenticeship", "Salaire, dépenses et épargne depuis le début de l'apprentissage", "Salario, spese e risparmi dall'inizio del tirocinio"],
   "Schliessen": ["Close", "Fermer", "Chiudi"],
+  // Pop-up "Monat ändern"
+  "Lohnmonat wählen": ["Choose pay month", "Choisir le mois de salaire", "Scegli il mese di salario"],
+  "Öffnen": ["Open", "Ouvrir", "Apri"],
+  // Standing orders on phones
+  "ab {date}": ["from {date}", "dès le {date}", "dal {date}"],
+  "bis {date}": ["until {date}", "jusqu'au {date}", "fino al {date}"],
 };

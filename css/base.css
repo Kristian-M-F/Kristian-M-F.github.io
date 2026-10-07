@@ -912,8 +912,8 @@ tr.more-row:hover td {
     animation: toast-in 0.25s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   }
 
-  /* "Choose pay month" dialog */
-  .month-entry:not([hidden]) .card {
+  /* "Choose pay month" pop-up */
+  .month-dialog[open] {
     animation: page-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   }
 

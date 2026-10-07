@@ -258,18 +258,6 @@
     gap: 5px;
   }
 
-  .month-entry {
-    padding: 20px;
-  }
-
-  .month-entry .card {
-    padding: 24px;
-  }
-
-  .month-entry h1 {
-    font-size: 26px;
-  }
-
   /* Tables as cards */
   table.mobile-cards thead {
     display: none;
@@ -919,5 +907,77 @@
 @media (max-width: 480px) {
   .sidebar-top .logo > span {
     display: none;
+  }
+}
+
+/* Phone: each standing order as a tidy block
+   Gym                                   CHF 80.00
+   Sport · Monatlich · ab 18.09.2026
+   [Offen] fällig am 18.10.2026     Bearbeiten  Löschen */
+@media (max-width: 760px) {
+  table.compact-list.recurring-table tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto;
+    grid-template-areas:
+      "name money"
+      "meta meta"
+      "status actions";
+    align-items: center;
+    gap: 4px 12px;
+    padding: 12px 0;
+  }
+
+  table.compact-list.recurring-table tr::after {
+    display: none;
+  }
+
+  table.compact-list.recurring-table td {
+    display: none;
+  }
+
+  table.compact-list.recurring-table td.ledger-description {
+    display: block;
+    grid-area: name;
+    font-weight: 650;
+  }
+
+  table.compact-list.recurring-table td.money {
+    display: block;
+    grid-area: money;
+    text-align: right;
+  }
+
+  table.compact-list.recurring-table td.recurring-meta {
+    display: block;
+    grid-area: meta;
+    font-size: 13px;
+  }
+
+  /* Status chip with "fällig am …" below it, the buttons beside */
+  table.compact-list.recurring-table td.row-status {
+    display: flex;
+    grid-area: status;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    min-width: 0;
+    margin-top: 4px;
+  }
+
+  table.compact-list.recurring-table td.row-status .ledger-detail {
+    margin: 0;
+  }
+
+  table.compact-list.recurring-table td.row-actions {
+    display: block;
+    grid-area: actions;
+    align-self: center;
+    margin: 4px 0 0;
+  }
+
+  table.compact-list.recurring-table td.empty {
+    display: block;
+    grid-column: 1 / -1;
   }
 }

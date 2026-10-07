@@ -71,3 +71,8 @@
 td.money.not-counted {
   color: var(--muted);
 }
+
+/* Standing orders: the one-line summary "Sport · Monatlich · ab 18.09.2026" is only used on phones */
+.recurring-table td.recurring-meta {
+  display: none;
+}

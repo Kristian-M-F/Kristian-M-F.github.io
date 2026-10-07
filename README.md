@@ -19,7 +19,7 @@ Kristian-M-F.github.io/
 │   ├── base.css            Farben, Schrift, Buttons, Felder, Sidebar (gilt überall)
 │   ├── dashboard.css       Seite Dashboard
 │   ├── month.css           Seite Monat
-│   ├── month-entry.css     Fenster „Lohnmonat wählen“
+│   ├── month-entry.css     Popup „Lohnmonat wählen“ (Monat ändern)
 │   ├── settings.css        Seite Einstellungen
 │   ├── themes.css          Darstellung: Farben, dunkler Modus, grosse Schrift
 │   ├── tour.css            Geführte Tour durch die App
