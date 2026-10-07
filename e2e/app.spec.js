@@ -32,13 +32,13 @@ test("expenses, income and savings change the month and are saved", async ({ pag
   await addEntry(page, { kind: "saving", desc: "Ferienkasse", amount: 100 });
 
   await goTo(page, "month");
-  await expect.poll(async () => chf(await page.locator("#mIncome").textContent())).toBe(1040);
+  // Income from entries is not part of "wage + allowances"; it goes straight to "available".
+  await expect.poll(async () => chf(await page.locator("#mIncome").textContent())).toBe(1000);
   await expect.poll(async () => chf(await page.locator("#mSpent").textContent())).toBe(18.5);
   await expect.poll(async () => chf(await page.locator("#mSaved").textContent())).toBe(100);
   await expect.poll(async () => chf(await page.locator("#mAvail").textContent())).toBe(921.5);
 
-  await expect(page.locator("#mIncomeSplit")).toContainText("000.00");
-  await expect(page.locator("#mIncomeSplit")).toContainText("40.00");
+  await expect(page.locator("#mAvailExtra")).toContainText("40.00");
 
   // The dashboard shows the same "available" first; the savings account shows the transfer.
   await goTo(page, "dashboard");
@@ -104,6 +104,7 @@ test("a withdrawal cannot exceed the savings balance", async ({ page, request })
 test("standing orders appear in the month and can be marked as paid", async ({ page, request }) => {
   await openApp(page, request);
   await goTo(page, "recurring");
+  await expect(page.locator('#recKind option[value="saving"]')).toHaveCount(0); // saving is set up in the settings
   await page.fill("#recName", "Handy-Abo");
   await page.fill("#recAmount", "25");
   await page.selectOption("#recInterval", "monthly");

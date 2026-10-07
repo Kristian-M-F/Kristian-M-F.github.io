@@ -1,9 +1,8 @@
-/* Appearance: accent colour, light/dark mode, text size, hidden amounts.
+/* Appearance: accent colour, light/dark mode, text size.
    Controlled by attributes on <html>, set by applyAppearance() in app.js:
      data-accent = green | blue | violet | orange | pink
      data-theme  = light | dark   (without the attribute the page follows the device)
      data-text   = normal | large
-     data-hide-amounts
    To add a colour: copy a [data-accent="…"] block here and add a colour button
    under "Darstellung" in app.html. */
 
@@ -57,19 +56,6 @@
 
 [data-text="large"] .content {
   zoom: 1.12;
-}
-
-/* Hide amounts (e.g. at school or on the train) */
-
-[data-hide-amounts] .kpi strong,
-[data-hide-amounts] td.money,
-[data-hide-amounts] #ledgerBalance,
-[data-hide-amounts] .summary-row b:last-child,
-[data-hide-amounts] .compare-values,
-[data-hide-amounts] .category-label b,
-[data-hide-amounts] .bar i {
-  filter: blur(7px);
-  user-select: none;
 }
 
 /* "Appearance" section in the settings */

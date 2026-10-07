@@ -1,18 +1,94 @@
 /* Settings page: lists (categories, payment methods), account and privacy. */
 
-/* Categories and payment methods */
+/* Categories and payment methods: one group per list, each name as a chip */
 
-.list-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--line);
+.list-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+  margin-top: 14px;
 }
 
-.list-item > span {
+.list-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg);
+}
+
+.list-group .group-title {
+  margin: 0;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  max-width: 100%;
+  padding: 4px 4px 4px 12px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  background: var(--panel);
+  font-size: 14px;
+}
+
+.chip > span {
   overflow-wrap: anywhere;
+}
+
+.chip-button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1;
+}
+
+.chip-button:hover:not(:disabled) {
+  transform: none;
+  background: var(--soft);
+  color: var(--ink);
+}
+
+.chip-button.remove:hover:not(:disabled) {
+  color: var(--red);
+}
+
+.chip-add {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.chip-add input {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 13th-month salary per year: calculated, not typed in */
+.year-table td.computed {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 /* Account and privacy */
@@ -223,18 +299,6 @@
   }
 }
 
-/* Compact categories: two columns on wide screens, smaller buttons */
-#listItems {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  column-gap: 28px;
-}
-
-#listItems .list-item {
-  padding: 6px 0;
-}
-
-#listItems .actions button,
 .account-row .actions button {
   min-height: 36px;
   padding: 6px 10px;
@@ -257,4 +321,10 @@
 .tour-row .note {
   flex: 1 1 220px;
   margin: 0;
+}
+
+.chip-add button {
+  min-height: 0;
+  padding: 8px 12px;
+  font-size: 14px;
 }

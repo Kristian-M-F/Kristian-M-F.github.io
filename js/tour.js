@@ -27,7 +27,7 @@ const Tour = (() => {
     {
       target: ['.nav [data-page="recurring"]'],
       title: "Daueraufträge",
-      text: "Handy-Abo, Fitness oder Sparauftrag: einmal erfassen, Finance OS rechnet sie jeden Monat automatisch ein.",
+      text: "Handy-Abo, Fitness oder Nebenjob: einmal erfassen, Finance OS rechnet sie jeden Monat automatisch ein.",
     },
     {
       target: ['.nav [data-page="month"]'],

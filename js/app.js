@@ -49,7 +49,7 @@ const INTERVALS = {
 // Shown under the entry form: what the chosen kind does with "available".
 const ENTRY_HINTS = {
   expense: t("Wird vom Lohnkonto abgezogen und verringert „Verfügbar“."),
-  income: t("Kommt aufs Lohnkonto und erhöht „Verfügbar“ – zusätzlich zu Lohn und Pauschalen."),
+  income: t("Kommt direkt zu „Verfügbar“ dazu – zusätzlich zu Lohn und Pauschalen."),
   saving: t("Geht vom Lohnkonto aufs Sparkonto und ist danach nicht mehr verfügbar."),
   withdraw: t("Kommt vom Sparkonto zurück aufs Lohnkonto und erhöht „Verfügbar“."),
 };
@@ -87,12 +87,7 @@ const FORMS = {
 
 const DATE_FIELDS = ["exDate", "recStart", "recEnd", "setStart"];
 const DEFAULT_DATE_FIELDS = ["exDate", "recStart"];
-const DRAFT_FIELDS = [
-  "entryKind",
-  "listType",
-  "listName",
-  ...Object.values(FORMS).flatMap((form) => form.fields),
-];
+const DRAFT_FIELDS = ["entryKind", ...Object.values(FORMS).flatMap((form) => form.fields)];
 const SETTINGS_FIELD =
   /^(setStart|setYears|setPayday|setThirteenth|setAutoAccount|salary\d|extraSave\d)$/;
 
@@ -119,8 +114,11 @@ const DEFAULT_LISTS = {
   payments: ["Karte", "TWINT", "Bar", "Überweisung"],
 };
 
+// New accounts start with the meal allowance (on) and public transport (off); more can be added.
+const STARTING_ALLOWANCES = ["food", "transport"];
+
 function defaultAllowances() {
-  return Object.entries(DEFAULT_ALLOWANCE_NAMES).map(([id, name]) => newAllowance(id, t(name), id === "food"));
+  return STARTING_ALLOWANCES.map((id) => newAllowance(id, t(DEFAULT_ALLOWANCE_NAMES[id]), id === "food"));
 }
 
 const enabledAllowances = () => state.allowances.filter((allowance) => allowance.enabled);
@@ -131,7 +129,9 @@ function createEmptyData() {
     years: 4, // apprenticeship length: 2, 3 or 4 years
     payday: 25, // a pay month runs from the payday to the day before it in the next month
     allowances: defaultAllowances(),
-    thirteenth: "none", // 13th-month salary: "none", "11" (with November pay) or "12" (December)
+    // 13th-month salary: "none", "spread" (already in the 12 monthly wages),
+    // "11" (extra wage with the November pay) or "12" (December)
+    thirteenth: "none",
     // Exactly one spending account plus any number of savings accounts
     accounts: [
       { id: "main", name: t(DEFAULT_ACCOUNT_NAMES.main), kind: "spending", start: 0 },
@@ -167,9 +167,8 @@ const DEFAULT_APPEARANCE = {
   mode: "system", // follow the device
   text: "normal",
   startPage: "dashboard",
-  hideAmounts: false,
 };
-const APPEARANCE_FIELDS = ["accent", "mode", "text", "startPage", "hideAmounts"];
+const APPEARANCE_FIELDS = ["accent", "mode", "text", "startPage"];
 const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
 let appearance = { ...DEFAULT_APPEARANCE };
 
@@ -180,7 +179,6 @@ function applyAppearance(next) {
   root.dataset.accent = appearance.accent;
   root.dataset.theme = dark ? "dark" : "light";
   root.dataset.text = appearance.text;
-  root.toggleAttribute("data-hide-amounts", appearance.hideAmounts);
   // The light bulb label describes what a click will do.
   const label = I18N.t(dark ? "Licht an (helles Design)" : "Licht aus (dunkles Design)");
   const themeButton = document.getElementById("appTheme");
@@ -201,7 +199,6 @@ function renderAppearance() {
     if (input) input.checked = true;
   }
   $("startPage").value = appearance.startPage;
-  document.querySelector('input[name="hideAmounts"]').checked = appearance.hideAmounts;
 }
 
 function changeAppearance(field) {
@@ -684,8 +681,26 @@ function toggleRecurringPayment(data) {
 }
 
 // 13th-month salary: one extra monthly wage with the November or December pay.
+// "spread": already contained in the monthly wage, so nothing extra is paid out.
 function thirteenthSalary(month, salary) {
-  return state.thirteenth !== "none" && month.slice(5, 7) === state.thirteenth ? salary : 0;
+  return ["11", "12"].includes(state.thirteenth) && month.slice(5, 7) === state.thirteenth ? salary : 0;
+}
+
+// 13th-month salary per apprenticeship year, for the column in the wage table.
+// Spread over 12 wages: a year is 13 base wages paid in 12 parts, so the 13th is 12/13 of a monthly wage.
+function thirteenthPerYear(monthlyWage) {
+  if (state.thirteenth === "spread") return (monthlyWage * 12) / 13;
+  if (state.thirteenth === "11" || state.thirteenth === "12") return monthlyWage;
+  return 0;
+}
+
+function thirteenthText() {
+  if (state.thirteenth === "spread") {
+    return t("Dein Nettolohn enthält den 13. Monatslohn schon: Er wird nicht zusätzlich ausbezahlt. Die Spalte zeigt, wie viel davon pro Lehrjahr in deinen 12 Löhnen steckt.");
+  }
+  if (state.thirteenth === "11") return t("Mit dem Novemberlohn kommt ein zusätzlicher Monatslohn dazu.");
+  if (state.thirteenth === "12") return t("Mit dem Dezemberlohn kommt ein zusätzlicher Monatslohn dazu.");
+  return "";
 }
 
 function monthSummary(month) {
@@ -704,18 +719,17 @@ function monthSummary(month) {
   const extra = amount(state.extraSave);
   const total = (list) => sumBy(list, (item) => item.amount);
 
-  // Wage, 13th-month salary and allowances arrive automatically on payday; further income
-  // (side job, gifts …) comes from entries and standing orders. Both go to the spending account.
-  const wageAndAllowances = salary + bonus + allowanceTotal;
+  // Income = wage, 13th-month salary and allowances (automatic on payday). Further income
+  // (side job, gifts …) from entries and standing orders is added straight to "available".
+  const income = salary + bonus + allowanceTotal;
   const otherIncome = total(entriesIn(state.incomeEntries, month)) + total(dueRecurring(month, "income"));
-  const income = wageAndAllowances + otherIncome;
   const withdrawn = total(entriesIn(state.withdrawEntries, month));
   const saved =
     allowanceSave + extra + total(entriesIn(state.savingEntries, month)) + total(dueRecurring(month, "saving")) - withdrawn;
   const spent = total(entriesIn(state.expenses, month)) + total(dueRecurring(month, "expense"));
   return {
-    salary, bonus, allowances, allowanceSave, extra, withdrawn, wageAndAllowances, otherIncome,
-    income, saved, spent, available: income - saved - spent,
+    salary, bonus, allowances, allowanceSave, extra, withdrawn, otherIncome,
+    income, saved, spent, available: income + otherIncome - saved - spent,
   };
 }
 
@@ -937,11 +951,12 @@ function renderAvailableHero() {
 
   $("heroAmount").textContent = chf(summary.available);
   $("heroAmount").classList.toggle("bad", summary.available < 0);
-  const used = summary.income ? ((summary.saved + summary.spent) / summary.income) * 100 : 0;
+  const money = summary.income + summary.otherIncome;
+  const used = money ? ((summary.saved + summary.spent) / money) * 100 : 0;
   $("heroBar").style.width = Math.min(100, Math.max(0, used)) + "%";
   $("heroBar").classList.toggle("over", summary.available < 0);
-  $("heroUsed").textContent = summary.income
-    ? t("{percent} von {income} sind ausgegeben oder gespart.", { percent: percent(Math.max(0, used)), income: chf(summary.income) })
+  $("heroUsed").textContent = money
+    ? t("{percent} von {income} sind ausgegeben oder gespart.", { percent: percent(Math.max(0, used)), income: chf(money) })
     : t("Trage in den Einstellungen deinen Lohn ein, dann rechnet Finance OS aus, was verfügbar ist.");
 
   const line = (sign, label, amount, always = false) =>
@@ -949,7 +964,7 @@ function renderAvailableHero() {
       ? `<div class="summary-row"><span><span class="sign" aria-hidden="true">${sign}</span>${label}</span><b>${chf(amount)}</b></div>`
       : "";
   $("currentSummary").innerHTML = `
-    ${line("+", t("Lohn + Pauschalen"), summary.wageAndAllowances, true)}
+    ${line("+", t("Lohn + Pauschalen"), summary.income, true)}
     ${line("+", t("Weitere Einnahmen"), summary.otherIncome)}
     ${line("−", t("Ausgaben"), summary.spent, true)}
     ${line("−", t("Gespart"), summary.saved, true)}`;
@@ -1062,9 +1077,9 @@ function renderMonthPage() {
 
   const availableClass = summary.available < 0 ? "bad" : "good";
   $("mIncome").textContent = chf(summary.income);
-  $("mIncomeSplit").textContent = summary.otherIncome
-    ? t("Lohn + Pauschalen {wage} · weitere {other}", { wage: chf(summary.wageAndAllowances), other: chf(summary.otherIncome) })
-    : t("Lohn + Pauschalen");
+  $("mAvailExtra").textContent = summary.otherIncome
+    ? t("inkl. weitere Einnahmen {amount}", { amount: chf(summary.otherIncome) })
+    : "";
   $("mSaved").textContent = chf(summary.saved);
   $("mSpent").textContent = chf(summary.spent);
   $("mAvail").textContent = chf(summary.available);
@@ -1101,31 +1116,16 @@ function renderMonthPage() {
         .join("")
     : emptyRow(5, t("Keine geplanten Daueraufträge in diesem Lohnmonat."));
 
-  const used = summary.income ? ((summary.saved + summary.spent) / summary.income) * 100 : 0;
+  const money = summary.income + summary.otherIncome;
+  const used = money ? ((summary.saved + summary.spent) / money) * 100 : 0;
   $("budgetBar").style.width = Math.min(100, Math.max(0, used)) + "%";
   $("budgetBar").classList.toggle("over", summary.available < 0);
-  if (!summary.income) {
+  if (!money) {
     $("budgetText").textContent = t("Noch keine Einnahmen erfasst.");
   } else {
     const over = summary.available < 0 ? " " + t("Budget um {amount} überschritten.", { amount: chf(-summary.available) }) : "";
     $("budgetText").textContent = t("{percent} der Einnahmen sind ausgegeben oder gespart.", { percent: percent(used) }) + over;
   }
-
-  const transactions = allEntries().filter(
-    (entry) => payrollMonth(entry.date) === month && entry.date <= todayISO(),
-  );
-  $("monthRows").innerHTML = transactions.length
-    ? transactions
-        .map(
-          (entry) => `<tr>
-            <td>${formatDate(entry.date)}</td>
-            ${descriptionCell((entry.kind === "saving" ? `${t("Sparen")} · ` : "") + entry.desc, "")}
-            <td>${escapeHTML(entry.cat)}</td>
-            ${amountCell(entry.kind, entry.amount)}
-          </tr>`,
-        )
-        .join("")
-    : emptyRow(4, t("Noch keine Einträge bis heute."));
 }
 
 function renderEntryList() {
@@ -1176,7 +1176,7 @@ function buildYearSettings() {
 
   const input = (id, label) =>
     `<input id="${id}" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" aria-label="${label}">`;
-  $("yearSettingsHead").innerHTML = `<tr><th>${t("Lehrjahr")}</th><th>${t("Nettolohn CHF")}</th><th>${t("Automatisch sparen CHF")}</th></tr>`;
+  $("yearSettingsHead").innerHTML = `<tr><th>${t("Lehrjahr")}</th><th>${t("Nettolohn CHF")}</th><th>${t("Automatisch sparen CHF")}</th><th>${t("13. Monatslohn pro Jahr")}</th></tr>`;
   $("yearSettings").innerHTML = yearIndexes()
     .map((i) => {
       const year = yearLabel(i);
@@ -1184,6 +1184,7 @@ function buildYearSettings() {
         <td><b>${year}</b></td>
         <td>${input("salary" + i, `${t("Nettolohn")} ${year}`)}</td>
         <td>${input("extraSave" + i, `${t("Automatisch sparen")} ${year}`)}</td>
+        <td class="money computed" id="thirteenth${i}" aria-live="polite"></td>
       </tr>`;
     })
     .join("");
@@ -1389,50 +1390,29 @@ function renderSettings() {
     setValue("salary" + i, state.salaries[i]);
     setValue("extraSave" + i, state.extraSave[i]);
   }
+  for (const i of yearIndexes()) {
+    const amount = thirteenthPerYear(Number(state.salaries[i]) || 0);
+    $("thirteenth" + i).textContent = state.thirteenth === "none" ? "–" : chf(amount);
+  }
+  $("thirteenthNote").textContent = thirteenthText();
   renderAllowances();
   renderAccounts();
-  $("sAllowanceCard").hidden = enabledAllowances().length === 0;
-
-  const total = totals();
-  $("sTotal").textContent = chf(total.saved);
-  $("sAllowance").textContent = chf(total.allowanceSave);
-  $("sExtra").textContent = chf(total.saved - total.allowanceSave);
 }
 
 function renderLists() {
-  const type = $("listType").value;
-  $("listItems").innerHTML = state[type]
-    .map(
-      (name, index) => `<div class="list-item">
-        <span>${escapeHTML(name)}</span>
-        <div class="actions">
-          <button class="secondary" data-action="rename-list-item" data-index="${index}">${t("Umbenennen")}</button>
-          <button class="danger" data-action="delete-list-item" data-index="${index}">${t("Entfernen")}</button>
-        </div>
-      </div>`,
-    )
-    .join("");
-}
-
-function renderManager() {
-  const select = $("manageRecord");
-  const selected = select.value;
-  const rows = Object.keys(RECORD_LABELS)
-    .flatMap((type) =>
-      state[type].map((record) => ({
-        value: `${type}:${record.id}`,
-        date: record.date || record.start || state.start,
-        text: `${RECORD_LABELS[type]} · ${record.desc || record.name}`,
-      })),
-    )
-    .sort((a, b) => b.date.localeCompare(a.date));
-
-  select.innerHTML =
-    `<option value="">${t("Eintrag auswählen")}</option>` +
-    rows
-      .map((row) => `<option value="${row.value}">${formatDate(row.date)} · ${escapeHTML(row.text)}</option>`)
+  for (const type of Object.keys(LIST_SELECTS)) {
+    document.querySelector(`[data-list-items="${type}"]`).innerHTML = state[type]
+      .map(
+        (name, index) => `<li class="chip">
+          <span>${escapeHTML(name)}</span>
+          <button class="chip-button" data-action="rename-list-item" data-list="${type}" data-index="${index}"
+            aria-label="${t("{name} umbenennen", { name: escapeHTML(name) })}" title="${t("Umbenennen")}">✎</button>
+          <button class="chip-button remove" data-action="delete-list-item" data-list="${type}" data-index="${index}"
+            aria-label="${t("{name} entfernen", { name: escapeHTML(name) })}" title="${t("Entfernen")}">×</button>
+        </li>`,
+      )
       .join("");
-  if (rows.some((row) => row.value === selected)) select.value = selected;
+  }
 }
 
 // On phones tables are shown as cards; the column names come from data-label.
@@ -1448,7 +1428,7 @@ function addMobileLabels() {
 
 // Long lists show only the newest rows (5 on phones, 10 otherwise) plus a "show all" button.
 
-const SHORT_LISTS = ["monthMath", "plannedPaymentsRows", "monthRows", "allExpenses", "recurringRows"];
+const SHORT_LISTS = ["monthMath", "plannedPaymentsRows", "allExpenses", "recurringRows"];
 const expandedLists = new Set();
 const isPhone = () => window.matchMedia("(max-width: 760px)").matches;
 
@@ -1520,7 +1500,6 @@ function render() {
   renderRecurringList();
   renderSettings();
   renderLists();
-  renderManager();
   updateEditButtons();
   $("entryYearCards").innerHTML = yearCards();
   addMobileLabels();
@@ -1654,7 +1633,7 @@ function saveDrafts(form) {
 
 function restoreDrafts() {
   const drafts = state.drafts;
-  for (const id of ["entryKind", "recKind", "listType"]) {
+  for (const id of ["entryKind", "recKind"]) {
     if (drafts[id]) setSelectValue(id, drafts[id], false);
   }
   fillSelects();
@@ -1678,6 +1657,8 @@ function resetForm(form, keep = []) {
 
 function finishEdit(form, keep = []) {
   editing[form] = null;
+  // A kind that can no longer be chosen (old saving orders) only stays while it is edited.
+  [...$("recKind").options].filter((option) => option.value === "saving").forEach((option) => option.remove());
   resetForm(form, keep);
   fillSelects();
   saveDrafts(form);
@@ -1763,7 +1744,8 @@ function saveRecurring() {
   if ($("recEnd").value.trim() && !end) return notify("Bitte ein gültiges Enddatum eingeben.");
   if (end && end < start) return notify("Das Enddatum darf nicht vor dem Startdatum liegen.");
   const interval = INTERVALS[$("recInterval").value] ? $("recInterval").value : "monthly";
-  const kind = RECURRING_KIND_LABELS[$("recKind").value] ? $("recKind").value : "expense";
+  // Saving orders are made in the settings; existing ones can still be edited.
+  const kind = [...$("recKind").options].some((option) => option.value === $("recKind").value) ? $("recKind").value : "expense";
   saveRecord("recurring", { kind, name, amount, interval, start, end, cat: $("recCat").value });
 }
 
@@ -1780,7 +1762,11 @@ function editRecord(type, id) {
     state.drafts.entryKind = ENTRY_KINDS[type];
     values = { exDate: record.date, exDesc: record.desc, exCat: record.cat, exPay: record.pay, exAmount: record.amount };
   } else if (form === "recurring") {
-    $("recKind").value = record.kind || "expense";
+    const kind = record.kind || "expense";
+    if (![...$("recKind").options].some((option) => option.value === kind)) {
+      $("recKind").append(new Option(`${RECURRING_KIND_LABELS[kind]} (${t("archiviert")})`, kind));
+    }
+    $("recKind").value = kind;
     values = {
       recName: record.name,
       recAmount: record.amount,
@@ -1839,7 +1825,7 @@ function saveSettings() {
 
   const years = [2, 3, 4].includes(Number($("setYears").value)) ? Number($("setYears").value) : 4;
   const payday = Math.min(28, Math.max(1, Number($("setPayday").value) || 25));
-  const thirteenth = ["none", "11", "12"].includes($("setThirteenth").value) ? $("setThirteenth").value : "none";
+  const thirteenth = ["none", "spread", "11", "12"].includes($("setThirteenth").value) ? $("setThirteenth").value : "none";
   const autoAccount = $("setAutoAccount").value;
 
   Object.assign(state, { start, years, payday, thirteenth, salaries, extraSave });
@@ -1860,8 +1846,6 @@ function resetAll() {
   editing = loadEditing();
   setCurrentMonth(initialMonth());
   $("entryKind").value = "expense";
-  $("listType").value = "categories";
-  $("listName").value = "";
   fillSelects();
   Object.keys(FORMS).forEach((form) => resetForm(form));
   persist();
@@ -1876,22 +1860,22 @@ const LIST_SELECTS = {
   payments: ["exPay"],
 };
 
-function addListItem() {
-  const type = $("listType").value;
-  const name = $("listName").value.trim();
+function addListItem(type) {
+  if (!LIST_SELECTS[type]) return;
+  const input = $("listName-" + type);
+  const name = input.value.trim();
   if (!name) return notify("Bitte eine Bezeichnung eingeben.");
   if (state[type].some((item) => item.toLowerCase() === name.toLowerCase())) {
     return notify("Diese Bezeichnung besteht bereits.");
   }
   state[type].push(name);
-  $("listName").value = "";
-  delete state.drafts.listName;
+  input.value = "";
   persist();
   notify("Hinzugefügt");
 }
 
-function renameListItem(index) {
-  const type = $("listType").value;
+function renameListItem(type, index) {
+  if (!LIST_SELECTS[type]) return;
   const oldName = state[type][index];
   const input = prompt(t("Neue Bezeichnung"), oldName);
   const name = input?.trim();
@@ -1914,8 +1898,8 @@ function renameListItem(index) {
   notify("Umbenannt");
 }
 
-function deleteListItem(index) {
-  const type = $("listType").value;
+function deleteListItem(type, index) {
+  if (!LIST_SELECTS[type]) return;
   if (state[type].length <= 1) return notify("Mindestens eine Bezeichnung muss erhalten bleiben.");
   if (!confirm(t("Bezeichnung aus der Auswahl entfernen? Bestehende Buchungen bleiben erhalten."))) return;
   state[type].splice(index, 1);
@@ -1994,11 +1978,9 @@ const actions = {
   "cancel-edit": (data) => cancelEdit(data.form),
   "edit-record": (data) => editRecord(data.type, Number(data.id)),
   "delete-record": (data) => deleteRecord(data.type, Number(data.id)),
-  "manage-edit": () => manageRecord(editRecord),
-  "manage-delete": () => manageRecord(deleteRecord),
-  "add-list-item": addListItem,
-  "rename-list-item": (data) => renameListItem(Number(data.index)),
-  "delete-list-item": (data) => deleteListItem(Number(data.index)),
+  "add-list-item": (data) => addListItem(data.list),
+  "rename-list-item": (data) => renameListItem(data.list, Number(data.index)),
+  "delete-list-item": (data) => deleteListItem(data.list, Number(data.index)),
   "reset-all": resetAll,
   "toggle-list": (data) => {
     const id = data.list;
@@ -2023,12 +2005,6 @@ const actions = {
     logoutAndRedirect();
   },
 };
-
-function manageRecord(action) {
-  const [type, id] = $("manageRecord").value.split(":");
-  if (!id) return notify("Bitte einen Eintrag auswählen.");
-  action(type, Number(id));
-}
 
 // No input is accepted until the data has loaded; otherwise an empty state
 // could overwrite the saved data.
@@ -2059,7 +2035,6 @@ document.addEventListener("change", (event) => {
   if (SETTINGS_FIELD.test(field.id)) return saveSettings();
 
   if (field.id === "entryKind" || field.id === "recKind") fillSelects();
-  if (field.id === "listType") renderLists();
   if (field.id === "monthPicker") {
     setCurrentMonth(field.value);
     persist();
@@ -2092,6 +2067,7 @@ document.addEventListener("keydown", (event) => {
   if (!ready || event.key !== "Enter" || event.target.tagName !== "INPUT") return;
   if (event.target.id === "allowanceName") return addAllowance();
   if (event.target.id === "accountNewName") return addAccount();
+  if (event.target.dataset.listInput) return addListItem(event.target.dataset.listInput);
   const form = formOfField(event.target.id);
   if (form === "expenses") saveEntry();
   else if (form === "recurring") saveRecurring();

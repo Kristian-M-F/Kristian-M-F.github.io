@@ -182,7 +182,7 @@
                   <strong id="dSaved">CHF 0.00</strong>
                 </div>
                 <div class="kpi">
-                  <span class="label">Gesamte Einnahmen</span>
+                  <span class="label">Lohn + Pauschalen</span>
                   <strong id="dIncome">CHF 0.00</strong>
                 </div>
                 <div class="kpi">
@@ -201,10 +201,10 @@
                   <div class="chart" id="saveChart"></div>
                 </div>
                 <div>
-                  <h3 class="group-title">Einnahmen und Ausgaben</h3>
+                  <h3 class="group-title">Lohn und Ausgaben</h3>
                   <p class="note">Letzte sechs Lohnmonate</p>
                   <div class="chart-legend">
-                    <span><i class="income-dot"></i>Einnahmen</span>
+                    <span><i class="income-dot"></i>Lohn + Pauschalen</span>
                     <span><i class="spending-dot"></i>Ausgaben</span>
                   </div>
                   <div id="comparisonChart"></div>
@@ -239,8 +239,7 @@
           <p id="monthPeriod" class="note"></p>
           <div class="grid4">
             <div class="card kpi">
-              <span class="label">Einnahmen</span><strong id="mIncome"></strong>
-              <div class="sub" id="mIncomeSplit"></div>
+              <span class="label">Lohn + Pauschalen</span><strong id="mIncome"></strong>
             </div>
             <div class="card kpi">
               <span class="label">Gespart</span><strong id="mSaved"></strong>
@@ -250,6 +249,7 @@
             </div>
             <div class="card kpi">
               <span class="label">Verfügbar</span><strong id="mAvail"></strong>
+              <div class="sub" id="mAvailExtra"></div>
             </div>
           </div>
           <div class="two section">
@@ -297,22 +297,6 @@
                 </tr>
               </thead>
               <tbody id="plannedPaymentsRows"></tbody>
-            </table>
-            </div>
-          </details>
-          <details class="card fold section" data-fold="month-transactions" data-mobile="closed" open>
-              <summary><span class="fold-title">Transaktionen</span><span class="fold-count" data-count-for="monthRows"></span></summary>
-              <div class="fold-body">
-            <table class="compact-list">
-              <thead>
-                <tr>
-                  <th>Datum</th>
-                  <th>Beschreibung</th>
-                  <th>Kategorie</th>
-                  <th class="money">Betrag</th>
-                </tr>
-              </thead>
-              <tbody id="monthRows"></tbody>
             </table>
             </div>
           </details>
@@ -390,7 +374,7 @@
           <div class="head">
             <div>
               <h1>Daueraufträge</h1>
-              <p>Regelmässige Zahlungen – Abos, Nebenjob, Sparplan. Sie zählen erst ab dem Fälligkeitstag.</p>
+              <p>Regelmässige Zahlungen – Abos, Nebenjob. Sie zählen erst ab dem Fälligkeitstag. Automatisch sparen stellst du in den Einstellungen ein.</p>
             </div>
           </div>
           <div class="card">
@@ -400,7 +384,6 @@
                 <select id="recKind">
                   <option value="expense">Ausgabe (−)</option>
                   <option value="income">Einnahme (+)</option>
-                  <option value="saving">Sparen (↗)</option>
                 </select>
               </div>
               <div class="field half">
@@ -499,12 +482,14 @@
                   <label for="setThirteenth">13. Monatslohn</label>
                   <select id="setThirteenth">
                     <option value="none">Nein</option>
+                    <option value="spread">In 12 Löhnen verteilt</option>
                     <option value="11">Mit Novemberlohn</option>
                     <option value="12">Mit Dezemberlohn</option>
                   </select>
                 </div>
               </div>
               <p class="note" id="paydayNote"></p>
+              <p class="note" id="thirteenthNote"></p>
             </div>
           </details>
 
@@ -544,19 +529,6 @@
               </div>
             </div>
           </details>
-
-          <div class="grid3 section settings-kpis" data-settings-tab="pay">
-            <div class="card kpi">
-              <span class="label">Gesamt gespart</span><strong id="sTotal"></strong>
-            </div>
-            <div class="card kpi" id="sAllowanceCard">
-              <span class="label">Aus Pauschalen gespart</span><strong id="sAllowance"></strong>
-            </div>
-            <div class="card kpi">
-              <span class="label">Weitere Sparbeträge</span><strong id="sExtra"></strong>
-              <div class="sub">Automatisch und selbst erfasst</div>
-            </div>
-          </div>
 
           <details class="card fold section" data-fold="settings-appearance" data-settings-tab="look" open>
             <summary><span class="fold-title">Darstellung</span></summary>
@@ -615,13 +587,6 @@
                   <option value="expenses">+/− Einträge</option>
                 </select>
               </div>
-              <label class="switch">
-                <span class="switch-text">
-                  <span>Beträge verbergen</span>
-                  <small>Alle Frankenbeträge werden unscharf – praktisch in der Schule oder im Zug.</small>
-                </span>
-                <input type="checkbox" name="hideAmounts" />
-              </label>
               <div class="row tour-row">
                 <p class="note">Die Einführung zeigt dir in ein paar Schritten, wo du was findest.</p>
                 <button type="button" class="secondary" data-action="start-tour">Tour starten</button>
@@ -649,48 +614,39 @@
           </details>
 
           <details class="card fold section" data-fold="settings-lists" data-settings-tab="lists" open>
-              <summary><span class="fold-title">Kategorien und Zahlungsarten</span></summary>
-              <div class="fold-body">
-            <p class="note">
-              Neue Bezeichnungen hinzufügen, bestehende umbenennen oder aus der
-              Auswahl entfernen. Frühere Buchungen bleiben beim Entfernen
-              erhalten.
-            </p>
-            <div class="row">
-              <div class="field">
-                <label for="listType">Liste</label>
-                <select id="listType">
-                  <option value="categories">Kategorien</option>
-                  <option value="incomeCategories">Kategorien für Einnahmen</option>
-                  <option value="payments">Zahlungsarten</option>
-                </select>
+            <summary><span class="fold-title">Kategorien und Zahlungsarten</span></summary>
+            <div class="fold-body">
+              <p class="note">
+                Umbenennen ändert auch frühere Einträge. Entfernen nimmt die Bezeichnung nur aus der Auswahl –
+                frühere Einträge bleiben, wie sie sind.
+              </p>
+              <!-- One group per list; filled in by app.js (renderLists) -->
+              <div class="list-groups">
+                <section class="list-group" data-list="categories" aria-labelledby="listTitleCategories">
+                  <h3 class="group-title" id="listTitleCategories">Kategorien für Ausgaben</h3>
+                  <ul class="chips" data-list-items="categories"></ul>
+                  <div class="chip-add">
+                    <input id="listName-categories" data-list-input="categories" maxlength="80" placeholder="Neue Kategorie" aria-label="Neue Kategorie für Ausgaben" />
+                    <button class="secondary" data-action="add-list-item" data-list="categories">Hinzufügen</button>
+                  </div>
+                </section>
+                <section class="list-group" data-list="incomeCategories" aria-labelledby="listTitleIncome">
+                  <h3 class="group-title" id="listTitleIncome">Kategorien für Einnahmen</h3>
+                  <ul class="chips" data-list-items="incomeCategories"></ul>
+                  <div class="chip-add">
+                    <input id="listName-incomeCategories" data-list-input="incomeCategories" maxlength="80" placeholder="Neue Kategorie" aria-label="Neue Kategorie für Einnahmen" />
+                    <button class="secondary" data-action="add-list-item" data-list="incomeCategories">Hinzufügen</button>
+                  </div>
+                </section>
+                <section class="list-group" data-list="payments" aria-labelledby="listTitlePayments">
+                  <h3 class="group-title" id="listTitlePayments">Zahlungsarten</h3>
+                  <ul class="chips" data-list-items="payments"></ul>
+                  <div class="chip-add">
+                    <input id="listName-payments" data-list-input="payments" maxlength="80" placeholder="Neue Zahlungsart" aria-label="Neue Zahlungsart" />
+                    <button class="secondary" data-action="add-list-item" data-list="payments">Hinzufügen</button>
+                  </div>
+                </section>
               </div>
-              <div class="field">
-                <label for="listName">Neue Bezeichnung</label>
-                <input id="listName" maxlength="80" />
-              </div>
-              <button class="primary" data-action="add-list-item">Hinzufügen</button>
-            </div>
-            <div id="listItems" class="section"></div>
-            </div>
-          </details>
-
-          <details class="card fold section" data-fold="settings-manage" data-settings-tab="lists" open>
-              <summary><span class="fold-title">Gespeicherte Einträge bearbeiten</span></summary>
-              <div class="fold-body">
-            <p class="note">
-              Hier kannst du auch künftige Einträge und Daueraufträge bearbeiten
-              oder löschen. In den Finanzübersichten erscheinen sie erst ab
-              ihrem Datum.
-            </p>
-            <div class="row">
-              <div class="field">
-                <label for="manageRecord">Eintrag</label>
-                <select id="manageRecord"></select>
-              </div>
-              <button class="secondary" data-action="manage-edit">Bearbeiten</button>
-              <button class="danger" data-action="manage-delete">Löschen</button>
-            </div>
             </div>
           </details>
 

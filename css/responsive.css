@@ -365,10 +365,6 @@
     margin-top: auto;
   }
 
-  .settings-kpis > :last-child {
-    grid-column: 1 / -1;
-  }
-
   /* Allowances: one row per apprentice year (year | amount | of which saved), labels only on top */
   .allowance-years {
     grid-template-columns: 1fr;

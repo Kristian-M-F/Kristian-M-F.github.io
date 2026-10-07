@@ -57,21 +57,51 @@ test("savings accounts can be added, renamed and deleted", async ({ page, reques
 test("categories can be added, renamed and removed", async ({ page, request }) => {
   await openApp(page, request);
   await openTab(page, "lists");
-  await page.selectOption("#listType", "categories");
-  await page.fill("#listName", "Konzerte");
-  await page.click('[data-action="add-list-item"]');
-  await expect(page.locator("#listItems")).toContainText("Konzerte");
+  const expenses = page.locator('[data-list-items="categories"]');
+  await page.fill("#listName-categories", "Konzerte");
+  await page.click('[data-action="add-list-item"][data-list="categories"]');
+  await expect(expenses).toContainText("Konzerte");
 
   page.answerDialog("Festivals");
-  await page.locator(".list-item", { hasText: "Konzerte" }).locator('[data-action="rename-list-item"]').click();
-  await expect(page.locator("#listItems")).toContainText("Festivals");
+  await expenses.locator(".chip", { hasText: "Konzerte" }).locator('[data-action="rename-list-item"]').click();
+  await expect(expenses).toContainText("Festivals");
 
   await goTo(page, "expenses");
   await expect(page.locator("#exCat")).toContainText("Festivals");
 
   await openTab(page, "lists");
-  await page.locator(".list-item", { hasText: "Festivals" }).locator('[data-action="delete-list-item"]').click();
-  await expect(page.locator("#listItems")).not.toContainText("Festivals");
+  await expenses.locator(".chip", { hasText: "Festivals" }).locator('[data-action="delete-list-item"]').click();
+  await expect(expenses).not.toContainText("Festivals");
+
+  // Enter adds a payment method
+  await page.fill("#listName-payments", "Kreditkarte");
+  await page.press("#listName-payments", "Enter");
+  await expect(page.locator('[data-list-items="payments"]')).toContainText("Kreditkarte");
+});
+
+test("new accounts start with the meal allowance and public transport only", async ({ page, request }) => {
+  await openApp(page, request);
+  await openTab(page, "pay");
+  await expect(page.locator(".allowance")).toHaveCount(2);
+  await expect(page.locator('[data-allowance-toggle="food"]')).toBeChecked();
+  await expect(page.locator('[data-allowance-toggle="transport"]')).not.toBeChecked();
+});
+
+test("the 13th-month salary per year is calculated", async ({ page, request }) => {
+  await openApp(page, request);
+  await openTab(page, "pay");
+  await page.fill("#salary0", "1300");
+  await page.locator("#salary0").blur();
+  await expect(page.locator("#thirteenth0")).toHaveText("–");
+
+  // Spread over 12 wages: 1300 × 12 / 13 = 1200 is the 13th-month salary in it
+  await page.selectOption("#setThirteenth", "spread");
+  await expect.poll(async () => chf(await page.locator("#thirteenth0").textContent())).toBe(1200);
+  await expect(page.locator("#thirteenthNote")).not.toBeEmpty();
+
+  // Paid with the December wage: one extra monthly wage
+  await page.selectOption("#setThirteenth", "12");
+  await expect.poll(async () => chf(await page.locator("#thirteenth0").textContent())).toBe(1300);
 });
 
 test("colour, dark mode and text size are applied and saved with the account", async ({ page, request }) => {
@@ -93,12 +123,4 @@ test("colour, dark mode and text size are applied and saved with the account", a
   await expect(page.locator("#financeApp")).toBeVisible();
   await expect(html).toHaveAttribute("data-accent", "violet");
   await expect(html).toHaveAttribute("data-theme", "dark");
-});
-
-test("amounts can be hidden", async ({ page, request }) => {
-  await openApp(page, request);
-  await openTab(page, "look");
-  await page.locator("label.switch", { has: page.locator('input[name="hideAmounts"]') }).click();
-  await expect(page.locator('input[name="hideAmounts"]')).toBeChecked();
-  await expect(page.locator("html")).toHaveAttribute("data-hide-amounts", /.*/);
 });
