@@ -832,4 +832,6 @@ window.TRANSLATIONS = {
   "Samsung Internet: ☰ → „Seite hinzufügen zu“ → „Startbildschirm“": ["Samsung Internet: ☰ → “Add page to” → “Home screen”", "Samsung Internet : ☰ → « Ajouter la page à » → « Écran d'accueil »", "Samsung Internet: ☰ → «Aggiungi pagina a» → «Schermata Home»"],
   "Gibt es Finance OS als App?": ["Is there a Finance OS app?", "Existe-t-il une appli Finance OS ?", "Esiste un'app di Finance OS?"],
   "Ja, ohne App Store: Du legst Finance OS auf deinen Home-Bildschirm und öffnest es dann wie eine App.": ["Yes, without an app store: put Finance OS on your home screen and open it like an app.", "Oui, sans App Store : place Finance OS sur ton écran d'accueil et ouvre-le comme une appli.", "Sì, senza app store: metti Finance OS sulla schermata Home e aprilo come un'app."],
+  "Neue Version verfügbar": ["New version available", "Nouvelle version disponible", "Nuova versione disponibile"],
+  "Finance OS wurde aktualisiert. Lade die Seite neu, um weiterzumachen. Deine Daten bleiben gespeichert.": ["Finance OS has been updated. Reload the page to continue. Your data stays saved.", "Finance OS a été mis à jour. Recharge la page pour continuer. Tes données restent enregistrées.", "Finance OS è stato aggiornato. Ricarica la pagina per continuare. I tuoi dati restano salvati."],
 };

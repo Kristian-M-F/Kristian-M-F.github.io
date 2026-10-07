@@ -1,8 +1,8 @@
 // Tells visitors when a newer version of the website is online.
 //
 // Every page loads this file as js/update.js?v=<version>. version.json contains the version that
-// is online right now. If they differ (after a push with a new ?v= number), a note with
-// "Neu laden" appears. Checked shortly after opening, every 5 minutes and when the tab or the
+// is online right now. If they differ (after a push with a new ?v= number), a pop-up in the
+// middle of the screen asks to reload; the page behind is blurred until then. Checked shortly after opening, every 5 minutes and when the tab or the
 // home-screen app becomes visible again.
 //
 // New version: replace the number in all files at once (IntelliJ: Ctrl+Shift+R), including version.json.
@@ -37,17 +37,29 @@
     location.reload();
   }
 
+  // A pop-up in the middle; the page behind is blurred and cannot be used until it is reloaded.
   function show() {
     shown = true;
-    const note = document.createElement("div");
-    note.className = "update-note";
-    note.setAttribute("role", "status");
-    note.innerHTML = `<span>${t("Eine neue Version von Finance OS ist da.")}</span>
-      <button type="button" class="update-reload">${t("Neu laden")}</button>
-      <button type="button" class="update-close" aria-label="${t("Schliessen")}">×</button>`;
-    note.querySelector(".update-reload").addEventListener("click", (event) => reload(event.currentTarget));
-    note.querySelector(".update-close").addEventListener("click", () => note.remove());
-    document.body.append(note);
+    const overlay = document.createElement("div");
+    overlay.className = "update-overlay";
+    overlay.innerHTML = `<div class="update-card" role="alertdialog" aria-modal="true" aria-labelledby="updateTitle" aria-describedby="updateText">
+        <img src="img/icon-192.png" alt="" width="56" height="56" />
+        <h2 id="updateTitle">${t("Neue Version verfügbar")}</h2>
+        <p id="updateText">${t("Finance OS wurde aktualisiert. Lade die Seite neu, um weiterzumachen. Deine Daten bleiben gespeichert.")}</p>
+        <button type="button" class="update-reload">${t("Neu laden")}</button>
+      </div>`;
+    const button = overlay.querySelector(".update-reload");
+    button.addEventListener("click", () => reload(button));
+    // Keep the keyboard on the button (Tab, Escape do nothing else)
+    overlay.addEventListener("keydown", (event) => {
+      if (event.key === "Tab" || event.key === "Escape") {
+        event.preventDefault();
+        button.focus();
+      }
+    });
+    document.body.append(overlay);
+    document.body.classList.add("update-open");
+    button.focus({ focusVisible: false });
   }
 
   setTimeout(check, 4000);

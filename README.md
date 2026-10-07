@@ -130,15 +130,15 @@ dann `npm run test:e2e`.
 
 ## Neue Version veröffentlichen
 
-Alle CSS- und JS-Dateien werden mit einer Versionsnummer eingebunden, z. B. `css/base.css?v=2026100705`,
+Alle CSS- und JS-Dateien werden mit einer Versionsnummer eingebunden, z. B. `css/base.css?v=2026100706`,
 und dieselbe Nummer steht in `version.json`. Bei jeder Änderung an der Website die Nummer überall erhöhen:
-in IntelliJ **Strg+Shift+R** (Ersetzen in Dateien) → `2026100705` durch die neue Nummer ersetzen
+in IntelliJ **Strg+Shift+R** (Ersetzen in Dateien) → `2026100706` durch die neue Nummer ersetzen
 (z. B. Datum + laufende Nummer: `2026100801`), dann pushen.
 
 - Handys laden dadurch sicher die neuen Dateien statt der alten aus dem Zwischenspeicher.
 - Wer die Seite oder die App auf dem Home-Bildschirm gerade offen hat, bekommt innerhalb von
-  ein paar Minuten den Hinweis „Eine neue Version von Finance OS ist da“ mit dem Knopf
-  „Neu laden“ (`js/update.js`).
+  ein paar Minuten ein Fenster in der Mitte „Neue Version verfügbar“; der Rest ist verschwommen,
+  weiter geht es nur mit „Neu laden“ (`js/update.js`).
 
 ## App auf dem Home-Bildschirm
 

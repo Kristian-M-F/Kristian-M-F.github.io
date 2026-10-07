@@ -1134,44 +1134,63 @@ tr.more-row:hover td {
   }
 }
 
-/* "Eine neue Version von Finance OS ist da" (js/update.js) */
-.update-note {
+/* "Neue Version verfügbar" (js/update.js): pop-up in the middle, everything behind blurred */
+body.update-open {
+  overflow: hidden;
+}
+
+.update-overlay {
   position: fixed;
-  top: max(12px, env(safe-area-inset-top));
-  left: 50%;
-  z-index: 1100;
-  display: flex;
-  align-items: center;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: var(--backdrop);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.update-card {
+  display: grid;
+  justify-items: center;
   gap: 10px;
-  width: max-content;
-  max-width: calc(100vw - 24px);
-  padding: 8px 8px 8px 16px;
+  width: min(360px, 100%);
+  padding: 28px 24px 22px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--panel);
+  color: var(--ink);
+  text-align: center;
+  box-shadow: var(--shadow-dialog);
+}
+
+.update-card img {
   border-radius: 14px;
-  background: var(--accent);
-  color: var(--on-dark);
-  box-shadow: var(--shadow-toast);
-  font-size: 14px;
-  transform: translateX(-50%);
+}
+
+.update-card h2 {
+  margin: 4px 0 0;
+  font-size: 20px;
+}
+
+.update-card p {
+  margin: 0 0 8px;
+  color: var(--label);
+  font-size: 15px;
+  line-height: 1.5;
 }
 
 .update-reload {
-  min-height: 36px;
-  padding: 6px 12px;
+  width: 100%;
+  min-height: 46px;
   border: 0;
-  border-radius: 9px;
+  border-radius: 12px;
   background: var(--brand);
   color: var(--on-dark);
   font-weight: 700;
-  white-space: nowrap;
 }
 
-.update-close {
-  min-height: 36px;
-  width: 32px;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--on-dark-muted);
-  font-size: 20px;
-  line-height: 1;
+.update-reload:hover:not(:disabled) {
+  background: var(--brand-hover);
 }

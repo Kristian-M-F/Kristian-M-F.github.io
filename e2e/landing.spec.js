@@ -82,20 +82,26 @@ test("the app can be added to the home screen (manifest and icons)", async ({ pa
   expect((await request.get("/" + touchIcon)).ok()).toBeTruthy();
 });
 
-test("a note offers to reload when a newer version is online", async ({ page }) => {
+test("a pop-up asks to reload when a newer version is online", async ({ page }) => {
   await page.route("**/version.json*", (route) => route.fulfill({ contentType: "application/json", body: '{"version":"9999999999"}' }));
   await page.goto("/index.html");
-  const note = page.locator(".update-note");
-  await expect(note).toBeVisible({ timeout: 10000 });
-  await expect(note).toContainText("Neu laden");
-  await note.locator(".update-close").click();
-  await expect(note).toHaveCount(0);
+  const overlay = page.locator(".update-overlay");
+  await expect(overlay).toBeVisible({ timeout: 10000 });
+  await expect(overlay).toContainText("Neu laden");
+  // It cannot be closed: Escape keeps it, clicks on the page behind are blocked
+  await page.keyboard.press("Escape");
+  await expect(overlay).toBeVisible();
+  await expect(page.locator(".update-close")).toHaveCount(0);
+  await page.unroute("**/version.json*");
+  await page.locator(".update-reload").click();
+  await page.waitForLoadState("load");
+  await expect(page.locator(".update-overlay")).toHaveCount(0);
 });
 
 test("no note while the page is up to date", async ({ page }) => {
   await page.goto("/index.html");
   await page.waitForTimeout(5000);
-  await expect(page.locator(".update-note")).toHaveCount(0);
+  await expect(page.locator(".update-overlay")).toHaveCount(0);
 });
 
 test("the landing page explains how to add Finance OS to the home screen", async ({ page }) => {
