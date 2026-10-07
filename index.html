@@ -20,12 +20,12 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Finance OS" />
-    <script src="js/translations.js?v=2026100704"></script>
-    <script src="js/i18n.js?v=2026100704"></script>
-    <script src="js/update.js?v=2026100704" defer></script>
-    <script src="js/site.js?v=2026100704"></script>
-    <link rel="stylesheet" href="css/base.css?v=2026100704" />
-    <link rel="stylesheet" href="css/landing.css?v=2026100704" />
+    <script src="js/translations.js?v=2026100705"></script>
+    <script src="js/i18n.js?v=2026100705"></script>
+    <script src="js/update.js?v=2026100705" defer></script>
+    <script src="js/site.js?v=2026100705"></script>
+    <link rel="stylesheet" href="css/base.css?v=2026100705" />
+    <link rel="stylesheet" href="css/landing.css?v=2026100705" />
   </head>
   <body class="landing">
     <a class="skip-link" href="#content">Zum Inhalt springen</a>
@@ -40,6 +40,7 @@
         <nav class="site-nav" aria-label="Seitenbereiche">
           <a href="#features">Funktionen</a>
           <a href="#how-it-works">So geht's</a>
+          <a href="#app">App</a>
           <a href="#security">Sicherheit</a>
           <a href="#faq">Fragen</a>
         </nav>
@@ -64,6 +65,7 @@
         <nav class="wrap mobile-menu-inner" aria-label="Menü">
           <a href="#features">Funktionen</a>
           <a href="#how-it-works">So geht's</a>
+          <a href="#app">App</a>
           <a href="#security">Sicherheit</a>
           <a href="#faq">Fragen</a>
           <a href="kontakt.html">Kontakt</a>
@@ -239,6 +241,51 @@
         </div>
       </section>
 
+      <!-- Install as an app on the home screen (manifest.webmanifest) -->
+      <section class="get-app" id="app">
+        <div class="wrap get-app-inner">
+          <div>
+            <div class="section-intro" data-reveal>
+              <h2>Finance OS als App auf deinem Handy</h2>
+              <p>
+                Kein App Store nötig: Leg Finance OS auf deinen Home-Bildschirm. Es öffnet sich dann wie
+                eine App – ohne Browser-Leiste und immer in der neusten Version.
+              </p>
+            </div>
+            <div class="install-cards" data-reveal-group>
+              <div class="install-card">
+                <h3>iPhone</h3>
+                <ol>
+                  <li>Finance OS in Safari öffnen</li>
+                  <li>Unten auf „Teilen“ tippen <svg class="share-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4M6 11H5v10h14V11h-1"/></svg></li>
+                  <li>„Zum Home-Bildschirm“ wählen</li>
+                  <li>Oben rechts auf „Hinzufügen“ tippen</li>
+                </ol>
+              </div>
+              <div class="install-card">
+                <h3>Android</h3>
+                <ol>
+                  <li>Finance OS in Chrome öffnen</li>
+                  <li>Oben rechts auf ⋮ tippen</li>
+                  <li>„App installieren“ oder „Zum Startbildschirm hinzufügen“ wählen</li>
+                  <li>Mit „Installieren“ bestätigen</li>
+                </ol>
+                <p class="install-note">Samsung Internet: ☰ → „Seite hinzufügen zu“ → „Startbildschirm“</p>
+              </div>
+            </div>
+          </div>
+          <div class="home-screen" aria-hidden="true">
+            <div class="home-grid">
+              <i></i><i></i><i></i><i></i>
+              <i></i><span class="home-app"><img src="img/icon-192.png" alt="" width="44" height="44" /><small>Finance OS</small></span><i></i><i></i>
+              <i></i><i></i><i></i><i></i>
+              <i></i><i></i><i></i><i></i>
+            </div>
+            <div class="home-dock"><i></i><i></i><i></i><i></i></div>
+          </div>
+        </div>
+      </section>
+
       <!-- Security: explain concretely what happens -->
       <section class="security" id="security">
         <div class="wrap security-inner">
@@ -299,6 +346,13 @@
               <p>Ja. Finance OS läuft im Browser und ist für Handy, Tablet und Computer gestaltet.</p>
             </details>
             <details>
+              <summary>Gibt es Finance OS als App?</summary>
+              <p>
+                Ja, ohne App Store: Du legst Finance OS auf deinen Home-Bildschirm und öffnest es dann
+                wie eine App. <a href="#app">So geht's</a>
+              </p>
+            </details>
+            <details>
               <summary>Kann ich mein Konto wieder löschen?</summary>
               <p>
                 Jederzeit: In den Einstellungen unter „Profil“ forderst du die Löschung an. Du bekommst
@@ -344,6 +398,6 @@
         <p>© 2026 Finance OS, Zürich</p>
       </div>
     </footer>
-    <script src="js/landing.js?v=2026100704"></script>
+    <script src="js/landing.js?v=2026100705"></script>
   </body>
 </html>

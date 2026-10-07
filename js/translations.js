@@ -817,4 +817,19 @@ window.TRANSLATIONS = {
   // Account cards (short, fit on one line on phones)
   "Übrig im Lohnmonat": ["Left this month", "Reste ce mois", "Rimasto nel mese"],
   "Gespart im Lohnmonat": ["Saved this month", "Épargné ce mois", "Risparmiato nel mese"],
+  // Landing page: install as an app
+  "App": ["App", "Appli", "App"],
+  "Finance OS als App auf deinem Handy": ["Finance OS as an app on your phone", "Finance OS comme appli sur ton téléphone", "Finance OS come app sul tuo telefono"],
+  "Kein App Store nötig: Leg Finance OS auf deinen Home-Bildschirm. Es öffnet sich dann wie eine App – ohne Browser-Leiste und immer in der neusten Version.": ["No app store needed: put Finance OS on your home screen. It then opens like an app – without the browser bar and always in the latest version.", "Pas besoin d'App Store : place Finance OS sur ton écran d'accueil. Il s'ouvre alors comme une appli – sans barre de navigateur et toujours dans la dernière version.", "Niente app store: metti Finance OS sulla schermata Home. Si apre come un'app – senza barra del browser e sempre nella versione più recente."],
+  "Finance OS in Safari öffnen": ["Open Finance OS in Safari", "Ouvre Finance OS dans Safari", "Apri Finance OS in Safari"],
+  "Unten auf „Teilen“ tippen": ["Tap “Share” at the bottom", "Touche « Partager » en bas", "Tocca «Condividi» in basso"],
+  "„Zum Home-Bildschirm“ wählen": ["Choose “Add to Home Screen”", "Choisis « Sur l'écran d'accueil »", "Scegli «Aggiungi alla schermata Home»"],
+  "Oben rechts auf „Hinzufügen“ tippen": ["Tap “Add” at the top right", "Touche « Ajouter » en haut à droite", "Tocca «Aggiungi» in alto a destra"],
+  "Finance OS in Chrome öffnen": ["Open Finance OS in Chrome", "Ouvre Finance OS dans Chrome", "Apri Finance OS in Chrome"],
+  "Oben rechts auf ⋮ tippen": ["Tap ⋮ at the top right", "Touche ⋮ en haut à droite", "Tocca ⋮ in alto a destra"],
+  "„App installieren“ oder „Zum Startbildschirm hinzufügen“ wählen": ["Choose “Install app” or “Add to home screen”", "Choisis « Installer l'application » ou « Ajouter à l'écran d'accueil »", "Scegli «Installa app» o «Aggiungi a schermata Home»"],
+  "Mit „Installieren“ bestätigen": ["Confirm with “Install”", "Confirme avec « Installer »", "Conferma con «Installa»"],
+  "Samsung Internet: ☰ → „Seite hinzufügen zu“ → „Startbildschirm“": ["Samsung Internet: ☰ → “Add page to” → “Home screen”", "Samsung Internet : ☰ → « Ajouter la page à » → « Écran d'accueil »", "Samsung Internet: ☰ → «Aggiungi pagina a» → «Schermata Home»"],
+  "Gibt es Finance OS als App?": ["Is there a Finance OS app?", "Existe-t-il une appli Finance OS ?", "Esiste un'app di Finance OS?"],
+  "Ja, ohne App Store: Du legst Finance OS auf deinen Home-Bildschirm und öffnest es dann wie eine App.": ["Yes, without an app store: put Finance OS on your home screen and open it like an app.", "Oui, sans App Store : place Finance OS sur ton écran d'accueil et ouvre-le comme une appli.", "Sì, senza app store: metti Finance OS sulla schermata Home e aprilo come un'app."],
 };

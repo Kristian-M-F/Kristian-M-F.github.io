@@ -972,6 +972,194 @@ html {
   }
 }
 
+/* Install as an app (home screen) */
+
+.get-app {
+  padding: 88px 0;
+  border-top: 1px solid var(--line);
+}
+
+.get-app-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  gap: 56px;
+  align-items: center;
+}
+
+.install-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.install-card {
+  padding: 24px 24px 20px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--panel);
+}
+
+.install-card h3 {
+  margin: 0 0 12px;
+  font-size: 20px;
+}
+
+.install-card ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: install;
+}
+
+.install-card li {
+  counter-increment: install;
+  position: relative;
+  padding: 8px 0 8px 36px;
+  color: var(--label);
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.install-card li::before {
+  content: counter(install);
+  position: absolute;
+  left: 0;
+  top: 7px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--brand-soft);
+  color: var(--brand-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.install-card b {
+  color: var(--ink);
+}
+
+.install-note {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.share-icon {
+  vertical-align: -3px;
+  fill: none;
+  stroke: var(--brand-text);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* A phone home screen with the Finance OS icon */
+.home-screen {
+  justify-self: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 270px;
+  height: 520px;
+  padding: 54px 22px 18px;
+  border: 10px solid var(--navy);
+  border-radius: 46px;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--brand) 55%, var(--navy)), var(--navy) 75%);
+  box-shadow: var(--shadow-landing-large);
+}
+
+.home-grid,
+.home-dock {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 22px 0;
+  justify-items: center;
+}
+
+.home-grid i,
+.home-dock i {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--on-dark) 18%, transparent);
+}
+
+.home-dock {
+  padding: 10px 6px;
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--on-dark) 14%, transparent);
+}
+
+.home-app {
+  position: relative;
+  display: grid;
+  justify-items: center;
+}
+
+.home-app img {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  box-shadow: 0 0 0 2px var(--on-dark), 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+/* The name below the icon does not push the grid apart */
+.home-app small {
+  position: absolute;
+  top: calc(100% + 4px);
+}
+
+.home-app small {
+  color: var(--on-dark);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (max-width: 960px) {
+  .get-app-inner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .home-screen {
+    order: -1;
+  }
+}
+
+@media (max-width: 600px) {
+  .get-app {
+    padding: 64px 0;
+  }
+
+  .install-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .home-screen {
+    width: 220px;
+    height: 420px;
+    padding: 44px 16px 14px;
+    border-width: 8px;
+    border-radius: 38px;
+  }
+
+  .home-grid i,
+  .home-dock i {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+
+  .home-app img {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+}
+
 /* Animations (js/landing.js sets .motion on <html> unless reduced motion is on) */
 
 .site-header {

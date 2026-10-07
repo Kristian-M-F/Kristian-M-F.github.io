@@ -97,3 +97,13 @@ test("no note while the page is up to date", async ({ page }) => {
   await page.waitForTimeout(5000);
   await expect(page.locator(".update-note")).toHaveCount(0);
 });
+
+test("the landing page explains how to add Finance OS to the home screen", async ({ page }) => {
+  await page.goto("/index.html");
+  await page.locator('.site-nav a[href="#app"]').click();
+  const section = page.locator("#app");
+  await expect(section).toBeInViewport();
+  await expect(section).toContainText("Zum Home-Bildschirm");
+  await expect(section).toContainText("App installieren");
+  await expect(page.locator(".faq")).toContainText("Gibt es Finance OS als App?");
+});
