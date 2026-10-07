@@ -814,4 +814,7 @@ window.TRANSLATIONS = {
   // Note about a new version (js/update.js)
   "Eine neue Version von Finance OS ist da.": ["A new version of Finance OS is available.", "Une nouvelle version de Finance OS est disponible.", "È disponibile una nuova versione di Finance OS."],
   "Neu laden": ["Reload", "Recharger", "Ricarica"],
+  // Account cards (short, fit on one line on phones)
+  "Übrig im Lohnmonat": ["Left this month", "Reste ce mois", "Rimasto nel mese"],
+  "Gespart im Lohnmonat": ["Saved this month", "Épargné ce mois", "Risparmiato nel mese"],
 };

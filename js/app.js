@@ -1414,7 +1414,7 @@ function renderAccountCards() {
     block.dataset.blockName = account.name;
     block.querySelector("[data-block-bar] .block-name").textContent = account.name;
     block.querySelector(".account-card").outerHTML = `<div class="account-card ${spending ? "spending" : "saving"}">
-        <span class="account-type">${spending ? t("Übrig in diesem Lohnmonat") : t("In diesem Lohnmonat gespart")}</span>
+        <span class="account-type">${spending ? t("Übrig im Lohnmonat") : t("Gespart im Lohnmonat")}</span>
         <b translate="no">${escapeHTML(account.name)}</b>
         <strong class="${amount < 0 ? "bad" : ""}">${chf(amount)}</strong>
       </div>`;

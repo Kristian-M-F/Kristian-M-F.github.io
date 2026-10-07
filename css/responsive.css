@@ -790,8 +790,11 @@
   .account-card .account-type {
     order: 3;
     margin-top: 2px;
+    overflow: hidden;
     font-size: 11px;
     line-height: 1.3;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   .account-card b {
