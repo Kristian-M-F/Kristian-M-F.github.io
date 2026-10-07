@@ -12,6 +12,8 @@ Kristian-M-F.github.io/
 ├── login.html              Login, Registrieren, Passwort vergessen/ändern, E-Mail ändern
 ├── app.html                Finance OS (Dashboard, Monat, Einträge, Daueraufträge, Einstellungen)
 ├── datenschutz.html        Datenschutzerklärung
+├── impressum.html          Impressum (wer die Seite betreibt)
+├── nutzungsbedingungen.html  Nutzungsbedingungen (werden bei der Registrierung akzeptiert)
 ├── kontakt.html            Kontaktformular
 ├── css/
 │   ├── base.css            Farben, Schrift, Buttons, Felder, Sidebar (gilt überall)
@@ -23,7 +25,7 @@ Kristian-M-F.github.io/
 │   ├── tour.css            Geführte Tour durch die App
 │   ├── responsive.css      Handy/Tablet in der App (wird zuletzt geladen)
 │   ├── landing.css         Startseite
-│   ├── login.css           Login-, Datenschutz- und Kontaktseite (Rahmen, Meldungen)
+│   ├── login.css           Login, Datenschutz, Impressum, Nutzungsbedingungen, Kontakt
 │   └── contact.css         Kontaktformular
 ├── js/
 │   ├── app.js              Logik von Finance OS (Konten, Lohn, Pauschalen, Einträge …)

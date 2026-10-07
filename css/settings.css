@@ -84,6 +84,12 @@
   min-width: 0;
 }
 
+/* 13th-month salary: column only when there is one */
+.year-table.no-thirteenth #thirteenthHead,
+.year-table.no-thirteenth td.computed {
+  display: none;
+}
+
 /* 13th-month salary per year: calculated, not typed in */
 .year-table td.computed {
   color: var(--muted);
@@ -223,7 +229,7 @@
 .settings-tabs button.active {
   background: var(--panel);
   color: var(--ink);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-small);
 }
 
 .tab-hidden {
@@ -336,4 +342,38 @@
   min-height: 0;
   padding: 8px 12px;
   font-size: 14px;
+}
+
+/* Settings → Profile: help and legal pages */
+.help-links {
+  display: grid;
+  gap: 2px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.help-links li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.help-links li:last-child {
+  border-bottom: 0;
+}
+
+.help-links a {
+  color: var(--ink);
+  font-weight: 650;
+  text-underline-offset: 3px;
+}
+
+.help-links .note {
+  margin: 0;
+  font-size: 13px;
 }

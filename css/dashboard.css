@@ -275,7 +275,7 @@
 .onboarding-steps li.done .step-check {
   border-color: var(--green);
   background: var(--green);
-  color: #fff;
+  color: var(--on-dark);
 }
 
 .onboarding-steps li.done .step-check::before {

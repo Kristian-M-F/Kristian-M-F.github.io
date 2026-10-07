@@ -55,3 +55,18 @@ test("FAQ answers open and close", async ({ page }) => {
   await question.locator("summary").click();
   await expect(question).not.toHaveAttribute("open", "");
 });
+
+test("imprint and terms of use are linked in the footer and readable", async ({ page }) => {
+  for (const path of ["/", "/login.html", "/datenschutz.html", "/kontakt.html"]) {
+    await page.goto(path);
+    await expect(page.locator('a[href="impressum.html"]').first()).toBeAttached();
+    await expect(page.locator('a[href="nutzungsbedingungen.html"]').first()).toBeAttached();
+  }
+  await page.goto("/impressum.html");
+  await expect(page.locator("h1")).toHaveText("Impressum");
+  await expect(page.locator("main")).toContainText("Kristian Maras");
+  await expect(page.locator("main")).toContainText("os.finance.tracker@gmail.com");
+  await page.goto("/nutzungsbedingungen.html");
+  await expect(page.locator("h1")).toHaveText("Nutzungsbedingungen");
+  await expect(page.locator("main")).toContainText("Schweizer Recht");
+});

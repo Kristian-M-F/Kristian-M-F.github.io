@@ -20,7 +20,7 @@
 }
 
 .contact-form textarea:focus-visible {
-  outline: 3px solid #78a8ff;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
 }
 

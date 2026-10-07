@@ -615,6 +615,12 @@ function periodLabel(month) {
   return `${formatDate(start)} – ${formatDate(end)}`;
 }
 
+// "25.09.–24.10." (short enough for a phone)
+function shortPeriod(month) {
+  const { start, end } = period(month);
+  return `${formatDate(start).slice(0, 6)}–${formatDate(end).slice(0, 6)}`;
+}
+
 function hasStarted(month) {
   return period(month).start <= todayISO();
 }
@@ -1510,6 +1516,7 @@ function renderSettings() {
     $("thirteenth" + i).textContent = state.thirteenth === "none" ? "–" : chf(amount);
   }
   $("thirteenthNote").textContent = thirteenthText();
+  $("yearSettings").closest("table").classList.toggle("no-thirteenth", state.thirteenth === "none");
   $("thirteenthHead").textContent = state.thirteenth === "spread" ? t("Davon 13. Monatslohn") : t("13. Monatslohn pro Jahr");
   renderAllowances();
   renderAccounts();
@@ -1857,7 +1864,7 @@ function openMonthEntry() {
   $("entryMonth").innerHTML =
     `<option value="">${t("Bitte Lohnmonat auswählen")}</option>` +
     monthList()
-      .map((month) => `<option value="${month}">${monthName(month)} · ${periodLabel(month)}</option>`)
+      .map((month) => `<option value="${month}">${monthName(month)} (${shortPeriod(month)})</option>`)
       .join("");
   $("entryMonth").value = currentMonth;
   $("entryMonth").focus();

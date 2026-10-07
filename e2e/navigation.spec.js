@@ -43,7 +43,7 @@ test("browser back button also returns to the same place", async ({ page }) => {
 test("registration → privacy policy → back: registration with the typed name", async ({ page }) => {
   await page.goto("/login.html?register");
   await page.fill("#username", "Lea");
-  await page.click(".auth-legal a");
+  await page.click('.terms-check a[href="datenschutz.html"]');
   await expect(page).toHaveURL(/datenschutz\.html/);
   await page.click("a[data-back]");
   await expect(page).toHaveURL(/login\.html\?register/);

@@ -134,3 +134,12 @@ test("colour, dark mode and text size are applied and saved with the account", a
   await expect(html).toHaveAttribute("data-accent", "violet");
   await expect(html).toHaveAttribute("data-theme", "dark");
 });
+
+test("contact, terms, privacy policy and imprint can be reached from the settings", async ({ page, request }) => {
+  await openApp(page, request);
+  await openTab(page, "account");
+  const help = page.locator('[data-fold="settings-help"]');
+  for (const href of ["kontakt.html", "nutzungsbedingungen.html", "datenschutz.html", "impressum.html"]) {
+    await expect(help.locator(`a[href="${href}"]`)).toBeVisible();
+  }
+});

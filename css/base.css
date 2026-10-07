@@ -1,5 +1,5 @@
 /* Base styles for every page (app, landing, login, privacy).
-   Colours are variables in :root below. Contains basic elements (buttons, fields,
+   All colours are variables in :root below (colour scheme in one place). Contains basic elements (buttons, fields,
    tables), layout, sidebar, cards and the toast message. */
 
 /* Font (bundled locally, no Google server needed; licence: fonts/LICENSE-Inter.txt) */
@@ -66,6 +66,47 @@
   --danger-line: #f0caca;
   --spending-text: #a3482b;
   --shadow: 0 8px 28px rgba(25, 35, 55, 0.035);
+
+  /* Text and icons on dark or coloured areas (menu, buttons, landing sections) */
+  --on-dark: #fff;
+  --on-dark-soft: #e1e6f0;
+  --on-dark-muted: #aab2c4;
+  --on-dark-faint: #8791a8;
+  --on-dark-error: #ff9b9b;
+  --on-dark-accent: #6fd3a3;
+  --knob: #fff; /* round knob of the on/off switches */
+
+  /* Menu (sidebar on the computer, top and bottom bar on the phone) */
+  --nav-line: #303849;
+  --nav-active: #33415c;
+
+  /* Keyboard focus, light bulb button, dark toast */
+  --focus-ring: #78a8ff;
+  --bulb-glow: #ffd84d;
+  --bulb-line: #b8860b;
+  --bulb-line-on: #e0a800;
+  --toast-dark: #2a3446;
+
+  /* Colour choice under Settings → Appearance (dots) */
+  --swatch-green: #0f6e4b;
+  --swatch-blue: #1d5fc4;
+  --swatch-violet: #6b40c4;
+  --swatch-orange: #b3520c;
+  --swatch-pink: #b8306b;
+
+  /* Shadows and dimmed backgrounds */
+  --shadow-small: 0 1px 3px rgba(0, 0, 0, 0.12);
+  --shadow-tab: 0 1px 4px rgba(25, 35, 55, 0.12);
+  --shadow-toast: 0 5px 25px rgba(0, 0, 0, 0.2);
+  --shadow-menu: 0 18px 30px -18px rgba(0, 0, 0, 0.6);
+  --shadow-popup: 0 18px 50px rgba(10, 15, 25, 0.28);
+  --shadow-dialog: 0 24px 60px rgb(0 0 0 / 0.25);
+  --shadow-hero: 0 30px 60px -28px rgba(17, 24, 39, 0.35), 0 2px 6px rgba(17, 24, 39, 0.05);
+  --shadow-landing-large: 0 40px 80px -40px rgba(17, 24, 39, 0.45);
+  --shadow-landing-medium: 0 18px 40px -24px rgba(17, 24, 39, 0.35);
+  --shadow-landing-small: 0 6px 24px -12px rgba(17, 24, 39, 0.25);
+  --overlay: rgba(10, 15, 25, 0.55); /* behind the guided tour */
+  --backdrop: rgb(15 23 42 / 0.45); /* behind dialogs */
 }
 
 /* Dark mode
@@ -201,7 +242,7 @@ button:disabled {
 button:focus-visible,
 input:focus-visible,
 select:focus-visible {
-  outline: 3px solid #78a8ff;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
 }
 
@@ -215,7 +256,7 @@ select:focus-visible {
 
 .primary {
   background: var(--brand);
-  color: #fff;
+  color: var(--on-dark);
 }
 
 .primary:hover:not(:disabled) {
@@ -326,17 +367,19 @@ tr:hover td {
   display: grid;
   grid-template-columns: 245px 1fr;
   min-height: 100vh;
+  min-height: 100dvh; /* phones: follows the browser bar on iPhone */
 }
 
 .sidebar {
   display: flex;
   flex-direction: column;
   background: var(--nav);
-  color: #fff;
+  color: var(--on-dark);
   padding: 26px 16px;
   position: sticky;
   top: 0;
   height: 100vh;
+  height: 100dvh;
   overflow-y: auto;
 }
 
@@ -348,7 +391,7 @@ tr:hover td {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  color: #fff;
+  color: var(--on-dark);
   font-family: "Inter Display", Inter, ui-sans-serif, system-ui, sans-serif;
   font-weight: 700;
   font-size: 20px;
@@ -370,7 +413,7 @@ tr:hover td {
 }
 
 .logo-mark path {
-  fill: #fff;
+  fill: var(--on-dark);
 }
 
 /* Burger and month button only exist on phones */
@@ -394,9 +437,9 @@ tr:hover td {
 
 .sidebar .lang-select,
 .sidebar .icon-button {
-  border-color: #303849;
+  border-color: var(--nav-line);
   background-color: var(--nav-hover);
-  color: #fff;
+  color: var(--on-dark);
 }
 
 
@@ -408,7 +451,7 @@ tr:hover td {
   width: 100%;
   border: 0;
   background: none;
-  color: #aab2c4;
+  color: var(--on-dark-muted);
   padding: 13px 14px;
   margin: 3px 0;
   text-align: left;
@@ -419,7 +462,7 @@ tr:hover td {
 .nav button:hover,
 .nav button.active {
   background: var(--nav-hover);
-  color: #fff;
+  color: var(--on-dark);
 }
 
 /* Active menu item: coloured bar on the left */
@@ -442,7 +485,7 @@ tr:hover td {
 
 .month-switch {
   margin: 22px 10px;
-  color: #aab2c4;
+  color: var(--on-dark-muted);
   font-size: 14px;
   line-height: 1.6;
 }
@@ -566,11 +609,11 @@ tr:hover td {
   display: block;
   margin-top: 2px;
   font-size: 12px;
-  color: #8791a8;
+  color: var(--on-dark-faint);
 }
 
 .save-status.error {
-  color: #ff9b9b;
+  color: var(--on-dark-error);
 }
 
 /* Toast */
@@ -582,10 +625,10 @@ tr:hover td {
   transform: translateX(-50%);
   z-index: 20;
   background: var(--accent);
-  color: #fff;
+  color: var(--on-dark);
   border-radius: 12px;
   padding: 14px 20px;
-  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-toast);
   max-width: 90vw;
   font-size: 14px;
 }
@@ -637,7 +680,7 @@ tr:hover td {
 }
 
 .fold > summary:focus-visible {
-  outline: 3px solid #78a8ff;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
 }
 
@@ -728,13 +771,13 @@ tr.more-row:hover td {
 }
 
 .bulb-glass {
-  fill: #ffd84d;
-  stroke: #b8860b;
+  fill: var(--bulb-glow);
+  stroke: var(--bulb-line);
   transition: fill 0.25s ease, stroke 0.25s ease;
 }
 
 .bulb-rays {
-  stroke: #e0a800;
+  stroke: var(--bulb-line-on);
   transition: opacity 0.25s ease, transform 0.25s ease;
   transform-origin: 12px 10px;
 }
@@ -967,7 +1010,7 @@ tr.more-row:hover td {
 .arrange-toggle[aria-pressed="true"] {
   background: var(--brand);
   border-color: var(--brand);
-  color: #fff;
+  color: var(--on-dark);
 }
 
 .arrange-help {
@@ -999,11 +1042,11 @@ tr.more-row:hover td {
   border-radius: 18px;
   background: var(--panel);
   color: var(--ink);
-  box-shadow: 0 24px 60px rgb(0 0 0 / 0.25);
+  box-shadow: var(--shadow-dialog);
 }
 
 .app-dialog::backdrop {
-  background: rgb(15 23 42 / 0.45);
+  background: var(--backdrop);
 }
 
 .app-dialog h2 {
@@ -1029,12 +1072,28 @@ tr.more-row:hover td {
 .dialog-buttons .danger-solid {
   background: var(--red);
   border-color: var(--red);
-  color: #fff;
+  color: var(--on-dark);
 }
 
 @media (max-width: 760px) {
   .blocks {
     grid-template-columns: minmax(0, 1fr);
     gap: 12px;
+  }
+}
+
+/* Phones: small links get a tap area of about 44px without changing their look
+   (base.css is loaded on every page) */
+@media (max-width: 760px) {
+  .link-button,
+  a.back,
+  .auth-links a,
+  .auth-legal a,
+  .footer-inner nav a,
+  .security-link,
+  .faq-list a {
+    display: inline-block;
+    padding: 11px 6px;
+    margin: -11px -6px;
   }
 }

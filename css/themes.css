@@ -49,7 +49,7 @@
 }
 
 [data-theme="dark"] .toast {
-  background: #2a3446;
+  background: var(--toast-dark);
 }
 
 /* Larger text (content only, not the menu) */
@@ -126,15 +126,15 @@
 }
 
 .swatch input:focus-visible + .swatch-dot {
-  outline: 3px solid #78a8ff;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 5px;
 }
 
-.swatch-green { --dot: #0f6e4b; }
-.swatch-blue { --dot: #1d5fc4; }
-.swatch-violet { --dot: #6b40c4; }
-.swatch-orange { --dot: #b3520c; }
-.swatch-pink { --dot: #b8306b; }
+.swatch-green { --dot: var(--swatch-green); }
+.swatch-blue { --dot: var(--swatch-blue); }
+.swatch-violet { --dot: var(--swatch-violet); }
+.swatch-orange { --dot: var(--swatch-orange); }
+.swatch-pink { --dot: var(--swatch-pink); }
 
 /* Segmented control with 2–3 options (light / dark / system) */
 .segmented {
@@ -174,11 +174,11 @@
 .segmented input:checked + span {
   background: var(--panel);
   color: var(--ink);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-small);
 }
 
 .segmented input:focus-visible + span {
-  outline: 3px solid #78a8ff;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
 }
 
@@ -225,7 +225,7 @@
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--knob);
   transition: transform 0.15s ease;
 }
 

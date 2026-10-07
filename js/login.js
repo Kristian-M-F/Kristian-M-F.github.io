@@ -157,6 +157,9 @@ async function submit() {
   if ((mode === "register" || mode === "reset") && unmetPasswordRule(password)) {
     return showError(unmetPasswordRule(password).message);
   }
+  if (mode === "register" && !$("acceptTerms").checked) {
+    return showError("Bitte akzeptiere die Nutzungsbedingungen und die Datenschutzerklärung.");
+  }
 
   setBusy(true);
   try {

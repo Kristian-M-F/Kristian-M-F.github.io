@@ -85,6 +85,7 @@ async function register(page, { email, username = "Lea", password = PASSWORD }) 
   await page.fill("#username", username);
   await page.fill("#email", email);
   await page.fill("#password", password);
+  await page.check("#acceptTerms");
   await page.click("#submitBtn");
   await base.expect(page.locator("#authNotice")).toBeVisible();
 }

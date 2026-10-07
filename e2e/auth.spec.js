@@ -28,6 +28,17 @@ test("a weak password is refused", async ({ page }) => {
   }
 });
 
+test("registering needs the terms and the privacy policy to be accepted", async ({ page }) => {
+  await page.goto("/login.html?register");
+  await page.fill("#username", "Lea");
+  await page.fill("#email", uniqueEmail());
+  await page.fill("#password", PASSWORD);
+  await page.click("#submitBtn");
+  await expect(page.locator("#authError")).toContainText("Nutzungsbedingungen");
+  await expect(page.locator("#authNotice")).toBeHidden();
+  await expect(page.locator('.terms-check a[href="nutzungsbedingungen.html"]')).toBeVisible();
+});
+
 test("register, confirm the email and log in", async ({ page, request }) => {
   const email = uniqueEmail("register");
   await register(page, { email });

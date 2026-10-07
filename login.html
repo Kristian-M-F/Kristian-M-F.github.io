@@ -103,6 +103,15 @@
               </div>
             </div>
 
+            <!-- Registration only: terms and privacy policy must be accepted -->
+            <label class="terms-check" data-show="register">
+              <input type="checkbox" id="acceptTerms" />
+              <span>
+                Ich akzeptiere die <a href="nutzungsbedingungen.html">Nutzungsbedingungen</a>
+                und die <a href="datenschutz.html">Datenschutzerklärung</a>.
+              </span>
+            </label>
+
             <p id="authError" class="auth-error" role="alert" hidden></p>
 
             <button type="button" class="secondary auth-resend" id="resendBtn" hidden>
@@ -111,10 +120,6 @@
 
             <button type="submit" class="primary auth-submit" id="submitBtn">Einloggen</button>
 
-            <p class="note auth-legal" data-show="register">
-              Mit der Registrierung bestätigst du, die
-              <a href="datenschutz.html">Datenschutzerklärung</a> gelesen zu haben.
-            </p>
 
             <button type="button" class="link-button auth-back" data-mode="login" data-show="forgot reset">
               ← Zurück zum Login
@@ -124,7 +129,9 @@
           </form>
         </div>
 
-        <p class="auth-links"><a href="datenschutz.html">Datenschutz</a><a href="kontakt.html">Kontakt</a></p>
+        <p class="auth-links">
+          <a href="impressum.html">Impressum</a><a href="nutzungsbedingungen.html">Nutzungsbedingungen</a><a href="datenschutz.html">Datenschutz</a><a href="kontakt.html">Kontakt</a>
+        </p>
       </main>
     </div>
 
