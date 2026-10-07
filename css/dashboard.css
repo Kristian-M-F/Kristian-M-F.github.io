@@ -312,7 +312,15 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 14px;
-  margin-bottom: 14px;
+}
+
+.account-cards.totals {
+  margin: 10px 0 4px;
+}
+
+.account-cards.totals .account-card {
+  background: var(--bg);
+  box-shadow: none;
 }
 
 .account-card {
@@ -348,7 +356,6 @@
 /* "Still available" in the pay month: the first and largest thing on the dashboard */
 
 .available-hero {
-  margin-bottom: 14px;
   border-top: 4px solid var(--brand);
 }
 

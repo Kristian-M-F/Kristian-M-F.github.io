@@ -96,8 +96,9 @@ const SETTINGS_FIELD =
 // Allowances are fixed amounts paid on top of the wage (meals, public transport, …).
 // Each has an amount and a saved part per apprenticeship year.
 
+// per: "month" (with every wage) or "year" (once, with the first wage of each apprenticeship year)
 function newAllowance(id, name, enabled = false) {
-  return { id, name, enabled, amounts: Array(MAX_YEARS).fill(0), save: Array(MAX_YEARS).fill(0) };
+  return { id, name, enabled, per: "month", amounts: Array(MAX_YEARS).fill(0), save: Array(MAX_YEARS).fill(0) };
 }
 
 // Default names in German; they are shown in the chosen language (see localizeDefaultNames).
@@ -114,11 +115,11 @@ const DEFAULT_LISTS = {
   payments: ["Karte", "TWINT", "Bar", "Überweisung"],
 };
 
-// New accounts start with the meal allowance (on) and public transport (off); more can be added.
-const STARTING_ALLOWANCES = ["food", "transport"];
+// New accounts start with public transport (on) and the meal allowance (off); more can be added.
+const STARTING_ALLOWANCES = ["transport", "food"];
 
 function defaultAllowances() {
-  return STARTING_ALLOWANCES.map((id) => newAllowance(id, t(DEFAULT_ALLOWANCE_NAMES[id]), id === "food"));
+  return STARTING_ALLOWANCES.map((id) => newAllowance(id, t(DEFAULT_ALLOWANCE_NAMES[id]), id === "transport"));
 }
 
 const enabledAllowances = () => state.allowances.filter((allowance) => allowance.enabled);
@@ -472,6 +473,49 @@ function notify(message, params) {
   notify.timer = setTimeout(() => (toast.hidden = true), Math.max(3500, message.length * 60));
 }
 
+// Questions and new names in the page's own dialog (app.html #appDialog) instead of the
+// browser's prompt()/confirm(). Resolves with the typed text (input), true (question) or null (cancelled).
+function askUser({ title, text = "", label = "", value = null, okLabel = t("OK"), danger = false }) {
+  const dialog = $("appDialog");
+  const input = $("appDialogInput");
+  $("appDialogTitle").textContent = title;
+  $("appDialogText").textContent = text;
+  $("appDialogField").hidden = value === null;
+  $("appDialogLabel").textContent = label;
+  input.value = value ?? "";
+  $("appDialogOk").textContent = okLabel;
+  $("appDialogOk").classList.toggle("danger-solid", danger);
+
+  return new Promise((resolve) => {
+    const finish = (result) => {
+      dialog.removeEventListener("close", onClose);
+      $("appDialogForm").removeEventListener("submit", onSubmit);
+      $("appDialogCancel").removeEventListener("click", onCancel);
+      dialog.removeEventListener("click", onBackdrop);
+      if (dialog.open) dialog.close();
+      resolve(result);
+    };
+    const onSubmit = (event) => {
+      event.preventDefault();
+      finish(value === null ? true : input.value.trim());
+    };
+    const onCancel = () => finish(null);
+    const onClose = () => finish(null); // Escape
+    const onBackdrop = (event) => {
+      if (event.target === dialog) finish(null);
+    };
+    $("appDialogForm").addEventListener("submit", onSubmit);
+    $("appDialogCancel").addEventListener("click", onCancel);
+    dialog.addEventListener("close", onClose);
+    dialog.addEventListener("click", onBackdrop);
+    dialog.showModal();
+    (value === null ? $("appDialogOk") : input).focus();
+    if (value !== null) input.select();
+  });
+}
+
+const confirmAction = async (options) => (await askUser({ danger: true, ...options })) === true;
+
 // Dates and pay months
 
 const zurichDate = new Intl.DateTimeFormat("en-CA", {
@@ -686,17 +730,18 @@ function thirteenthSalary(month, salary) {
   return ["11", "12"].includes(state.thirteenth) && month.slice(5, 7) === state.thirteenth ? salary : 0;
 }
 
-// 13th-month salary per apprenticeship year, for the column in the wage table.
-// Spread over 12 wages: a year is 13 base wages paid in 12 parts, so the 13th is 12/13 of a monthly wage.
+// 13th-month salary for the column in the wage table.
+// Spread over the 12 wages: the part of the 13th in each net wage is net wage ÷ 13.
+// Paid in November or December: one extra monthly wage per year.
 function thirteenthPerYear(monthlyWage) {
-  if (state.thirteenth === "spread") return (monthlyWage * 12) / 13;
+  if (state.thirteenth === "spread") return monthlyWage / 13;
   if (state.thirteenth === "11" || state.thirteenth === "12") return monthlyWage;
   return 0;
 }
 
 function thirteenthText() {
   if (state.thirteenth === "spread") {
-    return t("Dein Nettolohn enthält den 13. Monatslohn schon: Er wird nicht zusätzlich ausbezahlt. Die Spalte zeigt, wie viel davon pro Lehrjahr in deinen 12 Löhnen steckt.");
+    return t("Dein Nettolohn enthält den 13. Monatslohn schon: Er wird nicht zusätzlich ausbezahlt. Die Spalte zeigt den Anteil in jedem Lohn (Nettolohn ÷ 13).");
   }
   if (state.thirteenth === "11") return t("Mit dem Novemberlohn kommt ein zusätzlicher Monatslohn dazu.");
   if (state.thirteenth === "12") return t("Mit dem Dezemberlohn kommt ein zusätzlicher Monatslohn dazu.");
@@ -709,11 +754,16 @@ function monthSummary(month) {
   const amount = (list) => (paid ? Number(list[year]) || 0 : 0);
   const salary = amount(state.salaries);
   const bonus = thirteenthSalary(month, salary);
-  const allowances = enabledAllowances().map((allowance) => ({
-    name: allowance.name,
-    amount: amount(allowance.amounts),
-    save: amount(allowance.save),
-  }));
+  // A yearly allowance comes once, with the first wage of each apprenticeship year.
+  const firstOfYear = monthsBetween(firstMonth(), month) % 12 === 0;
+  const allowances = enabledAllowances()
+    .filter((allowance) => allowance.per !== "year" || firstOfYear)
+    .map((allowance) => ({
+      name: allowance.name,
+      per: allowance.per === "year" ? "year" : "month",
+      amount: amount(allowance.amounts),
+      save: amount(allowance.save),
+    }));
   const allowanceTotal = sumBy(allowances, (allowance) => allowance.amount);
   const allowanceSave = sumBy(allowances, (allowance) => allowance.save);
   const extra = amount(state.extraSave);
@@ -764,15 +814,15 @@ const spendingAccount = () => state.accounts.find((account) => account.kind === 
 const savingAccounts = () => state.accounts.filter((account) => account.kind === "saving");
 const savingNames = () => savingAccounts().map((account) => account.name);
 
-// Balance today: opening balance plus every movement since the start of the apprenticeship.
-function accountBalances() {
-  const balance = Object.fromEntries(state.accounts.map((account) => [account.id, Number(account.start) || 0]));
+// Money moved on each account in the given months; with opening balances = balance today.
+function accountMoves(months, withOpening = false) {
+  const balance = Object.fromEntries(state.accounts.map((account) => [account.id, withOpening ? Number(account.start) || 0 : 0]));
   const idByName = Object.fromEntries(savingAccounts().map((account) => [account.name, account.id]));
   const autoId = state.autoAccount in balance ? state.autoAccount : savingAccounts()[0]?.id;
   const add = (id, amount) => {
     if (id in balance) balance[id] += Number(amount) || 0;
   };
-  for (const month of countedMonths()) {
+  for (const month of months.filter(hasStarted)) {
     const summary = monthSummary(month);
     add(spendingAccount().id, summary.available);
     add(autoId, summary.allowanceSave + summary.extra);
@@ -782,6 +832,9 @@ function accountBalances() {
   }
   return balance;
 }
+
+// Balance today: opening balance plus every movement since the start of the apprenticeship.
+const accountBalances = () => accountMoves(countedMonths(), true);
 
 function monthLedger(month) {
   const summary = monthSummary(month);
@@ -799,7 +852,7 @@ function monthLedger(month) {
   const autoName = state.accounts.find((account) => account.id === state.autoAccount)?.name || "";
   const toSavings = t("Aufs Sparkonto „{name}“", { name: autoName });
   for (const allowance of summary.allowances) {
-    add(start, allowance.name, allowance.amount, "income", t("Pauschale · automatisch"));
+    add(start, allowance.name, allowance.amount, "income", allowance.per === "year" ? t("Pauschale · jährlich") : t("Pauschale · automatisch"));
     add(start, t("{name} sparen", { name: allowance.name }), allowance.save, "saving", toSavings);
   }
   add(start, t("Automatisch sparen"), summary.extra, "saving", toSavings);
@@ -1176,7 +1229,7 @@ function buildYearSettings() {
 
   const input = (id, label) =>
     `<input id="${id}" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" aria-label="${label}">`;
-  $("yearSettingsHead").innerHTML = `<tr><th>${t("Lehrjahr")}</th><th>${t("Nettolohn CHF")}</th><th>${t("Automatisch sparen CHF")}</th><th>${t("13. Monatslohn pro Jahr")}</th></tr>`;
+  $("yearSettingsHead").innerHTML = `<tr><th>${t("Lehrjahr")}</th><th>${t("Nettolohn CHF")}</th><th>${t("Automatisch sparen CHF")}</th><th id="thirteenthHead"></th></tr>`;
   $("yearSettings").innerHTML = yearIndexes()
     .map((i) => {
       const year = yearLabel(i);
@@ -1196,7 +1249,7 @@ function buildYearSettings() {
 let allowanceShape = "";
 
 function renderAllowances() {
-  const shape = JSON.stringify([state.years, state.allowances.map((allowance) => [allowance.id, allowance.name, allowance.enabled])]);
+  const shape = JSON.stringify([state.years, state.allowances.map((allowance) => [allowance.id, allowance.name, allowance.enabled, allowance.per])]);
   if (shape !== allowanceShape) {
     allowanceShape = shape;
     const input = (allowance, field, i, label) =>
@@ -1205,12 +1258,14 @@ function renderAllowances() {
     $("allowanceList").innerHTML = state.allowances
       .map((allowance) => {
         const name = escapeHTML(allowance.name);
+        const yearly = allowance.per === "year";
+        const amountLabel = yearly ? t("CHF pro Jahr") : t("CHF pro Monat");
         const years = allowance.enabled
           ? `<div class="allowance-years">${yearIndexes()
               .map(
                 (i) => `<div class="allowance-year">
                   <b>${yearLabel(i)}</b>
-                  <label>${t("Betrag CHF")} ${input(allowance, "amounts", i, `${name} ${yearLabel(i)}`)}</label>
+                  <label>${amountLabel} ${input(allowance, "amounts", i, `${name} ${yearLabel(i)}`)}</label>
                   <label>${t("davon sparen")} ${input(allowance, "save", i, `${t("{name} sparen", { name })} ${yearLabel(i)}`)}</label>
                 </div>`,
               )
@@ -1222,6 +1277,10 @@ function renderAllowances() {
               <span class="switch-text"><span translate="no">${name}</span></span>
               <input type="checkbox" data-allowance-toggle="${allowance.id}" ${allowance.enabled ? "checked" : ""}>
             </label>
+            ${allowance.enabled ? `<select class="allowance-per" data-allowance-per="${allowance.id}" aria-label="${t("Wie oft? {name}", { name })}">
+              <option value="month" ${yearly ? "" : "selected"}>${t("monatlich")}</option>
+              <option value="year" ${yearly ? "selected" : ""}>${t("jährlich")}</option>
+            </select>` : ""}
             <button class="danger" data-action="delete-allowance" data-id="${allowance.id}" aria-label="${t("{name} entfernen", { name })}">${t("Entfernen")}</button>
           </div>
           ${years}
@@ -1238,8 +1297,13 @@ function renderAllowances() {
 }
 
 function changeAllowance(field) {
-  const allowance = state.allowances.find((allowance) => allowance.id === (field.dataset.allowance || field.dataset.allowanceToggle));
+  const id = field.dataset.allowance || field.dataset.allowanceToggle || field.dataset.allowancePer;
+  const allowance = state.allowances.find((allowance) => allowance.id === id);
   if (!allowance) return;
+  if (field.dataset.allowancePer) {
+    allowance.per = field.value === "year" ? "year" : "month";
+    return persist();
+  }
   if (field.dataset.allowanceToggle) {
     allowance.enabled = field.checked;
     return persist();
@@ -1271,26 +1335,33 @@ function addAllowance() {
   notify("Pauschale hinzugefügt");
 }
 
-function deleteAllowance(id) {
+async function deleteAllowance(id) {
   const allowance = state.allowances.find((allowance) => allowance.id === id);
-  if (!allowance || !confirm(t("Pauschale „{name}“ entfernen?", { name: allowance.name }))) return;
+  if (!allowance) return;
+  if (!(await confirmAction({ title: t("Pauschale „{name}“ entfernen?", { name: allowance.name }), okLabel: t("Entfernen") }))) return;
   state.allowances = state.allowances.filter((allowance) => allowance.id !== id);
   persist();
 }
 
 // Account cards on the dashboard and account management in the settings
 
+// Dashboard: what happened on each account in the selected pay month.
+// The balances since the start are in the statistics (accountTotals).
 function renderAccountCards() {
-  const balance = accountBalances();
-  $("accountCards").innerHTML = state.accounts
+  const moves = accountMoves([currentMonth]);
+  $("accountCards").innerHTML = accountCardsHTML(moves, (spending) => (spending ? t("Übrig in diesem Lohnmonat") : t("In diesem Lohnmonat gespart")));
+  $("accountTotals").innerHTML = accountCardsHTML(accountBalances(), () => t("Stand heute"));
+}
+
+function accountCardsHTML(amounts, typeLabel) {
+  return state.accounts
     .map((account) => {
       const spending = account.kind === "spending";
-      const amount = balance[account.id] || 0;
+      const amount = amounts[account.id] || 0;
       return `<div class="account-card ${spending ? "spending" : "saving"}">
-        <span class="account-type">${spending ? t("Zum Ausgeben") : t("Gespart")}</span>
+        <span class="account-type">${typeLabel(spending)}</span>
         <b translate="no">${escapeHTML(account.name)}</b>
         <strong class="${amount < 0 ? "bad" : ""}">${chf(amount)}</strong>
-        ${spending ? `<span class="account-type">${t("Stand heute, mit Rest aus früheren Monaten")}</span>` : ""}
       </div>`;
     })
     .join("");
@@ -1341,10 +1412,10 @@ function addAccount() {
   notify("Sparkonto hinzugefügt");
 }
 
-function renameAccount(id) {
+async function renameAccount(id) {
   const account = state.accounts.find((account) => account.id === id);
   if (!account) return;
-  const name = prompt(t("Neuer Name für das Konto"), account.name)?.trim();
+  const name = await askUser({ title: t("Umbenennen"), label: t("Neuer Name für das Konto"), value: account.name, okLabel: t("Speichern") });
   if (!name || name === account.name) return;
   if (state.accounts.some((other) => other !== account && other.name.toLowerCase() === name.toLowerCase())) {
     return notify("Dieses Konto gibt es schon.");
@@ -1355,10 +1426,10 @@ function renameAccount(id) {
   notify("Umbenannt");
 }
 
-function deleteMoneyAccount(id) {
+async function deleteMoneyAccount(id) {
   const account = state.accounts.find((account) => account.id === id);
   if (!account || account.kind !== "saving" || savingAccounts().length <= 1) return;
-  if (!confirm(t("Sparkonto „{name}“ löschen? Bisherige Buchungen bleiben erhalten.", { name: account.name }))) return;
+  if (!(await confirmAction({ title: t("Sparkonto „{name}“ löschen? Bisherige Buchungen bleiben erhalten.", { name: account.name }), okLabel: t("Löschen") }))) return;
   state.accounts = state.accounts.filter((account) => account.id !== id);
   if (state.autoAccount === id) state.autoAccount = savingAccounts()[0].id;
   persist();
@@ -1395,6 +1466,7 @@ function renderSettings() {
     $("thirteenth" + i).textContent = state.thirteenth === "none" ? "–" : chf(amount);
   }
   $("thirteenthNote").textContent = thirteenthText();
+  $("thirteenthHead").textContent = state.thirteenth === "spread" ? t("Davon 13. Monatslohn") : t("13. Monatslohn pro Jahr");
   renderAllowances();
   renderAccounts();
 }
@@ -1506,10 +1578,123 @@ function render() {
   shortenLists();
 }
 
+// Arranging blocks on the dashboard and the month page.
+// "Anordnen" shows a bar on every block: drag it (mouse or finger) or use ↑ ↓.
+// The order is saved with the account in state.layout = { dashboard: [ids], month: [ids] }.
+
+const DEFAULT_LAYOUT = {};
+document.querySelectorAll("[data-sortable]").forEach((container) => {
+  DEFAULT_LAYOUT[container.dataset.sortable] = [...container.children].map((block) => block.dataset.block);
+});
+
+function blocksOf(name) {
+  return [...document.querySelector(`[data-sortable="${name}"]`).children];
+}
+
+// Puts the blocks in the saved order; unknown or new blocks keep their default place at the end.
+function applyLayout() {
+  for (const name of Object.keys(DEFAULT_LAYOUT)) {
+    const saved = state.layout?.[name] || [];
+    const order = [...saved.filter((id) => DEFAULT_LAYOUT[name].includes(id)), ...DEFAULT_LAYOUT[name].filter((id) => !saved.includes(id))];
+    const container = document.querySelector(`[data-sortable="${name}"]`);
+    const byId = Object.fromEntries(blocksOf(name).map((block) => [block.dataset.block, block]));
+    order.forEach((id) => container.append(byId[id]));
+  }
+}
+
+function saveLayout(name) {
+  state.layout = { ...state.layout, [name]: blocksOf(name).map((block) => block.dataset.block) };
+  save();
+}
+
+function addBlockBars() {
+  document.querySelectorAll("[data-sortable] > .block").forEach((block) => {
+    const name = t(block.dataset.blockName);
+    block.insertAdjacentHTML(
+      "afterbegin",
+      `<div class="block-bar" data-block-bar>
+        <span class="block-grip" aria-hidden="true">⠿</span>
+        <span class="block-name">${escapeHTML(name)}</span>
+        <button type="button" class="secondary" data-action="move-block" data-step="-1" aria-label="${t("{name} nach oben", { name: escapeHTML(name) })}">↑</button>
+        <button type="button" class="secondary" data-action="move-block" data-step="1" aria-label="${t("{name} nach unten", { name: escapeHTML(name) })}">↓</button>
+      </div>`,
+    );
+  });
+}
+
+function setArranging(name, on) {
+  const container = document.querySelector(`[data-sortable="${name}"]`);
+  container.classList.toggle("arranging", on);
+  document.querySelector(`[data-arrange-help="${name}"]`).hidden = !on;
+  const toggle = document.querySelector(`[data-action="arrange"][data-sortable-for="${name}"]`);
+  toggle.setAttribute("aria-pressed", String(on));
+  toggle.textContent = on ? t("Fertig") : t("Anordnen");
+}
+
+function toggleArranging(data) {
+  const container = document.querySelector(`[data-sortable="${data.sortableFor}"]`);
+  setArranging(data.sortableFor, !container.classList.contains("arranging"));
+}
+
+function moveBlock(button) {
+  const block = button.closest(".block");
+  const container = block.parentElement;
+  if (Number(button.dataset.step) < 0) block.previousElementSibling?.before(block);
+  else block.nextElementSibling?.after(block);
+  saveLayout(container.dataset.sortable);
+  button.focus();
+}
+
+function resetLayout(data) {
+  if (state.layout) delete state.layout[data.sortableFor];
+  applyLayout();
+  save();
+}
+
+// Dragging with the mouse or a finger (pointer events also work on phones).
+document.addEventListener("pointerdown", (event) => {
+  const bar = event.target.closest("[data-block-bar]");
+  if (!ready || !bar || event.target.closest("button") || !bar.closest(".arranging")) return;
+  const block = bar.closest(".block");
+  const container = block.parentElement;
+  event.preventDefault();
+  block.classList.add("dragging");
+
+  const onMove = (move) => {
+    // Near the top or bottom edge the page scrolls along, so far places can be reached.
+    if (move.clientY < 70) window.scrollBy(0, -18);
+    else if (move.clientY > innerHeight - 70) window.scrollBy(0, 18);
+    const target = [...container.children].find((other) => {
+      if (other === block) return false;
+      const box = other.getBoundingClientRect();
+      return move.clientX >= box.left && move.clientX <= box.right && move.clientY >= box.top && move.clientY <= box.bottom;
+    });
+    if (!target) return;
+    const box = target.getBoundingClientRect();
+    const before = target.classList.contains("span-2") || block.classList.contains("span-2")
+      ? move.clientY < box.top + box.height / 2
+      : move.clientX < box.left + box.width / 2;
+    if (before) target.before(block);
+    else target.after(block);
+  };
+  // Listen on the whole page: the pointer leaves the bar while dragging.
+  const onUp = () => {
+    document.removeEventListener("pointermove", onMove);
+    document.removeEventListener("pointerup", onUp);
+    document.removeEventListener("pointercancel", onUp);
+    block.classList.remove("dragging");
+    saveLayout(container.dataset.sortable);
+  };
+  document.addEventListener("pointermove", onMove);
+  document.addEventListener("pointerup", onUp);
+  document.addEventListener("pointercancel", onUp);
+});
+
 // Navigation
 
 function showPage(id) {
   setMenuOpen(false);
+  Object.keys(DEFAULT_LAYOUT).forEach((name) => setArranging(name, false));
   document.querySelectorAll(".page").forEach((page) => page.classList.toggle("active", page.id === id));
   document
     .querySelectorAll(".nav button")
@@ -1791,8 +1976,8 @@ function editRecord(type, id) {
   firstField.focus({ preventScroll: true });
 }
 
-function deleteRecord(type, id) {
-  if (!confirm(t("Diesen Eintrag löschen?"))) return;
+async function deleteRecord(type, id) {
+  if (!(await confirmAction({ title: t("Diesen Eintrag löschen?"), okLabel: t("Löschen") }))) return;
   state[type] = state[type].filter((item) => item.id !== id);
   const form = formOf(type);
   if (editing[form]?.id === id) finishEdit(form);
@@ -1840,9 +2025,9 @@ function saveSettings() {
   notify("Einstellungen gespeichert");
 }
 
-function resetAll() {
-  if (!confirm(t("Wirklich alle Finanzwerte und Einträge auf 0 zurücksetzen?"))) return;
-  state = { ...createEmptyData(), appearance: state.appearance }; // keep the appearance settings
+async function resetAll() {
+  if (!(await confirmAction({ title: t("Wirklich alle Finanzwerte und Einträge auf 0 zurücksetzen?"), okLabel: t("Zurücksetzen") }))) return;
+  state = { ...createEmptyData(), appearance: state.appearance, layout: state.layout }; // keep appearance and layout
   editing = loadEditing();
   setCurrentMonth(initialMonth());
   $("entryKind").value = "expense";
@@ -1874,11 +2059,10 @@ function addListItem(type) {
   notify("Hinzugefügt");
 }
 
-function renameListItem(type, index) {
+async function renameListItem(type, index) {
   if (!LIST_SELECTS[type]) return;
   const oldName = state[type][index];
-  const input = prompt(t("Neue Bezeichnung"), oldName);
-  const name = input?.trim();
+  const name = await askUser({ title: t("Umbenennen"), label: t("Neue Bezeichnung"), value: oldName, okLabel: t("Speichern") });
   if (!name || name === oldName) return;
   if (state[type].some((item, i) => i !== index && item.toLowerCase() === name.toLowerCase())) {
     return notify("Diese Bezeichnung besteht bereits.");
@@ -1898,10 +2082,10 @@ function renameListItem(type, index) {
   notify("Umbenannt");
 }
 
-function deleteListItem(type, index) {
+async function deleteListItem(type, index) {
   if (!LIST_SELECTS[type]) return;
   if (state[type].length <= 1) return notify("Mindestens eine Bezeichnung muss erhalten bleiben.");
-  if (!confirm(t("Bezeichnung aus der Auswahl entfernen? Bestehende Buchungen bleiben erhalten."))) return;
+  if (!(await confirmAction({ title: t("Bezeichnung aus der Auswahl entfernen? Bestehende Buchungen bleiben erhalten."), okLabel: t("Entfernen") }))) return;
   state[type].splice(index, 1);
   persist();
   notify("Entfernt");
@@ -1946,7 +2130,7 @@ async function exportAccount() {
 async function deleteAccount() {
   const password = $("deletePassword").value;
   if (!password) return notify("Bitte zur Bestätigung dein Passwort eingeben.");
-  if (!confirm(t("Konto und alle Daten endgültig löschen? Das kann nicht rückgängig gemacht werden."))) return;
+  if (!(await confirmAction({ title: t("Konto und alle Daten endgültig löschen? Das kann nicht rückgängig gemacht werden."), okLabel: t("Konto endgültig löschen") }))) return;
   try {
     clearTimeout(saveOnline.timer);
     saveOnline.pending = false;
@@ -1963,6 +2147,8 @@ async function deleteAccount() {
 
 const actions = {
   "change-month": openMonthEntry,
+  arrange: toggleArranging,
+  "reset-layout": resetLayout,
   "start-tour": startTour,
   "new-entry": openNewEntry,
   "toggle-recurring-payment": toggleRecurringPayment,
@@ -2013,6 +2199,7 @@ document.addEventListener("click", (event) => {
   const button = event.target.closest("button");
   if (!button) return;
   if (button.dataset.page) showPage(button.dataset.page);
+  if (button.dataset.action === "move-block") return moveBlock(button);
   const action = actions[button.dataset.action];
   if (action) action(button.dataset);
 });
@@ -2030,7 +2217,7 @@ document.addEventListener("change", (event) => {
   if (!ready) return;
   const field = event.target;
   if (APPEARANCE_FIELDS.includes(field.name)) return changeAppearance(field);
-  if (field.dataset.allowance || field.dataset.allowanceToggle) return changeAllowance(field);
+  if (field.dataset.allowance || field.dataset.allowanceToggle || field.dataset.allowancePer) return changeAllowance(field);
   if (field.dataset.accountStart) return changeAccountStart(field);
   if (SETTINGS_FIELD.test(field.id)) return saveSettings();
 
@@ -2127,6 +2314,8 @@ async function start() {
 
   state = loadData(saved);
   localizeDefaultNames();
+  addBlockBars();
+  applyLayout();
   editing = loadEditing();
   $("setPayday").innerHTML = Array.from({ length: 28 }, (_, i) => i + 1)
     .map((day) => `<option value="${day}">${day}.${day === 1 ? ` (= ${t("Kalendermonat")})` : ""}</option>`)

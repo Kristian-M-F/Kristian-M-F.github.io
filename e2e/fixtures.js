@@ -26,10 +26,29 @@ const test = base.test.extend({
       },
       [API_URL, language],
     );
-    // confirm() is answered with "OK"; for prompt() a test queues the text with answerDialog().
+    // The app asks in its own dialog (#appDialog). It is answered like a person would:
+    // a queued text (answerDialog) is typed in, then "OK" is clicked.
+    // Browser pop-ups are not used any more; page.browserDialogs records any that appear.
     const answers = [];
     page.answerDialog = (text) => answers.push(text);
-    page.on("dialog", (dialog) => dialog.accept(answers.shift()).catch(() => {}));
+    page.browserDialogs = [];
+    page.on("dialog", (dialog) => {
+      page.browserDialogs.push(dialog.message());
+      dialog.accept(answers.shift()).catch(() => {});
+    });
+    await page.exposeFunction("e2eNextAnswer", () => answers.shift() ?? null);
+    await page.addInitScript(() => {
+      new MutationObserver(async (changes) => {
+        for (const change of changes) {
+          const dialog = change.target;
+          if (dialog.id !== "appDialog" || !dialog.open) continue;
+          const text = await window.e2eNextAnswer();
+          const input = document.getElementById("appDialogInput");
+          if (text !== null) input.value = text;
+          document.getElementById("appDialogOk").click();
+        }
+      }).observe(document, { subtree: true, attributes: true, attributeFilter: ["open"] });
+    });
     await use(page);
   },
 });

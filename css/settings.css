@@ -136,6 +136,15 @@
   min-width: 0;
 }
 
+/* Monthly or yearly */
+.allowance-per {
+  width: auto;
+  min-height: 36px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  font-size: 14px;
+}
+
 .allowance-head .danger {
   min-height: 36px;
   padding: 4px 6px;

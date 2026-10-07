@@ -8,22 +8,29 @@ async function openTab(page, tab) {
   await page.click(`[data-settings-tab-button="${tab}"]`);
 }
 
-test("allowances can be switched on, filled in, added and removed", async ({ page, request }) => {
+test("allowances can be switched on, filled in, set to yearly, added and removed", async ({ page, request }) => {
   await openApp(page, request);
   await openTab(page, "pay");
 
-  // The meal allowance is on by default: 200 per month, 50 of it saved.
-  await page.fill("#al-food-amounts-0", "200");
-  await page.locator("#al-food-amounts-0").blur();
-  await page.fill("#al-food-save-0", "50");
-  await page.locator("#al-food-save-0").blur();
+  // Public transport is on by default: 200 per month, 50 of it saved.
+  await page.fill("#al-transport-amounts-0", "200");
+  await page.locator("#al-transport-amounts-0").blur();
+  await page.fill("#al-transport-save-0", "50");
+  await page.locator("#al-transport-save-0").blur();
   await goTo(page, "month");
   await expect.poll(async () => chf(await page.locator("#mIncome").textContent())).toBe(200);
   await expect.poll(async () => chf(await page.locator("#mSaved").textContent())).toBe(50);
 
+  // Yearly: paid only with the first wage of the apprenticeship year (August), not in this month.
   await openTab(page, "pay");
-  await page.check('[data-allowance-toggle="transport"]');
-  await expect(page.locator("#al-transport-amounts-0")).toBeVisible();
+  await page.selectOption('[data-allowance-per="transport"]', "year");
+  await expect(page.locator(".allowance", { hasText: "ÖV" })).toContainText("CHF pro Jahr");
+  await goTo(page, "month");
+  await expect.poll(async () => chf(await page.locator("#mIncome").textContent())).toBe(0);
+
+  await openTab(page, "pay");
+  await page.check('[data-allowance-toggle="food"]');
+  await expect(page.locator("#al-food-amounts-0")).toBeVisible();
 
   await page.fill("#allowanceName", "Schulmaterial");
   await page.click('[data-action="add-allowance"]');
@@ -73,18 +80,21 @@ test("categories can be added, renamed and removed", async ({ page, request }) =
   await expenses.locator(".chip", { hasText: "Festivals" }).locator('[data-action="delete-list-item"]').click();
   await expect(expenses).not.toContainText("Festivals");
 
+  expect(page.browserDialogs).toEqual([]); // renamed in the page's own dialog, not a browser pop-up
+
   // Enter adds a payment method
   await page.fill("#listName-payments", "Kreditkarte");
   await page.press("#listName-payments", "Enter");
   await expect(page.locator('[data-list-items="payments"]')).toContainText("Kreditkarte");
 });
 
-test("new accounts start with the meal allowance and public transport only", async ({ page, request }) => {
+test("new accounts start with public transport (on) and the meal allowance (off) only", async ({ page, request }) => {
   await openApp(page, request);
   await openTab(page, "pay");
   await expect(page.locator(".allowance")).toHaveCount(2);
-  await expect(page.locator('[data-allowance-toggle="food"]')).toBeChecked();
-  await expect(page.locator('[data-allowance-toggle="transport"]')).not.toBeChecked();
+  await expect(page.locator('[data-allowance-toggle="transport"]')).toBeChecked();
+  await expect(page.locator('[data-allowance-toggle="food"]')).not.toBeChecked();
+  await expect(page.locator('[data-allowance-per="transport"]')).toHaveValue("month");
 });
 
 test("the 13th-month salary per year is calculated", async ({ page, request }) => {
@@ -94,9 +104,9 @@ test("the 13th-month salary per year is calculated", async ({ page, request }) =
   await page.locator("#salary0").blur();
   await expect(page.locator("#thirteenth0")).toHaveText("–");
 
-  // Spread over 12 wages: 1300 × 12 / 13 = 1200 is the 13th-month salary in it
+  // Spread over 12 wages: net wage ÷ 13 = 100 of every wage is 13th-month salary
   await page.selectOption("#setThirteenth", "spread");
-  await expect.poll(async () => chf(await page.locator("#thirteenth0").textContent())).toBe(1200);
+  await expect.poll(async () => chf(await page.locator("#thirteenth0").textContent())).toBe(100);
   await expect(page.locator("#thirteenthNote")).not.toBeEmpty();
 
   // Paid with the December wage: one extra monthly wage

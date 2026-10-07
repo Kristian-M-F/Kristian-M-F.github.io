@@ -890,3 +890,151 @@ tr.more-row:hover td {
   font-weight: 650;
   text-decoration: none;
 }
+
+/* Sortable blocks on the dashboard and the month page ("Anordnen") */
+
+.blocks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+  align-items: start;
+}
+
+.block {
+  min-width: 0;
+}
+
+.block.span-2 {
+  grid-column: 1 / -1;
+}
+
+.block > .card {
+  height: 100%;
+}
+
+.block-bar {
+  display: none;
+}
+
+.arranging .block {
+  border: 2px dashed color-mix(in srgb, var(--brand) 45%, var(--line));
+  border-radius: 18px;
+  padding: 8px;
+  background: color-mix(in srgb, var(--brand-soft) 40%, transparent);
+}
+
+.arranging .block-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 6px 8px;
+  border-radius: 12px;
+  background: var(--panel);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.block-grip {
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.block-name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.block-bar button {
+  min-height: 34px;
+  min-width: 34px;
+  padding: 4px 8px;
+}
+
+.block.dragging {
+  opacity: 0.6;
+  outline: 2px solid var(--brand);
+}
+
+.arranging .block .card {
+  pointer-events: none;
+}
+
+.arrange-toggle[aria-pressed="true"] {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+
+.arrange-help {
+  margin: 10px 0 0;
+}
+
+.link-button {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.link-button:hover:not(:disabled) {
+  transform: none;
+}
+
+/* Questions and new names (instead of the browser's pop-ups) */
+
+.app-dialog {
+  width: min(440px, calc(100vw - 32px));
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: 0 24px 60px rgb(0 0 0 / 0.25);
+}
+
+.app-dialog::backdrop {
+  background: rgb(15 23 42 / 0.45);
+}
+
+.app-dialog h2 {
+  margin: 0 0 6px;
+  font-size: 19px;
+}
+
+.app-dialog .note:empty {
+  display: none;
+}
+
+.app-dialog .field {
+  margin-top: 14px;
+}
+
+.dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.dialog-buttons .danger-solid {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+}
+
+@media (max-width: 760px) {
+  .blocks {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+}

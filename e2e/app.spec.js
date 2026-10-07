@@ -90,6 +90,43 @@ test("an entry in another pay month says where it was booked", async ({ page, re
   await expect(page.locator("#toast")).toContainText("15.01.2030");
 });
 
+test("dashboard and month blocks can be arranged and keep their order", async ({ page, request }) => {
+  await openApp(page, request);
+  const order = () => page.locator('[data-sortable="dashboard"] > .block').evaluateAll((blocks) => blocks.map((block) => block.dataset.block));
+  expect(await order()).toEqual(["available", "accounts", "upcoming", "categories", "stats"]);
+
+  await page.click('#dashboard [data-action="arrange"]');
+  const available = page.locator('[data-block="available"]');
+  await available.locator('[data-action="move-block"][data-step="1"]').click();
+  await available.locator('[data-action="move-block"][data-step="1"]').click();
+  expect(await order()).toEqual(["accounts", "upcoming", "available", "categories", "stats"]);
+  await page.click('#dashboard [data-action="arrange"]'); // done
+
+  // Dragging the bar also works: statistics onto the upper half of the categories
+  await page.click('#dashboard [data-action="arrange"]');
+  await page.locator('[data-block="stats"]').scrollIntoViewIfNeeded();
+  await page.locator('[data-block="stats"] .block-name').hover();
+  const categories = await page.locator('[data-block="categories"]').boundingBox();
+  await page.mouse.down();
+  await page.mouse.move(categories.x + 30, categories.y + 20, { steps: 10 });
+  await page.mouse.up();
+  expect(await order()).toEqual(["accounts", "upcoming", "available", "stats", "categories"]);
+
+  await page.waitForTimeout(1500); // saved with the account
+  await page.reload();
+  await expect(page.locator("#financeApp")).toBeVisible();
+  expect(await order()).toEqual(["accounts", "upcoming", "available", "stats", "categories"]);
+
+  await page.click('#dashboard [data-action="arrange"]');
+  await page.click('#dashboard [data-action="reset-layout"]');
+  expect(await order()).toEqual(["available", "accounts", "upcoming", "categories", "stats"]);
+
+  await goTo(page, "month");
+  await page.click('#month [data-action="arrange"]');
+  await page.locator('[data-block="planned"] [data-action="move-block"][data-step="-1"]').click();
+  await expect(page.locator('[data-sortable="month"] > .block').nth(2)).toHaveAttribute("data-block", "planned");
+});
+
 test("a withdrawal cannot exceed the savings balance", async ({ page, request }) => {
   await openApp(page, request);
   await goTo(page, "expenses");

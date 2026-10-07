@@ -29,6 +29,22 @@
   <body>
     <div id="toast" class="toast" role="status" hidden></div>
 
+    <!-- Questions and new names are asked here, not in a browser pop-up (askUser in app.js) -->
+    <dialog id="appDialog" class="app-dialog" aria-labelledby="appDialogTitle" aria-describedby="appDialogText">
+      <form method="dialog" id="appDialogForm">
+        <h2 id="appDialogTitle"></h2>
+        <p id="appDialogText" class="note"></p>
+        <div class="field" id="appDialogField" hidden>
+          <label for="appDialogInput" id="appDialogLabel"></label>
+          <input id="appDialogInput" maxlength="80" autocomplete="off" />
+        </div>
+        <div class="dialog-buttons">
+          <button type="button" class="secondary" id="appDialogCancel">Abbrechen</button>
+          <button type="submit" class="primary" id="appDialogOk">OK</button>
+        </div>
+      </form>
+    </dialog>
+
     <!-- Start dialog "Which pay month do you want to open?" (css/month-entry.css) -->
     <section id="monthEntry" class="month-entry" aria-labelledby="entryTitle" hidden>
       <form class="card" id="monthEntryForm">
@@ -106,8 +122,15 @@
               <h1>Dashboard</h1>
               <p>Wie viel du in diesem Lohnmonat noch ausgeben kannst.</p>
             </div>
-            <button class="primary" data-action="new-entry">+/− Eintrag</button>
+            <div class="head-actions">
+              <button class="secondary arrange-toggle" data-action="arrange" data-sortable-for="dashboard" aria-pressed="false">Anordnen</button>
+              <button class="primary" data-action="new-entry">+/− Eintrag</button>
+            </div>
           </div>
+          <p class="note arrange-help" data-arrange-help="dashboard" hidden>
+            Ziehe die Bereiche an der Leiste oder verschiebe sie mit ↑ ↓. Die Reihenfolge wird mit deinem Konto gespeichert.
+            <button class="link-button" data-action="reset-layout" data-sortable-for="dashboard">Standard wiederherstellen</button>
+          </p>
           <!-- Getting started: only visible until everything is set up -->
           <div class="card onboarding" id="onboarding" hidden>
             <div class="onboarding-head">
@@ -146,83 +169,93 @@
               </li>
             </ol>
           </div>
-          <!-- The one number that matters: how much is left in this pay month -->
-          <div class="card available-hero" id="availableHero">
-            <p class="hero-period" id="heroPeriod"></p>
-            <span class="hero-label">Noch verfügbar</span>
-            <strong class="hero-amount" id="heroAmount">CHF 0.00</strong>
-            <div class="progress hero-progress" aria-hidden="true"><span id="heroBar"></span></div>
-            <p class="note" id="heroUsed"></p>
-            <div class="summary" id="currentSummary"></div>
-          </div>
-          <!-- Account balances: spending account and savings accounts -->
-          <div class="account-cards" id="accountCards" aria-label="Kontostände"></div>
-          <div class="two section">
-            <details class="card fold" data-fold="dash-upcoming" open>
-              <summary><span class="fold-title">Kommt noch in diesem Lohnmonat</span><span class="fold-count" data-count-for="upcomingRows"></span></summary>
-              <div class="fold-body">
-                <ul class="upcoming" id="upcomingRows"></ul>
-              </div>
-            </details>
-            <details class="card fold" data-fold="dash-month-categories" data-mobile="closed" open>
-              <summary><span class="fold-title">Ausgaben nach Kategorie</span></summary>
-              <div class="fold-body">
-                <p class="note">In diesem Lohnmonat, inklusive Daueraufträge</p>
-                <div id="monthCategoryChart"></div>
-              </div>
-            </details>
-          </div>
-          <!-- Everything since the start of the apprenticeship: closed until opened -->
-          <details class="card fold section stats" data-fold="dash-stats" data-default="closed">
-            <summary><span class="fold-title">Statistik seit Lehrbeginn</span></summary>
-            <div class="fold-body">
-              <div class="grid4">
-                <div class="kpi">
-                  <span class="label">Gesamt gespart</span>
-                  <strong id="dSaved">CHF 0.00</strong>
-                </div>
-                <div class="kpi">
-                  <span class="label">Lohn + Pauschalen</span>
-                  <strong id="dIncome">CHF 0.00</strong>
-                </div>
-                <div class="kpi">
-                  <span class="label">Gesamte Ausgaben</span>
-                  <strong id="dSpent">CHF 0.00</strong>
-                </div>
-                <div class="kpi">
-                  <span class="label">Sparquote</span>
-                  <strong id="dRate">0 %</strong>
-                  <div class="sub">Gespart / Einnahmen</div>
-                </div>
-              </div>
-              <div class="two section">
-                <div>
-                  <h3 class="group-title">Sparentwicklung</h3>
-                  <div class="chart" id="saveChart"></div>
-                </div>
-                <div>
-                  <h3 class="group-title">Lohn und Ausgaben</h3>
-                  <p class="note">Letzte sechs Lohnmonate</p>
-                  <div class="chart-legend">
-                    <span><i class="income-dot"></i>Lohn + Pauschalen</span>
-                    <span><i class="spending-dot"></i>Ausgaben</span>
-                  </div>
-                  <div id="comparisonChart"></div>
-                </div>
-              </div>
-              <div class="two section">
-                <div>
-                  <h3 class="group-title">Ausgaben nach Kategorie</h3>
-                  <p class="note">Seit Lehrbeginn, inklusive Daueraufträge</p>
-                  <div id="categoryChart"></div>
-                </div>
-                <div>
-                  <h3 class="group-title">Gespart pro Lehrjahr</h3>
-                  <div class="grid2 year-grid" id="yearCards"></div>
-                </div>
+          <!-- Sortable blocks ("Anordnen"): the order is saved with the account (state.layout) -->
+          <div class="blocks" data-sortable="dashboard">
+            <div class="block span-2" data-block="available" data-block-name="Noch verfügbar">
+              <div class="card available-hero" id="availableHero">
+                <p class="hero-period" id="heroPeriod"></p>
+                <span class="hero-label">Noch verfügbar</span>
+                <strong class="hero-amount" id="heroAmount">CHF 0.00</strong>
+                <div class="progress hero-progress" aria-hidden="true"><span id="heroBar"></span></div>
+                <p class="note" id="heroUsed"></p>
+                <div class="summary" id="currentSummary"></div>
               </div>
             </div>
-          </details>
+            <div class="block span-2" data-block="accounts" data-block-name="Konten">
+              <div class="account-cards" id="accountCards" aria-label="Konten in diesem Lohnmonat"></div>
+            </div>
+            <div class="block" data-block="upcoming" data-block-name="Kommt noch in diesem Lohnmonat">
+              <details class="card fold" data-fold="dash-upcoming" open>
+                <summary><span class="fold-title">Kommt noch in diesem Lohnmonat</span><span class="fold-count" data-count-for="upcomingRows"></span></summary>
+                <div class="fold-body">
+                  <ul class="upcoming" id="upcomingRows"></ul>
+                </div>
+              </details>
+            </div>
+            <div class="block" data-block="categories" data-block-name="Ausgaben nach Kategorie">
+              <details class="card fold" data-fold="dash-month-categories" data-mobile="closed" open>
+                <summary><span class="fold-title">Ausgaben nach Kategorie</span></summary>
+                <div class="fold-body">
+                  <p class="note">In diesem Lohnmonat, inklusive Daueraufträge</p>
+                  <div id="monthCategoryChart"></div>
+                </div>
+              </details>
+            </div>
+            <div class="block span-2" data-block="stats" data-block-name="Statistik seit Lehrbeginn">
+              <details class="card fold stats" data-fold="dash-stats" data-default="closed">
+                <summary><span class="fold-title">Statistik seit Lehrbeginn</span></summary>
+                <div class="fold-body">
+                  <h3 class="group-title">Kontostände heute</h3>
+                  <div class="account-cards totals" id="accountTotals" aria-label="Kontostände heute"></div>
+                  <div class="grid4 section">
+                    <div class="kpi">
+                      <span class="label">Gesamt gespart</span>
+                      <strong id="dSaved">CHF 0.00</strong>
+                    </div>
+                    <div class="kpi">
+                      <span class="label">Lohn + Pauschalen</span>
+                      <strong id="dIncome">CHF 0.00</strong>
+                    </div>
+                    <div class="kpi">
+                      <span class="label">Gesamte Ausgaben</span>
+                      <strong id="dSpent">CHF 0.00</strong>
+                    </div>
+                    <div class="kpi">
+                      <span class="label">Sparquote</span>
+                      <strong id="dRate">0 %</strong>
+                      <div class="sub">Gespart / Einnahmen</div>
+                    </div>
+                  </div>
+                  <div class="two section">
+                    <div>
+                      <h3 class="group-title">Sparentwicklung</h3>
+                      <div class="chart" id="saveChart"></div>
+                    </div>
+                    <div>
+                      <h3 class="group-title">Lohn und Ausgaben</h3>
+                      <p class="note">Letzte sechs Lohnmonate</p>
+                      <div class="chart-legend">
+                        <span><i class="income-dot"></i>Lohn + Pauschalen</span>
+                        <span><i class="spending-dot"></i>Ausgaben</span>
+                      </div>
+                      <div id="comparisonChart"></div>
+                    </div>
+                  </div>
+                  <div class="two section">
+                    <div>
+                      <h3 class="group-title">Ausgaben nach Kategorie</h3>
+                      <p class="note">Seit Lehrbeginn, inklusive Daueraufträge</p>
+                      <div id="categoryChart"></div>
+                    </div>
+                    <div>
+                      <h3 class="group-title">Gespart pro Lehrjahr</h3>
+                      <div class="grid2 year-grid" id="yearCards"></div>
+                    </div>
+                  </div>
+                </div>
+              </details>
+            </div>
+          </div>
         </section>
 
         <!-- Month page (css/month.css) -->
@@ -233,73 +266,86 @@
               <p>Ein Monat, eine klare Übersicht.</p>
             </div>
             <div class="head-actions">
+              <button class="secondary arrange-toggle" data-action="arrange" data-sortable-for="month" aria-pressed="false">Anordnen</button>
               <select id="monthPicker" aria-label="Lohnmonat auswählen"></select>
             </div>
           </div>
+          <p class="note arrange-help" data-arrange-help="month" hidden>
+            Ziehe die Bereiche an der Leiste oder verschiebe sie mit ↑ ↓. Die Reihenfolge wird mit deinem Konto gespeichert.
+            <button class="link-button" data-action="reset-layout" data-sortable-for="month">Standard wiederherstellen</button>
+          </p>
           <p id="monthPeriod" class="note"></p>
-          <div class="grid4">
-            <div class="card kpi">
-              <span class="label">Lohn + Pauschalen</span><strong id="mIncome"></strong>
+          <div class="blocks" data-sortable="month">
+            <div class="block span-2" data-block="kpis" data-block-name="Übersicht">
+              <div class="grid4">
+                <div class="card kpi">
+                  <span class="label">Lohn + Pauschalen</span><strong id="mIncome"></strong>
+                </div>
+                <div class="card kpi">
+                  <span class="label">Gespart</span><strong id="mSaved"></strong>
+                </div>
+                <div class="card kpi">
+                  <span class="label">Ausgaben</span><strong id="mSpent"></strong>
+                </div>
+                <div class="card kpi">
+                  <span class="label">Verfügbar</span><strong id="mAvail"></strong>
+                  <div class="sub" id="mAvailExtra"></div>
+                </div>
+              </div>
             </div>
-            <div class="card kpi">
-              <span class="label">Gespart</span><strong id="mSaved"></strong>
+            <div class="block" data-block="ledger" data-block-name="Monatsrechnung">
+              <details class="card fold" data-fold="month-ledger" open>
+                <summary><span class="fold-title">Monatsrechnung</span><span class="fold-count" data-count-for="monthMath"></span></summary>
+                <div class="fold-body">
+                <p class="note">Neueste zuerst · nur Buchungen bis heute.</p>
+                <table class="compact-list">
+                  <thead>
+                    <tr>
+                      <th>Datum</th>
+                      <th>Beschreibung</th>
+                      <th class="money">Betrag</th>
+                    </tr>
+                  </thead>
+                  <tbody id="monthMath"></tbody>
+                </table>
+                <div class="ledger-balance">
+                  <b>Verfügbar</b><strong id="ledgerBalance"></strong>
+                </div>
+                </div>
+              </details>
             </div>
-            <div class="card kpi">
-              <span class="label">Ausgaben</span><strong id="mSpent"></strong>
+            <div class="block" data-block="budget" data-block-name="Budget-Nutzung">
+              <details class="card fold" data-fold="month-budget" open>
+                <summary><span class="fold-title">Budget-Nutzung</span></summary>
+                <div class="fold-body">
+                <div class="budget">
+                  <div class="progress"><span id="budgetBar"></span></div>
+                  <p class="note" id="budgetText"></p>
+                </div>
+                </div>
+              </details>
             </div>
-            <div class="card kpi">
-              <span class="label">Verfügbar</span><strong id="mAvail"></strong>
-              <div class="sub" id="mAvailExtra"></div>
+            <div class="block span-2" data-block="planned" data-block-name="Geplante Zahlungen">
+              <details class="card fold" data-fold="month-planned" data-mobile="closed" open>
+                  <summary><span class="fold-title">Geplante Zahlungen</span><span class="fold-count" data-count-for="plannedPaymentsRows"></span></summary>
+                  <div class="fold-body">
+                <p class="note">Daueraufträge im ausgewählten Lohnmonat · Status manuell aktualisierbar.</p>
+                <table class="compact-list">
+                  <thead>
+                    <tr>
+                      <th>Datum</th>
+                      <th>Zahlung</th>
+                      <th class="money">Betrag</th>
+                      <th>Status</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="plannedPaymentsRows"></tbody>
+                </table>
+                </div>
+              </details>
             </div>
           </div>
-          <div class="two section">
-            <details class="card fold" data-fold="month-ledger" open>
-              <summary><span class="fold-title">Monatsrechnung</span><span class="fold-count" data-count-for="monthMath"></span></summary>
-              <div class="fold-body">
-              <p class="note">Neueste zuerst · nur Buchungen bis heute.</p>
-              <table class="compact-list">
-                <thead>
-                  <tr>
-                    <th>Datum</th>
-                    <th>Beschreibung</th>
-                    <th class="money">Betrag</th>
-                  </tr>
-                </thead>
-                <tbody id="monthMath"></tbody>
-              </table>
-              <div class="ledger-balance">
-                <b>Verfügbar</b><strong id="ledgerBalance"></strong>
-              </div>
-              </div>
-            </details>
-            <details class="card fold" data-fold="month-budget" open>
-              <summary><span class="fold-title">Budget-Nutzung</span></summary>
-              <div class="fold-body">
-              <div class="budget">
-                <div class="progress"><span id="budgetBar"></span></div>
-                <p class="note" id="budgetText"></p>
-              </div>
-              </div>
-            </details>
-          </div>
-          <details class="card fold section" data-fold="month-planned" data-mobile="closed" open>
-              <summary><span class="fold-title">Geplante Zahlungen</span><span class="fold-count" data-count-for="plannedPaymentsRows"></span></summary>
-              <div class="fold-body">
-            <p class="note">Daueraufträge im ausgewählten Lohnmonat · Status manuell aktualisierbar.</p>
-            <table class="compact-list">
-              <thead>
-                <tr>
-                  <th>Datum</th>
-                  <th>Zahlung</th>
-                  <th class="money">Betrag</th>
-                  <th>Status</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="plannedPaymentsRows"></tbody>
-            </table>
-            </div>
-          </details>
         </section>
 
         <!-- Entries page: income, expenses, savings (css/base.css) -->
