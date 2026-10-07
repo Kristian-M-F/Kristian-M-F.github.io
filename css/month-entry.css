@@ -1,17 +1,93 @@
-/* "Monat ändern": small pop-up to choose the pay month (#monthEntry, an .app-dialog) */
+/* "Monat ändern": pop-up with ‹ year › and the twelve months as buttons (#monthEntry, an .app-dialog) */
 
 .month-dialog {
-  width: min(380px, calc(100vw - 32px));
+  width: min(360px, calc(100vw - 32px));
 }
 
 .month-dialog h2 {
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
-.month-dialog select {
-  width: 100%;
+.month-year {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.month-year b {
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.month-year .icon-button {
+  width: 40px;
+  min-height: 40px;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.month-cell {
+  position: relative;
+  min-height: 48px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--field);
+  color: var(--ink);
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.month-cell:hover:not(:disabled) {
+  border-color: var(--brand);
+}
+
+.month-cell.selected {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: var(--on-dark);
+}
+
+/* Today's pay month: small dot below the name */
+.month-cell.today::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 7px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--brand);
+  transform: translateX(-50%);
+}
+
+.month-cell.selected.today::after {
+  background: var(--on-dark);
+}
+
+.month-cell:disabled {
+  border-style: dashed;
+  background: transparent;
+  color: var(--muted);
+  opacity: 0.45;
+}
+
+.month-period {
+  margin: 12px 0 0;
+  text-align: center;
 }
 
 .month-dialog .dialog-buttons {
-  margin-top: 18px;
+  margin-top: 14px;
+}
+
+/* Month page: the month as a button next to "Anordnen" */
+.month-button {
+  white-space: nowrap;
 }

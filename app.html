@@ -60,16 +60,19 @@
       </div>
     </dialog>
 
-    <!-- "Monat ändern": small pop-up to choose the pay month (openMonthEntry in app.js) -->
+    <!-- "Monat ändern": pop-up with a year switch and the twelve months (openMonthEntry in app.js) -->
     <dialog id="monthEntry" class="app-dialog month-dialog" aria-labelledby="entryTitle">
-      <form id="monthEntryForm">
-        <h2 id="entryTitle">Lohnmonat wählen</h2>
-        <select id="entryMonth" aria-label="Lohnmonat" required></select>
-        <div class="dialog-buttons">
-          <button type="button" class="secondary" data-action="close-month-entry">Abbrechen</button>
-          <button class="primary" type="submit">Öffnen</button>
-        </div>
-      </form>
+      <h2 id="entryTitle">Lohnmonat wählen</h2>
+      <div class="month-year">
+        <button type="button" class="icon-button" data-action="picker-year" data-step="-1" aria-label="Vorheriges Jahr">‹</button>
+        <b id="pickerYear"></b>
+        <button type="button" class="icon-button" data-action="picker-year" data-step="1" aria-label="Nächstes Jahr">›</button>
+      </div>
+      <div id="monthGrid" class="month-grid"></div>
+      <p id="pickerPeriod" class="note month-period"></p>
+      <div class="dialog-buttons">
+        <button type="button" class="secondary" data-action="close-month-entry">Schliessen</button>
+      </div>
     </dialog>
 
     <!-- First-time setup for new accounts (js/setup.js, css/setup.css): the app behind is blurred -->
@@ -298,7 +301,9 @@
             </div>
             <div class="head-actions">
               <button class="secondary arrange-toggle" data-action="arrange" data-sortable-for="month" aria-pressed="false">Anordnen</button>
-              <select id="monthPicker" aria-label="Lohnmonat auswählen"></select>
+              <button type="button" class="secondary month-button" id="monthPicker" data-action="change-month" aria-label="Lohnmonat auswählen">
+                <span id="monthPickerLabel"></span><span aria-hidden="true"> ▾</span>
+              </button>
             </div>
           </div>
           <p class="note arrange-help" data-arrange-help="month" hidden>
@@ -430,7 +435,7 @@
               <summary><span class="fold-title">Einträge in diesem Lohnmonat</span><span class="fold-count" data-count-for="allExpenses"></span></summary>
               <div class="fold-body">
             <p class="note" id="entriesMonth"></p>
-            <table class="compact-list">
+            <table class="compact-list entry-table">
               <thead>
                 <tr>
                   <th>Datum</th>

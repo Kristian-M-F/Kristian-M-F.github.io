@@ -1152,10 +1152,7 @@ function categoryChart(totalsByCategory, emptyText) {
 function renderMonthPage() {
   const month = currentMonth;
   const summary = monthSummary(month);
-  $("monthPicker").innerHTML = monthList()
-    .map((month) => `<option value="${month}">${monthName(month)}</option>`)
-    .join("");
-  $("monthPicker").value = month;
+  $("monthPickerLabel").textContent = monthName(month);
 
   let status = "";
   if (!hasStarted(month)) status = " · " + t("Noch nicht begonnen");
@@ -1226,6 +1223,7 @@ function renderEntryList() {
             ${descriptionCell(entry.desc, entry.kind === "expense" ? plannedLabel(entry.date) : KIND_LABELS[entry.kind] + plannedLabel(entry.date, " · "))}
             <td>${escapeHTML(entry.cat)}</td>
             <td>${entry.kind === "expense" ? escapeHTML(entry.pay) : ""}</td>
+            <td class="entry-meta">${[formatDate(entry.date).slice(0, 6), escapeHTML(entry.cat), entry.kind === "expense" ? escapeHTML(entry.pay) : ""].filter(Boolean).join(" · ")}</td>
             ${amountCell(entry.kind, entry.amount)}
             <td class="row-actions">${recordActions(entry.type, entry.id)}</td>
           </tr>`,
@@ -1928,23 +1926,43 @@ function startTour() {
   });
 }
 
-// "Monat ändern": a small pop-up with the list of pay months, like the choice on the month page.
+// "Monat ändern": a pop-up with a year switch (‹ 2026 ›) and the twelve months as buttons.
+// Months outside the apprenticeship cannot be chosen; a click opens the month right away.
+let pickerYear = null;
+
 function openMonthEntry() {
   setMenuOpen(false);
-  $("entryMonth").innerHTML = monthList()
-    .map((month) => `<option value="${month}">${monthName(month)} (${shortPeriod(month)})</option>`)
-    .join("");
-  $("entryMonth").value = currentMonth;
+  pickerYear = Number(currentMonth.slice(0, 4));
+  renderMonthGrid();
   if (!$("monthEntry").open) $("monthEntry").showModal();
-  $("entryMonth").focus();
+  $("monthGrid").querySelector(".selected")?.focus();
 }
 
-function closeMonthEntry(event) {
-  event.preventDefault();
-  const chosen = $("entryMonth").value;
-  if (!monthList().includes(chosen)) return;
+function renderMonthGrid() {
+  const months = monthList();
+  const years = months.map((month) => Number(month.slice(0, 4)));
+  const today = todaysMonth();
+  $("pickerYear").textContent = pickerYear;
+  document.querySelector('[data-action="picker-year"][data-step="-1"]').disabled = pickerYear <= Math.min(...years);
+  document.querySelector('[data-action="picker-year"][data-step="1"]').disabled = pickerYear >= Math.max(...years);
+  $("monthGrid").innerHTML = Array.from({ length: 12 }, (_, i) => {
+    const month = `${pickerYear}-${pad2(i + 1)}`;
+    const label = new Date(pickerYear, i).toLocaleDateString(I18N.locale, { month: "short" }).replace(".", "");
+    const classes = ["month-cell", month === currentMonth ? "selected" : "", month === today ? "today" : ""].join(" ");
+    return `<button type="button" class="${classes}" data-action="pick-month" data-month="${month}"
+      aria-pressed="${month === currentMonth}" aria-label="${monthName(month)}" ${months.includes(month) ? "" : "disabled"}>${label}</button>`;
+  }).join("");
+  $("pickerPeriod").textContent = `${monthName(currentMonth)} · ${periodLabel(currentMonth)}`;
+}
 
-  setCurrentMonth(chosen);
+function changePickerYear(data) {
+  pickerYear += Number(data.step);
+  renderMonthGrid();
+}
+
+function pickMonth(data) {
+  if (!monthList().includes(data.month)) return;
+  setCurrentMonth(data.month);
   for (const id of DEFAULT_DATE_FIELDS) {
     const form = formOfField(id);
     if (!editing[form]) {
@@ -1952,7 +1970,6 @@ function closeMonthEntry(event) {
       state.drafts[id] = $(id).value;
     }
   }
-
   $("monthEntry").close();
   persist();
 }
@@ -2306,6 +2323,8 @@ async function deleteAccount() {
 const actions = {
   "change-month": openMonthEntry,
   "close-month-entry": () => $("monthEntry").close(),
+  "pick-month": pickMonth,
+  "picker-year": changePickerYear,
   arrange: toggleArranging,
   "reset-layout": resetLayout,
   "start-tour": startTour,
@@ -2384,11 +2403,6 @@ document.addEventListener("change", (event) => {
   if (SETTINGS_FIELD.test(field.id)) return saveSettings();
 
   if (field.id === "entryKind" || field.id === "recKind") fillSelects();
-  if (field.id === "monthPicker") {
-    setCurrentMonth(field.value);
-    persist();
-    return;
-  }
   if (DRAFT_FIELDS.includes(field.id)) {
     state.drafts[field.id] = field.value;
     if (field.id === "entryKind") state.drafts.exCat = $("exCat").value;
@@ -2422,10 +2436,6 @@ document.addEventListener("keydown", (event) => {
   else if (form === "recurring") saveRecurring();
 });
 
-$("monthEntryForm").addEventListener("submit", (event) => {
-  event.preventDefault();
-  if (ready) closeMonthEntry(event);
-});
 
 // Recalculate after midnight and when returning to the tab.
 let calculationDate = todayISO();

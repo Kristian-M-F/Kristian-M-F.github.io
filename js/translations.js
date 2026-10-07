@@ -806,4 +806,6 @@ window.TRANSLATIONS = {
   // Standing orders on phones
   "ab {date}": ["from {date}", "dès le {date}", "dal {date}"],
   "bis {date}": ["until {date}", "jusqu'au {date}", "fino al {date}"],
+  "Vorheriges Jahr": ["Previous year", "Année précédente", "Anno precedente"],
+  "Nächstes Jahr": ["Next year", "Année suivante", "Anno successivo"],
 };

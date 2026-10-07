@@ -208,9 +208,7 @@ test("the entries page shows only the selected pay month", async ({ page, reques
   await openApp(page, request);
   await addEntry(page, { desc: "Znüni", amount: 4 });
   await page.click('.month-switch [data-action="change-month"]');
-  const options = page.locator("#entryMonth option:not([value=''])");
-  await page.selectOption("#entryMonth", await options.first().getAttribute("value"));
-  await page.click('#monthEntryForm button[type="submit"]');
+  await page.locator("#monthGrid .month-cell:not(:disabled):not(.selected)").first().click();
   await goTo(page, "expenses");
   await expect(page.locator("#allExpenses")).not.toContainText("Znüni");
 });
@@ -227,11 +225,11 @@ test("another pay month can be chosen", async ({ page, request }) => {
   const label = await page.locator("#activeMonthLabel").textContent();
   await page.click('.month-switch [data-action="change-month"]');
   await expect(page.locator("#monthEntry")).toBeVisible();
-  const options = page.locator("#entryMonth option:not([value=''])");
-  const other = await options.first().getAttribute("value");
-  await page.selectOption("#entryMonth", other);
-  await page.click("#monthEntryForm button[type=submit]");
-  await expect(page.locator("#financeApp")).toBeVisible();
+  // Twelve months; months outside the apprenticeship cannot be chosen
+  await expect(page.locator("#monthGrid .month-cell")).toHaveCount(12);
+  await expect(page.locator("#monthGrid .month-cell:disabled").first()).toBeVisible();
+  await page.locator("#monthGrid .month-cell:not(:disabled):not(.selected)").first().click();
+  await expect(page.locator("#monthEntry")).toBeHidden();
   await expect(page.locator("#activeMonthLabel")).not.toHaveText(label);
 });
 

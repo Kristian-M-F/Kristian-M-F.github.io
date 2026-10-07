@@ -897,6 +897,12 @@
     padding: 8px 10px;
   }
 
+  /* room for the ▾ arrow, so long choices do not run into it */
+  select {
+    padding-right: 34px;
+    text-overflow: ellipsis;
+  }
+
   .primary,
   .secondary {
     padding: 10px 14px;
@@ -910,54 +916,72 @@
   }
 }
 
-/* Phone: each standing order as a tidy block
-   Gym                                   CHF 80.00
-   Sport · Monatlich · ab 18.09.2026
-   [Offen] fällig am 18.10.2026     Bearbeiten  Löschen */
+/* Phone: entries and standing orders as tidy blocks. Flex rows (not a grid), so the
+   amount column does not take the width of the buttons:
+   Kaugummi                              − CHF 2.50
+   06.10.2026 · Essen · Karte      Bearbeiten  Löschen
+   Standing orders get their status (Offen / fällig am …) on the last line, next to the buttons. */
 @media (max-width: 760px) {
+  table.compact-list.entry-table tr,
   table.compact-list.recurring-table tr {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-rows: auto;
-    grid-template-areas:
-      "name money"
-      "meta meta"
-      "status actions";
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 4px 12px;
-    padding: 12px 0;
+    gap: 2px 12px;
+    padding: 10px 0;
   }
 
-  table.compact-list.recurring-table tr::after {
-    display: none;
-  }
-
+  table.compact-list.entry-table td,
   table.compact-list.recurring-table td {
     display: none;
   }
 
-  table.compact-list.recurring-table td.ledger-description {
+  /* line break after name + amount */
+  table.compact-list.entry-table tr::after,
+  table.compact-list.recurring-table tr::after {
     display: block;
-    grid-area: name;
-    font-weight: 650;
+    content: "";
+    order: 3;
+    flex-basis: 100%;
+    height: 0;
   }
 
+  table.compact-list.entry-table td.ledger-description,
+  table.compact-list.recurring-table td.ledger-description {
+    display: block;
+    order: 1;
+    flex: 1 1 0;
+    min-width: 0;
+    font-weight: 600;
+  }
+
+  table.compact-list.entry-table td.money,
   table.compact-list.recurring-table td.money {
     display: block;
-    grid-area: money;
+    order: 2;
     text-align: right;
+    white-space: nowrap;
+  }
+
+  table.compact-list.entry-table td.entry-meta {
+    display: block;
+    order: 4;
+    flex: 1 1 0;
+    min-width: 0;
+    font-size: 13px;
   }
 
   table.compact-list.recurring-table td.recurring-meta {
     display: block;
-    grid-area: meta;
+    order: 4;
+    flex: 1 1 100%;
     font-size: 13px;
   }
 
-  /* Status chip with "fällig am …" below it, the buttons beside */
   table.compact-list.recurring-table td.row-status {
     display: flex;
-    grid-area: status;
+    order: 5;
+    flex: 1 1 0;
     flex-direction: column;
     align-items: flex-start;
     gap: 3px;
@@ -969,15 +993,54 @@
     margin: 0;
   }
 
+  table.compact-list.entry-table td.row-actions,
   table.compact-list.recurring-table td.row-actions {
     display: block;
-    grid-area: actions;
-    align-self: center;
-    margin: 4px 0 0;
+    order: 6;
+    margin: 0 0 0 auto;
   }
 
+  table.compact-list.entry-table td.empty,
   table.compact-list.recurring-table td.empty {
     display: block;
-    grid-column: 1 / -1;
+    flex-basis: 100%;
+  }
+
+  /* Small "Bearbeiten / Löschen" in lists, so a row stays tidy */
+  table.compact-list td.row-actions button {
+    min-height: 30px;
+    padding: 4px 9px;
+    font-size: 13px;
+  }
+}
+
+/* iPhone/iPad (Safari): date fields have their own width and centred text there.
+   This makes them as wide as the other fields, with the date on the left. */
+@supports (-webkit-touch-callout: none) {
+  input[type="date"] {
+    -webkit-appearance: none;
+    appearance: none;
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    min-height: 42px;
+    line-height: 1.4;
+    text-align: left;
+  }
+
+  input[type="date"]::-webkit-date-and-time-value {
+    margin: 0;
+    text-align: left;
+  }
+}
+
+/* Fields inside rows may shrink instead of pushing the row wider than the card */
+@media (max-width: 760px) {
+  .row .field,
+  .field input,
+  .field select {
+    min-width: 0;
+    max-width: 100%;
   }
 }
