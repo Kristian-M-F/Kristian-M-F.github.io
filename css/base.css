@@ -48,10 +48,11 @@
   --orange: #c77700;
   --spending: #c86748;
   /* Brand colour (also logo and landing page): buttons, active menu item, progress */
-  --brand: #0f6e4b;
-  --brand-hover: #0b5a3d;
-  --brand-soft: #e6f3ec;
-  --brand-light: #4fd49a;
+  /* Main colour (Lila); the other accent colours are in themes.css */
+  --brand: #6b40c4;
+  --brand-hover: #56339e;
+  --brand-soft: #efe9fb;
+  --brand-light: #b89cff;
   --brand-text: var(--brand);
   /* Other surfaces, overridden in dark mode (see below) */
   --field: #fff;
@@ -1131,4 +1132,46 @@ tr.more-row:hover td {
     padding: 11px 6px;
     margin: -11px -6px;
   }
+}
+
+/* "Eine neue Version von Finance OS ist da" (js/update.js) */
+.update-note {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top));
+  left: 50%;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: max-content;
+  max-width: calc(100vw - 24px);
+  padding: 8px 8px 8px 16px;
+  border-radius: 14px;
+  background: var(--accent);
+  color: var(--on-dark);
+  box-shadow: var(--shadow-toast);
+  font-size: 14px;
+  transform: translateX(-50%);
+}
+
+.update-reload {
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--brand);
+  color: var(--on-dark);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.update-close {
+  min-height: 36px;
+  width: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--on-dark-muted);
+  font-size: 20px;
+  line-height: 1;
 }

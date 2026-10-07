@@ -1,12 +1,19 @@
 /* Appearance: accent colour, light/dark mode, text size.
    Controlled by attributes on <html>, set by applyAppearance() in app.js:
-     data-accent = green | blue | violet | orange | pink
+     data-accent = green | blue | violet (default) | orange | pink
      data-theme  = light | dark   (without the attribute the page follows the device)
      data-text   = normal | large
    To add a colour: copy a [data-accent="…"] block here and add a colour button
    under "Darstellung" in app.html. */
 
-/* Accent colours */
+/* Accent colours (Lila is the default in base.css) */
+
+:root[data-accent="green"] {
+  --brand: #0f6e4b;
+  --brand-hover: #0b5a3d;
+  --brand-soft: #e6f3ec;
+  --brand-light: #4fd49a;
+}
 
 :root[data-accent="blue"] {
   --brand: #1d5fc4;

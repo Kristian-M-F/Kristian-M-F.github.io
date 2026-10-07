@@ -119,11 +119,14 @@ test("colour, dark mode and text size are applied and saved with the account", a
   await openTab(page, "look");
   // The radio buttons are hidden; people click their labels.
   const choose = (name, value) => page.locator("label", { has: page.locator(`input[name="${name}"][value="${value}"]`) }).click();
-  await choose("accent", "violet");
+  // New accounts start with Lila
+  await expect(page.locator("html")).toHaveAttribute("data-accent", "violet");
+  await expect(page.locator('input[name="accent"][value="violet"]')).toBeChecked();
+  await choose("accent", "blue");
   await choose("mode", "dark");
   await choose("text", "large");
   const html = page.locator("html");
-  await expect(html).toHaveAttribute("data-accent", "violet");
+  await expect(html).toHaveAttribute("data-accent", "blue");
   await expect(html).toHaveAttribute("data-theme", "dark");
   await expect(html).toHaveAttribute("data-text", "large");
 
@@ -131,7 +134,7 @@ test("colour, dark mode and text size are applied and saved with the account", a
   await page.evaluate(() => localStorage.removeItem("financeOS_appearance")); // only the account remembers it
   await page.reload();
   await expect(page.locator("#financeApp")).toBeVisible();
-  await expect(html).toHaveAttribute("data-accent", "violet");
+  await expect(html).toHaveAttribute("data-accent", "blue");
   await expect(html).toHaveAttribute("data-theme", "dark");
 });
 

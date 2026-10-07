@@ -16,13 +16,14 @@ Kristian-M-F.github.io/
 ├── nutzungsbedingungen.html  Nutzungsbedingungen (werden bei der Registrierung akzeptiert)
 ├── kontakt.html            Kontaktformular
 ├── manifest.webmanifest    App auf dem Home-Bildschirm (Name, Icons, Farben)
+├── version.json            Aktuelle Versionsnummer der Website (für den Hinweis „Neu laden“)
 ├── css/
 │   ├── base.css            Farben, Schrift, Buttons, Felder, Sidebar (gilt überall)
 │   ├── dashboard.css       Seite Dashboard
 │   ├── month.css           Seite Monat
 │   ├── month-entry.css     Popup „Lohnmonat wählen“ (Monat ändern)
 │   ├── settings.css        Seite Einstellungen
-│   ├── themes.css          Darstellung: Farben, dunkler Modus, grosse Schrift
+│   ├── themes.css          Darstellung: Akzentfarben (Standard Lila), dunkler Modus, grosse Schrift
 │   ├── tour.css            Geführte Tour durch die App
 │   ├── setup.css           Einrichtung für neue Konten (Fragen beim ersten Login)
 │   ├── responsive.css      Handy/Tablet in der App (wird zuletzt geladen)
@@ -41,6 +42,7 @@ Kristian-M-F.github.io/
 │   ├── back.js             „← Zurück“ an die gleiche Stelle
 │   ├── i18n.js             Sprachen DE/EN/FR/IT: übersetzt die Seiten
 │   ├── translations.js     Alle Übersetzungen – neue Texte hier ergänzen
+│   ├── update.js           Hinweis „Neue Version – Neu laden“, wenn version.json sich ändert
 │   └── api.js              Verbindung zum Backend (Adresse, Login-Schlüssel)
 ├── fonts/                  Schrift Inter (lokal, keine Google-Server)
 ├── img/                    Symbol im Browser-Tab, App-Icons (icon-*.png, apple-touch-icon.png), Screenshots
@@ -126,12 +128,17 @@ dann `npm run test:e2e`.
 - `npm run test:e2e:ui` – Tests im Fenster ansehen und einzeln starten
 - `npm run test:e2e:report` – Bericht der letzten Ausführung (mit Screenshots bei Fehlern)
 
-## Neue Version veröffentlichen (Cache)
+## Neue Version veröffentlichen
 
-Alle CSS- und JS-Dateien werden mit einer Versionsnummer eingebunden, z. B. `css/base.css?v=2026100701`.
-Damit Handys nach einem Push sicher die neuen Dateien laden, die Nummer bei jeder Änderung erhöhen:
-in IntelliJ **Strg+Shift+R** (Ersetzen in Dateien) → `?v=2026100701` durch die neue Nummer ersetzen
-(z. B. Datum + laufende Nummer: `?v=2026100801`).
+Alle CSS- und JS-Dateien werden mit einer Versionsnummer eingebunden, z. B. `css/base.css?v=2026100703`,
+und dieselbe Nummer steht in `version.json`. Bei jeder Änderung an der Website die Nummer überall erhöhen:
+in IntelliJ **Strg+Shift+R** (Ersetzen in Dateien) → `2026100703` durch die neue Nummer ersetzen
+(z. B. Datum + laufende Nummer: `2026100801`), dann pushen.
+
+- Handys laden dadurch sicher die neuen Dateien statt der alten aus dem Zwischenspeicher.
+- Wer die Seite oder die App auf dem Home-Bildschirm gerade offen hat, bekommt innerhalb von
+  ein paar Minuten den Hinweis „Eine neue Version von Finance OS ist da“ mit dem Knopf
+  „Neu laden“ (`js/update.js`).
 
 ## App auf dem Home-Bildschirm
 

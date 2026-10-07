@@ -278,7 +278,7 @@ html {
 
 .hero-kicker {
   margin-bottom: 18px !important;
-  color: var(--green);
+  color: var(--brand-text);
   font-weight: 650;
   font-size: 15px;
 }
@@ -318,7 +318,7 @@ html {
 .assurances li::before {
   content: "✓";
   margin-right: 7px;
-  color: var(--green);
+  color: var(--brand-text);
   font-weight: 700;
 }
 
@@ -598,7 +598,7 @@ html {
   font-weight: 700;
   font-size: 48px;
   line-height: 1;
-  color: var(--green);
+  color: var(--brand-text);
 }
 
 .step-list p {

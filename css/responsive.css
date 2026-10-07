@@ -782,7 +782,14 @@
     border-radius: 14px;
   }
 
+  /* Name and amount at the top in both cards (same height), the small note below */
+  .account-card {
+    align-content: start;
+  }
+
   .account-card .account-type {
+    order: 3;
+    margin-top: 2px;
     font-size: 11px;
     line-height: 1.3;
   }

@@ -811,4 +811,7 @@ window.TRANSLATIONS = {
   // Undo after deleting
   "Rückgängig": ["Undo", "Annuler", "Annulla"],
   "Eintrag wiederhergestellt": ["Entry restored", "Entrée restaurée", "Voce ripristinata"],
+  // Note about a new version (js/update.js)
+  "Eine neue Version von Finance OS ist da.": ["A new version of Finance OS is available.", "Une nouvelle version de Finance OS est disponible.", "È disponibile una nuova versione di Finance OS."],
+  "Neu laden": ["Reload", "Recharger", "Ricarica"],
 };

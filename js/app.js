@@ -164,7 +164,7 @@ function createEmptyData() {
 
 const APPEARANCE_KEY = "financeOS_appearance";
 const DEFAULT_APPEARANCE = {
-  accent: "green",
+  accent: "violet", // Lila; accounts that saved another colour keep it
   mode: "system", // follow the device
   text: "normal",
   startPage: "dashboard",
