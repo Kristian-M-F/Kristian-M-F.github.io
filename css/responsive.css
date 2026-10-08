@@ -754,14 +754,11 @@
     font-size: 15px;
   }
 
-  /* Dashboard on the phone: own widths (--wm); by default the accounts side by side */
+  /* Dashboard on the phone: own positions (app.js); by default the accounts side by side */
   .blocks[data-sortable] {
     --gap: 10px;
   }
 
-  .blocks[data-sortable] > .block {
-    width: calc(var(--wm, 100) * 1% - var(--gap) + var(--gap) * var(--wm, 100) / 100 - 0.05px);
-  }
 
   .account-card {
     gap: 2px;

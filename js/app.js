@@ -1637,12 +1637,19 @@ function render() {
 }
 
 // Arranging the blocks on the dashboard ("Anordnen").
-// Drag a block by its bar to another place; the other blocks make room and slide along.
-// Drag the right edge to make a block as wide or narrow as you like (snaps gently at ¼, ⅓, ½ …).
-// Keyboard: arrow keys move the focused bar, Shift + arrow keys change the width.
-// Saved with the account; phone and computer have their own widths (in percent of the row):
-// state.layout = { dashboard: [ids], sizes: { "dashboard:available": 100, "dashboard-phone:available": 100 } }
+// The dashboard is a grid of 24 columns. Every block has a column (x) and a width (w); it sits
+// as high up in its columns as there is room, so it can be put anywhere, also into a gap
+// below a short block. While arranging:
+// - drag a block by its bar: it follows the pointer, a dashed area shows where it will land,
+//   the other blocks glide out of the way;
+// - drag the right edge to make it wider or narrower;
+// - keyboard: arrow keys move the focused bar, Shift + left/right changes the width;
+// - "Ausblenden" hides a block; while arranging it stays visible (faded) to show it again;
+// - a click outside the blocks ends arranging.
+// Saved with the account; phone and computer have their own positions:
+// state.layout = { dashboard: [ids in order], grid: { desktop: { id: { x, w } }, phone: { … } }, hidden: [ids] }
 
+const COLUMNS = 24;
 const DEFAULT_LAYOUT = {};
 document.querySelectorAll("[data-sortable]").forEach((container) => {
   DEFAULT_LAYOUT[container.dataset.sortable] = [...container.children].map((block) => block.dataset.block);
@@ -1651,7 +1658,7 @@ document.querySelectorAll("[data-sortable]").forEach((container) => {
 
 const PHONE = window.matchMedia("(max-width: 760px)");
 const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)");
-const SNAP_POINTS = [25, 100 / 3, 50, 200 / 3, 75, 100];
+const deviceKey = () => (PHONE.matches ? "phone" : "desktop");
 
 function blocksOf(name) {
   return [...document.querySelector(`[data-sortable="${name}"]`).children].filter((el) => el.matches(".block:not(.block-placeholder)"));
@@ -1664,22 +1671,71 @@ function defaultOrder(name) {
   return order;
 }
 
-// Width of a block in percent of the row. Older saved layouts used "wide" / "narrow".
-function blockWidth(name, block, phone) {
-  const saved = state.layout?.sizes?.[`${name}${phone ? "-phone" : ""}:${block.dataset.block}`];
-  if (typeof saved === "number") return saved;
-  if (saved === "wide") return 100;
-  if (saved === "narrow") return 50;
-  if (phone) return block.dataset.block.startsWith("account-") ? 50 : 100;
-  return block.dataset.defaultSize === "wide" ? 100 : 50;
+// Width in columns when nothing is saved (older layouts saved "wide" / "narrow" or percent).
+function defaultColumns(name, block, device) {
+  const saved = state.layout?.sizes?.[`${name}${device === "phone" ? "-phone" : ""}:${block.dataset.block}`];
+  if (typeof saved === "number") return Math.max(1, Math.round((saved * COLUMNS) / 100));
+  if (saved === "wide") return COLUMNS;
+  if (saved === "narrow") return COLUMNS / 2;
+  if (device === "phone") return block.dataset.block.startsWith("account-") ? COLUMNS / 2 : COLUMNS;
+  return block.dataset.defaultSize === "wide" ? COLUMNS : COLUMNS / 2;
 }
 
-function setBlockWidths(name, block) {
-  block.style.setProperty("--w", blockWidth(name, block, false));
-  block.style.setProperty("--wm", blockWidth(name, block, true));
+// Column and width of every block: saved ones as saved, the others side by side like text lines.
+function gridOf(name, device = deviceKey()) {
+  const saved = state.layout?.grid?.[device] || {};
+  const result = {};
+  let cursor = 0;
+  for (const block of blocksOf(name)) {
+    const id = block.dataset.block;
+    const w = Math.min(COLUMNS, defaultColumns(name, block, device));
+    if (cursor + w > COLUMNS) cursor = 0;
+    result[id] = saved[id] ? { ...saved[id] } : { x: cursor, w };
+    cursor = (cursor + w) % COLUMNS;
+  }
+  return result;
 }
 
-// Puts the blocks in the saved order and width; blocks without a saved place keep their default place.
+let currentGrid = null; // { x, w } per block id while the page is shown
+
+// Places the blocks: each one as high as possible in its columns, in the saved order.
+// `floating` (the block being dragged) is left out; its placeholder takes its place.
+function placeBlocks(name, floating = null) {
+  const container = document.querySelector(`[data-sortable="${name}"]`);
+  const width = container.clientWidth;
+  if (!width) return;
+  const gap = parseFloat(getComputedStyle(container).getPropertyValue("--gap")) || 14;
+  const unit = (width + gap) / COLUMNS;
+  const items = [...container.children].filter((el) => el !== floating && el.matches(".block") && !el.matches(".block-hidden:not(.arranging > *)"));
+  // Set all widths first, then measure all heights (one layout pass instead of many).
+  for (const el of items) {
+    const { x, w } = currentGrid[el.dataset.block || el.dataset.placeholderFor] || { x: 0, w: COLUMNS };
+    el.style.width = `${w * unit - gap}px`;
+    el._x = x;
+    el._w = w;
+  }
+  const heights = items.map((el) => (el._h = el.offsetHeight));
+  const skyline = new Array(COLUMNS).fill(0);
+  items.forEach((el, i) => {
+    const columns = skyline.slice(el._x, el._x + el._w);
+    const top = Math.max(...columns);
+    el._top = top;
+    el.style.transform = `translate(${el._x * unit}px, ${top}px)`;
+    for (let c = el._x; c < el._x + el._w; c++) skyline[c] = top + heights[i] + gap;
+  });
+  container.style.height = `${Math.max(0, Math.max(...skyline) - gap)}px`;
+  container._unit = unit;
+}
+
+const layoutObserver = new ResizeObserver(() => {
+  if (layoutObserver.pending) return;
+  layoutObserver.pending = requestAnimationFrame(() => {
+    layoutObserver.pending = null;
+    if (!dragState) for (const name of Object.keys(DEFAULT_LAYOUT)) placeBlocks(name);
+  });
+});
+
+// Puts the blocks in the saved order and position; blocks without a saved place keep their default place.
 function applyLayout() {
   for (const name of Object.keys(DEFAULT_LAYOUT)) {
     const container = document.querySelector(`[data-sortable="${name}"]`);
@@ -1694,19 +1750,34 @@ function applyLayout() {
       order.splice(previous ? order.indexOf(previous) + 1 : 0, 0, id);
     });
     order.forEach((id) => container.append(byId[id]));
-    for (const block of blocksOf(name)) setBlockWidths(name, block);
+    blocksOf(name).forEach(markHidden);
+    currentGrid = gridOf(name);
+    layoutObserver.observe(container);
+    blocksOf(name).forEach((block) => layoutObserver.observe(block));
+    placeBlocks(name);
+    // Animate later changes, not the first placement.
+    requestAnimationFrame(() => container.classList.add("animated"));
   }
 }
 
-function saveLayout(name) {
-  state.layout = { ...state.layout, [name]: blocksOf(name).map((block) => block.dataset.block) };
-  save();
-}
+PHONE.addEventListener("change", () => {
+  for (const name of Object.keys(DEFAULT_LAYOUT)) {
+    currentGrid = gridOf(name);
+    placeBlocks(name);
+  }
+});
 
-function saveWidth(name, block, width) {
-  const key = `${name}${PHONE.matches ? "-phone" : ""}:${block.dataset.block}`;
-  state.layout = { ...state.layout, sizes: { ...state.layout?.sizes, [key]: Math.round(width * 10) / 10 } };
-  saveLayout(name);
+// Order = from top to bottom, left to right, as the blocks are placed now.
+function saveLayout(name) {
+  const blocks = blocksOf(name).sort((a, b) => a._top - b._top || a._x - b._x);
+  const container = document.querySelector(`[data-sortable="${name}"]`);
+  blocks.forEach((block) => container.append(block));
+  state.layout = {
+    ...state.layout,
+    [name]: blocks.map((block) => block.dataset.block),
+    grid: { ...state.layout?.grid, [deviceKey()]: { ...currentGrid } },
+  };
+  save();
 }
 
 // The bar (drag handle with the name) and the resize edge shown while arranging; added once per block.
@@ -1719,9 +1790,38 @@ function addBlockBar(block) {
         aria-label="${t("{name} verschieben: Pfeiltasten. Breite: Umschalt + Pfeiltasten.", { name })}">
       <span class="block-grip" aria-hidden="true">⠿</span>
       <span class="block-name">${name}</span>
+      <button type="button" class="secondary block-hide" data-action="toggle-block" data-block-id="${escapeHTML(block.dataset.block)}">
+        <svg class="eye-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+        <svg class="eye-closed" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 5.1A10.7 10.7 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.1 3.9M6.6 6.6C3.8 8.3 2 12 2 12s3.6 7 10 7c1.8 0 3.4-.5 4.7-1.3"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+      </button>
     </div>`,
   );
   block.insertAdjacentHTML("beforeend", `<div class="block-resize" data-block-resize aria-hidden="true" title="${t("Breiter oder schmaler ziehen")}"></div>`);
+  block.insertAdjacentHTML("beforeend", `<span class="block-hidden-label" aria-hidden="true">${t("Ausgeblendet")}</span>`);
+}
+
+const hiddenBlocks = () => state.layout?.hidden || [];
+
+function markHidden(block) {
+  const hidden = hiddenBlocks().includes(block.dataset.block);
+  block.classList.toggle("block-hidden", hidden);
+  const button = block.querySelector(":scope > [data-block-bar] .block-hide");
+  if (!button) return;
+  const name = block.dataset.blockPlain ? block.dataset.blockName : t(block.dataset.blockName);
+  button.title = hidden ? t("Einblenden") : t("Ausblenden");
+  button.setAttribute("aria-label", t(hidden ? "{name} einblenden" : "{name} ausblenden", { name }));
+}
+
+// Hides a block on the dashboard or shows it again.
+function toggleBlock(data) {
+  const block = document.querySelector(`[data-sortable] > [data-block="${data.blockId}"]`);
+  const hidden = hiddenBlocks().filter((id) => id !== data.blockId);
+  if (!block.classList.contains("block-hidden")) hidden.push(data.blockId);
+  state.layout = { ...state.layout, hidden };
+  markHidden(block);
+  const name = block.parentElement.dataset.sortable;
+  placeBlocks(name);
+  saveLayout(name);
 }
 
 const addBlockBars = () => document.querySelectorAll("[data-sortable] > .block").forEach(addBlockBar);
@@ -1733,7 +1833,16 @@ function setArranging(name, on) {
   const toggle = document.querySelector(`[data-action="arrange"][data-sortable-for="${name}"]`);
   toggle.setAttribute("aria-pressed", String(on));
   toggle.textContent = on ? t("Fertig") : t("Anordnen");
+  placeBlocks(name);
 }
+
+// A click outside the blocks ends arranging (everything is already saved).
+document.addEventListener("click", (event) => {
+  const container = document.querySelector("[data-sortable].arranging");
+  if (!container || dragState) return;
+  if (event.target.closest("[data-sortable] > .block, [data-action='arrange'], .arrange-help, .toast, dialog")) return;
+  setArranging(container.dataset.sortable, false);
+});
 
 function toggleArranging(data) {
   const container = document.querySelector(`[data-sortable="${data.sortableFor}"]`);
@@ -1742,175 +1851,154 @@ function toggleArranging(data) {
 
 function resetLayout(data) {
   const name = data.sortableFor;
-  const container = document.querySelector(`[data-sortable="${name}"]`);
   if (state.layout) {
     delete state.layout[name];
+    delete state.layout.grid;
+    delete state.layout.hidden;
     for (const key of Object.keys(state.layout.sizes || {})) {
       if (key.startsWith(name + ":") || key.startsWith(name + "-phone:")) delete state.layout.sizes[key];
     }
   }
-  animateLayout(container, applyLayout);
+  applyLayout();
   save();
 }
 
-// Lets the blocks glide to their new place after the layout changed (instead of jumping).
-// FLIP: remember where everything was, change the layout, then animate from the old place.
-function animateLayout(container, change, skip) {
-  const items = [...container.children].filter((el) => el !== skip);
-  const before = new Map(items.map((el) => [el, el.getBoundingClientRect()]));
-  change();
-  if (REDUCED_MOTION.matches) return;
-  for (const el of items) {
-    const old = before.get(el);
-    const now = el.getBoundingClientRect();
-    const dx = old.left - now.left;
-    const dy = old.top - now.top;
-    if (Math.abs(dx) < 1 && Math.abs(dy) < 1) continue;
-    el.style.transition = "none";
-    el.style.transform = `translate(${dx}px, ${dy}px)`;
-    el.getBoundingClientRect(); // apply the start position before animating
-    el.style.transition = "transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)";
-    el.style.transform = "";
-    el.addEventListener("transitionend", () => (el.style.transition = ""), { once: true });
-  }
-}
+const minColumns = (container) => Math.ceil(((PHONE.matches ? 130 : 240) + 14) / container._unit);
 
-// Width in percent for a block that is `pixels` wide (the gap between blocks is taken into account).
-function percentFor(container, pixels) {
-  const gap = parseFloat(getComputedStyle(container).columnGap) || 0;
-  return ((pixels + gap) * 100) / (container.clientWidth + gap);
-}
+let dragState = null;
 
-function snapWidth(width) {
-  const near = SNAP_POINTS.find((point) => Math.abs(point - width) < 1.6);
-  return near ?? width;
-}
-
-// Moving: the block follows the finger or mouse; a placeholder shows where it will land.
+// Moving: the block follows the pointer; the placeholder shows where it will land.
 function startMove(event, bar) {
   const block = bar.closest(".block");
   const container = block.parentElement;
   const name = container.dataset.sortable;
-  const start = block.getBoundingClientRect();
-  const offsetX = event.clientX - start.left;
-  const offsetY = event.clientY - start.top;
+  const box = block.getBoundingClientRect();
+  const offsetX = event.clientX - box.left;
+  const offsetY = event.clientY - box.top;
   event.preventDefault();
 
   const placeholder = document.createElement("div");
   placeholder.className = "block block-placeholder";
-  placeholder.style.cssText = block.style.cssText;
-  placeholder.style.height = `${start.height}px`;
-  block.before(placeholder);
-
+  placeholder.dataset.placeholderFor = block.dataset.block;
+  placeholder.style.height = `${box.height}px`;
+  placeholder.style.transform = block.style.transform;
+  block.after(placeholder);
   block.classList.add("dragging");
-  Object.assign(block.style, {
-    position: "fixed",
-    left: `${start.left}px`,
-    top: `${start.top}px`,
-    width: `${start.width}px`,
-    zIndex: "60",
-    transition: "none",
-    transform: "",
-  });
+  dragState = { block };
 
   let lastX = event.clientX;
   let lastY = event.clientY;
-  let scrollTimer = null;
+  let frame = null;
 
-  const place = () => {
-    block.style.left = `${lastX - offsetX}px`;
-    block.style.top = `${lastY - offsetY}px`;
-    const others = [...container.children].filter((el) => el !== block && el !== placeholder);
-    const target = others.find((other) => {
-      const box = other.getBoundingClientRect();
-      return lastX >= box.left && lastX <= box.right && lastY >= box.top && lastY <= box.bottom;
-    });
-    let move = null;
-    if (target) {
-      const box = target.getBoundingClientRect();
-      const fullRow = box.width > container.clientWidth * 0.7;
-      const before = fullRow ? lastY < box.top + box.height / 2 : lastX < box.left + box.width / 2;
-      if (before && placeholder.nextElementSibling !== target) move = () => target.before(placeholder);
-      if (!before && target.nextElementSibling !== placeholder) move = () => target.after(placeholder);
-    } else if (others.length && lastY > others.at(-1).getBoundingClientRect().bottom && container.lastElementChild !== placeholder) {
-      move = () => container.append(placeholder); // below everything: to the end
+  const update = () => {
+    const area = container.getBoundingClientRect();
+    const left = lastX - offsetX - area.left;
+    const top = lastY - offsetY - area.top;
+    block.style.transform = `translate(${left}px, ${top}px)`;
+    // Column under the left edge of the block; it stays inside the grid and lines up with
+    // the edges of the other blocks when it is close to one.
+    const item = currentGrid[block.dataset.block];
+    const others = blocksOf(name).filter((el) => el !== block);
+    const exact = left / container._unit;
+    const edges = [0, COLUMNS - item.w, ...others.flatMap((el) => [el._x, el._x + el._w])];
+    const nearest = edges.reduce((best, edge) => (Math.abs(edge - exact) < Math.abs(best - exact) ? edge : best), Infinity);
+    const column = Math.abs(nearest - exact) <= 1.5 ? nearest : Math.round(exact);
+    const x = Math.min(COLUMNS - item.w, Math.max(0, column));
+    // Place: try every position in the order and take the one where the block lands
+    // closest to where the pointer holds it (so it also fits into a gap next to a tall block).
+    const gap = parseFloat(getComputedStyle(container).getPropertyValue("--gap")) || 14;
+    const landingTop = (index) => {
+      const skyline = new Array(COLUMNS).fill(0);
+      const sequence = [...others.slice(0, index), placeholder, ...others.slice(index)];
+      for (const el of sequence) {
+        const [ex, ew, eh] = el === placeholder ? [x, item.w, placeholder.offsetHeight] : [el._x, el._w, el._h];
+        const at = Math.max(...skyline.slice(ex, ex + ew));
+        if (el === placeholder) return at;
+        for (let c = ex; c < ex + ew; c++) skyline[c] = at + eh + gap;
+      }
+      return 0;
+    };
+    let index = 0;
+    let best = Infinity;
+    for (let i = 0; i <= others.length; i++) {
+      const distance = Math.abs(landingTop(i) - top);
+      if (distance < best - 1) {
+        best = distance;
+        index = i;
+      }
     }
-    if (move) animateLayout(container, move, block);
+    const next = others[index] || null;
+    if (item.x !== x || placeholder.nextElementSibling !== next || placeholder.previousElementSibling !== (others[index - 1] || null)) {
+      item.x = x;
+      if (next) next.before(placeholder);
+      else container.append(placeholder);
+      placeBlocks(name, block);
+    }
   };
 
-  // Near the top or bottom edge the page scrolls along, so far places can be reached.
   const autoScroll = () => {
     const step = lastY < 80 ? -14 : lastY > innerHeight - 80 ? 14 : 0;
     if (step) {
       window.scrollBy(0, step);
-      place();
+      update();
     }
-    scrollTimer = requestAnimationFrame(autoScroll);
+    frame = requestAnimationFrame(autoScroll);
   };
-  scrollTimer = requestAnimationFrame(autoScroll);
+  frame = requestAnimationFrame(autoScroll);
 
   const onMove = (move) => {
     lastX = move.clientX;
     lastY = move.clientY;
-    place();
+    update();
   };
+  // If the page scrolls (also by itself), the block stays under the finger.
+  const onScroll = () => update();
+  window.addEventListener("scroll", onScroll, { passive: true });
   const onUp = () => {
     document.removeEventListener("pointermove", onMove);
     document.removeEventListener("pointerup", onUp);
     document.removeEventListener("pointercancel", onUp);
-    cancelAnimationFrame(scrollTimer);
-    // Glide into the placeholder, then take its place.
-    const target = placeholder.getBoundingClientRect();
-    const finish = () => {
-      placeholder.replaceWith(block);
-      block.classList.remove("dragging");
-      for (const prop of ["position", "left", "top", "width", "zIndex", "transition", "transform"]) block.style[prop] = "";
-      saveLayout(name);
-    };
-    if (REDUCED_MOTION.matches) return finish();
-    block.style.transition = "left 0.2s ease, top 0.2s ease";
-    block.style.left = `${target.left}px`;
-    block.style.top = `${target.top}px`;
-    let done = false;
-    const once = () => !done && (done = true) && finish();
-    block.addEventListener("transitionend", once, { once: true });
-    setTimeout(once, 260);
+    window.removeEventListener("scroll", onScroll);
+    cancelAnimationFrame(frame);
+    // Glide into the placeholder's place, then take it.
+    placeholder.replaceWith(block);
+    block.classList.remove("dragging");
+    dragState = null;
+    placeBlocks(name);
+    saveLayout(name);
   };
   document.addEventListener("pointermove", onMove);
   document.addEventListener("pointerup", onUp);
   document.addEventListener("pointercancel", onUp);
 }
 
-// Resizing: drag the right edge; the block follows the pointer, the others reflow and slide along.
+// Resizing: drag the right edge; the width snaps to the columns and the others make room.
 function startResize(event, handle) {
   const block = handle.closest(".block");
   const container = block.parentElement;
   const name = container.dataset.sortable;
-  const variable = PHONE.matches ? "--wm" : "--w";
-  const minPixels = PHONE.matches ? 130 : 240;
-  event.preventDefault();
-  block.classList.add("resizing");
-  let width = Number(block.style.getPropertyValue(variable)) || 50;
-  // Measured from where the drag started, so the width stays steady even if the block
-  // moves up into a row with free space while it gets narrower.
+  const item = currentGrid[block.dataset.block];
   const startX = event.clientX;
   const startWidth = block.getBoundingClientRect().width;
+  event.preventDefault();
+  block.classList.add("resizing");
 
   const onMove = (move) => {
-    const min = Math.min(100, percentFor(container, minPixels));
-    const next = snapWidth(Math.min(100, Math.max(min, percentFor(container, startWidth + move.clientX - startX))));
-    if (Math.abs(next - width) < 0.1) return;
-    width = next;
-    block.dataset.size = `${Math.round(width)} %`;
-    animateLayout(container, () => block.style.setProperty(variable, width), block);
+    const pixels = startWidth + move.clientX - startX;
+    const w = Math.min(COLUMNS - item.x, Math.max(minColumns(container), Math.round((pixels + 14) / container._unit)));
+    block.dataset.size = `${Math.round((w * 100) / COLUMNS)} %`;
+    if (w === item.w) return;
+    item.w = w;
+    placeBlocks(name);
   };
   const onUp = () => {
     document.removeEventListener("pointermove", onMove);
     document.removeEventListener("pointerup", onUp);
     document.removeEventListener("pointercancel", onUp);
     block.classList.remove("resizing");
-    saveWidth(name, block, width);
+    saveLayout(name);
   };
+  block.dataset.size = `${Math.round((item.w * 100) / COLUMNS)} %`;
   document.addEventListener("pointermove", onMove);
   document.addEventListener("pointerup", onUp);
   document.addEventListener("pointercancel", onUp);
@@ -1921,29 +2009,33 @@ document.addEventListener("pointerdown", (event) => {
   const handle = event.target.closest("[data-block-resize]");
   if (handle) return startResize(event, handle);
   const bar = event.target.closest("[data-block-bar]");
-  if (bar) startMove(event, bar);
+  if (bar && !event.target.closest("button")) startMove(event, bar);
 });
 
-// Keyboard: arrows move the block, Shift + left/right changes the width in steps of 5 %.
+// Keyboard: up/down change the order, left/right the column, Shift + left/right the width.
 document.addEventListener("keydown", (event) => {
   const bar = event.target.closest?.("[data-block-bar]");
-  if (!ready || !bar || !bar.closest(".arranging") || !event.key.startsWith("Arrow")) return;
+  if (!ready || !bar || event.target.closest("button") || !bar.closest(".arranging") || !event.key.startsWith("Arrow")) return;
   event.preventDefault();
   const block = bar.closest(".block");
   const container = block.parentElement;
   const name = container.dataset.sortable;
-  if (event.shiftKey) {
-    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
-    const variable = PHONE.matches ? "--wm" : "--w";
-    const min = percentFor(container, PHONE.matches ? 130 : 240);
-    const width = Math.min(100, Math.max(min, (Number(block.style.getPropertyValue(variable)) || 50) + (event.key === "ArrowRight" ? 5 : -5)));
-    animateLayout(container, () => block.style.setProperty(variable, width));
-    saveWidth(name, block, width);
+  const item = currentGrid[block.dataset.block];
+  const step = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : -1;
+  if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+    if (step < 0) block.previousElementSibling?.before(block);
+    else block.nextElementSibling?.after(block);
+  } else if (event.shiftKey) {
+    item.w = Math.min(COLUMNS - item.x, Math.max(minColumns(container), item.w + step * 2));
   } else {
-    const back = event.key === "ArrowUp" || event.key === "ArrowLeft";
-    animateLayout(container, () => (back ? block.previousElementSibling?.before(block) : block.nextElementSibling?.after(block)));
-    saveLayout(name);
+    item.x = Math.min(COLUMNS - item.w, Math.max(0, item.x + step * 2));
   }
+  placeBlocks(name);
+  if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+    // keep the order as chosen (not re-sorted by position)
+    state.layout = { ...state.layout, [name]: blocksOf(name).map((el) => el.dataset.block), grid: { ...state.layout?.grid, [deviceKey()]: { ...currentGrid } } };
+    save();
+  } else saveLayout(name);
   bar.focus();
 });
 
@@ -2489,6 +2581,7 @@ const actions = {
   "picker-year": changePickerYear,
   arrange: toggleArranging,
   "reset-layout": resetLayout,
+  "toggle-block": toggleBlock,
   "start-tour": startTour,
   "show-comparison": showComparison,
   "close-comparison": () => $("comparisonDialog").close(),

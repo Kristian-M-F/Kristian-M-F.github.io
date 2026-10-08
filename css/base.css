@@ -990,19 +990,24 @@ tr.more-row:hover td {
   height: 100%;
 }
 
-/* Dashboard: free widths. The formula makes blocks of e.g. 50 % + 50 % fill a row exactly
-   despite the gap between them. */
+/* Dashboard: a grid of 24 columns. app.js places every block (width and position, as high
+   up in its columns as there is room); the blocks glide to their new place. */
 .blocks[data-sortable] {
   --gap: 14px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--gap);
+  position: relative;
+  display: block;
+  overflow-anchor: none; /* the page must not jump while blocks move */
 }
 
 .blocks[data-sortable] > .block {
-  flex: 0 0 auto;
-  width: calc(var(--w, 50) * 1% - var(--gap) + var(--gap) * var(--w, 50) / 100 - 0.05px);
+  position: absolute;
+  top: 0;
+  left: 0;
   container-type: inline-size;
+}
+
+.blocks[data-sortable].animated > .block {
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), width 0.2s ease;
 }
 
 .block-bar,
@@ -1050,6 +1055,78 @@ tr.more-row:hover td {
   font-weight: 650;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Hidden blocks: gone from the dashboard; while arranging faded with "Ausgeblendet" */
+[data-sortable]:not(.arranging) > .block-hidden {
+  display: none;
+}
+
+.block-hidden-label {
+  display: none;
+}
+
+.arranging > .block-hidden {
+  border-style: dotted;
+  background: transparent;
+}
+
+.arranging > .block-hidden > :not(.block-bar):not(.block-resize):not(.block-hidden-label) {
+  opacity: 0.3;
+}
+
+.arranging > .block-hidden .block-name {
+  opacity: 0.6;
+}
+
+/* "Ausgeblendet" over the faded content */
+.arranging > .block-hidden > .block-hidden-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  display: block;
+  padding: 4px 12px;
+  border-radius: 99px;
+  background: var(--panel);
+  box-shadow: 0 0 0 1px var(--line);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 650;
+  white-space: nowrap;
+  transform: translate(-50%, -10%);
+  pointer-events: none;
+}
+
+/* Eye button: open = shown, crossed out = hidden */
+.block-bar .block-hide {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  min-width: 34px;
+  min-height: 30px;
+  padding: 0;
+}
+
+.block-hide svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.block-hide .eye-closed,
+.block-hidden .block-hide .eye-open {
+  display: none;
+}
+
+.block-hidden .block-hide .eye-closed {
+  display: block;
 }
 
 /* Right edge: drag it to change the width */
@@ -1104,7 +1181,9 @@ tr.more-row:hover td {
 }
 
 /* The block being moved floats above the page and follows the pointer */
-.block.dragging {
+.blocks[data-sortable] > .block.dragging {
+  z-index: 20;
+  transition: none;
   cursor: grabbing;
   background: color-mix(in srgb, var(--brand-soft) 55%, var(--panel));
   box-shadow: var(--shadow-dialog);

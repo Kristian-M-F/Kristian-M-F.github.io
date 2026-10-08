@@ -111,43 +111,71 @@ test("dashboard blocks can be dragged and resized at the edge; the month page ha
   await page.keyboard.press("ArrowUp");
   expect(await order()).toEqual(["account-save", "available", "account-main", "upcoming", "categories", "stats"]);
 
-  // Dragging the right edge: "still available" becomes about a third wide
+  // Dragging the right edge: "still available" becomes half as wide
   const available = page.locator('[data-block="available"]');
   const full = await width("available");
   const edge = await available.locator("[data-block-resize]").boundingBox();
   await page.mouse.move(edge.x + edge.width / 2, edge.y + edge.height / 2);
   await page.mouse.down();
-  await page.mouse.move(edge.x - full * 0.66, edge.y + edge.height / 2, { steps: 12 });
+  await page.mouse.move(edge.x + edge.width / 2 - full / 2, edge.y + edge.height / 2, { steps: 12 });
   await expect(available).toHaveClass(/resizing/);
   await page.mouse.up();
-  const third = await width("available");
-  expect(third).toBeGreaterThan(full * 0.28);
-  expect(third).toBeLessThan(full * 0.4);
+  const half = await width("available");
+  expect(half).toBeGreaterThan(full * 0.45);
+  expect(half).toBeLessThan(full * 0.55);
 
-  // Dragging the bar: the block follows the mouse and lands on the upper half of the categories
-  await page.locator('[data-block="stats"]').scrollIntoViewIfNeeded();
-  await page.locator('[data-block="stats"] .block-name').hover();
+  // Dragging the bar: the wage account goes anywhere, here into the free space below the savings account.
+  // The block stays under the pointer the whole time.
+  const main = page.locator('[data-block="account-main"]');
+  const box = (locator) => locator.evaluate((el) => { const r = el.getBoundingClientRect(); return { x: r.x, y: r.y, bottom: r.bottom }; });
+  const bar = await main.locator(".block-name").boundingBox();
+  const grab = { x: bar.x + 10 - (await box(main)).x, y: bar.y + bar.height / 2 - (await box(main)).y };
+  await page.mouse.move(bar.x + 10, bar.y + bar.height / 2);
   await page.mouse.down();
-  const categories = await page.locator('[data-block="categories"]').boundingBox();
-  await page.mouse.move(categories.x + 20, categories.y + 20, { steps: 12 });
-  await expect(page.locator('[data-block="stats"]')).toHaveClass(/dragging/);
+  const saveBox = await box(savings);
+  const targetX = saveBox.x + 30;
+  const targetY = saveBox.bottom + 40;
+  await page.mouse.move(targetX, targetY, { steps: 15 });
+  await expect(main).toHaveClass(/dragging/);
   await expect(page.locator(".block-placeholder")).toHaveCount(1);
+  const floating = await box(main);
+  expect(Math.abs(floating.x + grab.x - targetX)).toBeLessThan(2);
+  expect(Math.abs(floating.y + grab.y - targetY)).toBeLessThan(2);
   await page.mouse.up();
   await expect(page.locator(".block-placeholder")).toHaveCount(0);
-  const arranged = ["account-save", "available", "account-main", "upcoming", "stats", "categories"];
-  expect(await order()).toEqual(arranged);
-  await page.click('#dashboard [data-action="arrange"]'); // done
+  await page.waitForTimeout(400);
+  const landed = await box(main);
+  const saveNow = await box(savings);
+  expect(Math.abs(landed.x - saveNow.x)).toBeLessThan(3);
+  expect(landed.y).toBeGreaterThan(saveNow.bottom);
+  expect(landed.y - saveNow.bottom).toBeLessThan(30);
+  const arranged = await order();
+
+  // "Ausblenden": while arranging the block stays faded with "Ausgeblendet", afterwards it is gone
+  const categoriesBlock = page.locator('[data-block="categories"]');
+  await categoriesBlock.locator('[data-action="toggle-block"]').click();
+  await expect(categoriesBlock).toHaveClass(/block-hidden/);
+  await expect(categoriesBlock.locator(".block-hidden-label")).toBeVisible();
+  await expect(categoriesBlock.locator('[data-action="toggle-block"]')).toHaveAttribute("aria-label", "Ausgaben nach Kategorie einblenden");
+
+  // A click outside the blocks ends arranging
+  await page.click("#dashboard h1");
+  await expect(page.locator('[data-sortable="dashboard"]')).not.toHaveClass(/arranging/);
+  await expect(categoriesBlock).toBeHidden();
 
   await page.waitForTimeout(1500); // saved with the account
   await page.reload();
   await expect(page.locator("#financeApp")).toBeVisible();
   expect(await order()).toEqual(arranged);
-  expect(Math.abs((await width("available")) - third)).toBeLessThan(3);
+  expect(Math.abs((await width("available")) - half)).toBeLessThan(3);
+  expect(Math.abs((await box(main)).x - (await box(savings)).x)).toBeLessThan(3);
+  await expect(categoriesBlock).toBeHidden();
 
   await page.click('#dashboard [data-action="arrange"]');
   await page.click('#dashboard [data-action="reset-layout"]');
   expect(await order()).toEqual(start);
   await expect.poll(() => width("available")).toBeGreaterThan(full - 3);
+  await expect(categoriesBlock).not.toHaveClass(/block-hidden/);
 
   await goTo(page, "month");
   await expect(page.locator('#month [data-action="arrange"]')).toHaveCount(0);
