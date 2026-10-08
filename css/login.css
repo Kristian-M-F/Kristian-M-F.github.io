@@ -290,12 +290,6 @@ a {
   margin-top: 4px;
 }
 
-.auth-legal {
-  margin: 0;
-  font-size: 13px;
-  text-align: center;
-}
-
 .auth-links {
   display: flex;
   flex-wrap: wrap;

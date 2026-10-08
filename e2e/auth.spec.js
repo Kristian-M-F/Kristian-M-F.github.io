@@ -76,7 +76,7 @@ test("forgot password: reset with the emailed link", async ({ page, request }) =
   await page.goto("/login.html?forgot");
   await page.fill("#email", email);
   await page.click("#submitBtn");
-  await expect(page.locator("#authNotice")).toContainText("Link zum Zurücksetzen");
+  await expect(page.locator("#authNotice")).toContainText("E-Mail geschickt");
 
   await page.goto(await linkFromMail(request, email, "reset"));
   await expect(page.locator("#authTitle")).toHaveText("Neues Passwort wählen");

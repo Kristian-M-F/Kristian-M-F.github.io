@@ -2,8 +2,7 @@
    small screens: 1000px = tablet, 760px = phone, 360px = very small phone. */
 
 @media (max-width: 1000px) {
-  .grid4,
-  .grid3 {
+  .grid4 {
     grid-template-columns: 1fr 1fr;
   }
 
@@ -209,8 +208,7 @@
     max-width: none;
   }
 
-  .grid4,
-  .grid3 {
+  .grid4 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
   }
@@ -503,8 +501,7 @@
     padding-right: 12px;
   }
 
-  .grid4,
-  .grid3 {
+  .grid4 {
     gap: 8px;
   }
 
@@ -515,11 +512,6 @@
 
 /* Phone: compact account balances, hide the logo text when space is short */
 @media (max-width: 760px) {
-  .account-cards {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 10px;
-  }
-
   .account-card {
     padding: 12px 14px;
   }
@@ -762,17 +754,13 @@
     font-size: 15px;
   }
 
-  /* Accounts side by side (two per row); while arranging they use the full width */
-  .blocks[data-sortable="dashboard"] {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* Dashboard on the phone: own widths (--wm); by default the accounts side by side */
+  .blocks[data-sortable] {
+    --gap: 10px;
   }
 
-  .blocks[data-sortable="dashboard"] > .block {
-    grid-column: 1 / -1;
-  }
-
-  .blocks[data-sortable="dashboard"]:not(.arranging) > .block[data-block^="account-"] {
-    grid-column: auto;
+  .blocks[data-sortable] > .block {
+    width: calc(var(--wm, 100) * 1% - var(--gap) + var(--gap) * var(--wm, 100) / 100 - 0.05px);
   }
 
   .account-card {
@@ -819,8 +807,7 @@
   }
 
   /* Month page: smaller key figures */
-  .grid4,
-  .grid3 {
+  .grid4 {
     gap: 8px;
   }
 
@@ -1052,5 +1039,47 @@
   .field select {
     min-width: 0;
     max-width: 100%;
+  }
+}
+
+/* Narrow dashboard blocks (any screen): the content adapts to the width of its block,
+   so nothing is cut off. The blocks are size containers (base.css). */
+@container (max-width: 560px) {
+  .grid4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .block .two {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@container (max-width: 420px) {
+  .hero-amount {
+    font-size: clamp(22px, 11cqi, 34px);
+  }
+}
+
+@container (max-width: 300px) {
+  .grid4 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .summary-row {
+    flex-wrap: wrap;
+    gap: 2px 12px;
+  }
+
+  .summary-row b {
+    margin-left: auto;
+  }
+
+  .block .grid2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .compare-values {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
   }
 }

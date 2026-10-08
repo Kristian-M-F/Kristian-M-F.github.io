@@ -95,55 +95,62 @@ test("an entry in another pay month says where it was booked", async ({ page, re
   await expect(page.locator("#toast")).toContainText("15.01.2030");
 });
 
-test("dashboard and month blocks can be arranged, resized and keep their order", async ({ page, request }) => {
+test("dashboard blocks can be dragged and resized at the edge; the month page has no arranging", async ({ page, request }) => {
   await openApp(page, request);
   const order = () => page.locator('[data-sortable="dashboard"] > .block').evaluateAll((blocks) => blocks.map((block) => block.dataset.block));
+  const width = (id) => page.locator(`[data-block="${id}"]`).evaluate((block) => block.getBoundingClientRect().width);
   const start = ["available", "account-main", "account-save", "upcoming", "categories", "stats"];
   expect(await order()).toEqual(start);
+  await expect(page.locator('[data-action="move-block"], [data-action="resize-block"]')).toHaveCount(0);
 
-  // Every account is its own block
+  // Keyboard: arrows move a block
   await page.click('#dashboard [data-action="arrange"]');
   const savings = page.locator('[data-block="account-save"]');
-  await savings.locator('[data-action="move-block"][data-step="-1"]').click();
-  await savings.locator('[data-action="move-block"][data-step="-1"]').click();
+  await savings.locator("[data-block-bar]").focus();
+  await page.keyboard.press("ArrowUp");
+  await page.keyboard.press("ArrowUp");
   expect(await order()).toEqual(["account-save", "available", "account-main", "upcoming", "categories", "stats"]);
 
-  // ↔ makes a block wide or narrow
-  await expect(savings).not.toHaveClass(/span-2/);
-  await savings.locator('[data-action="resize-block"]').click();
-  await expect(savings).toHaveClass(/span-2/);
+  // Dragging the right edge: "still available" becomes about a third wide
   const available = page.locator('[data-block="available"]');
-  await available.locator('[data-action="resize-block"]').click();
-  await expect(available).not.toHaveClass(/span-2/);
-  await page.click('#dashboard [data-action="arrange"]'); // done
+  const full = await width("available");
+  const edge = await available.locator("[data-block-resize]").boundingBox();
+  await page.mouse.move(edge.x + edge.width / 2, edge.y + edge.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(edge.x - full * 0.66, edge.y + edge.height / 2, { steps: 12 });
+  await expect(available).toHaveClass(/resizing/);
+  await page.mouse.up();
+  const third = await width("available");
+  expect(third).toBeGreaterThan(full * 0.28);
+  expect(third).toBeLessThan(full * 0.4);
 
-  // Dragging the bar also works: statistics onto the upper half of the categories
-  await page.click('#dashboard [data-action="arrange"]');
+  // Dragging the bar: the block follows the mouse and lands on the upper half of the categories
   await page.locator('[data-block="stats"]').scrollIntoViewIfNeeded();
   await page.locator('[data-block="stats"] .block-name').hover();
-  const categories = await page.locator('[data-block="categories"]').boundingBox();
   await page.mouse.down();
-  await page.mouse.move(categories.x + 30, categories.y + 20, { steps: 10 });
+  const categories = await page.locator('[data-block="categories"]').boundingBox();
+  await page.mouse.move(categories.x + 20, categories.y + 20, { steps: 12 });
+  await expect(page.locator('[data-block="stats"]')).toHaveClass(/dragging/);
+  await expect(page.locator(".block-placeholder")).toHaveCount(1);
   await page.mouse.up();
+  await expect(page.locator(".block-placeholder")).toHaveCount(0);
   const arranged = ["account-save", "available", "account-main", "upcoming", "stats", "categories"];
   expect(await order()).toEqual(arranged);
+  await page.click('#dashboard [data-action="arrange"]'); // done
 
   await page.waitForTimeout(1500); // saved with the account
   await page.reload();
   await expect(page.locator("#financeApp")).toBeVisible();
   expect(await order()).toEqual(arranged);
-  await expect(page.locator('[data-block="account-save"]')).toHaveClass(/span-2/);
-  await expect(page.locator('[data-block="available"]')).not.toHaveClass(/span-2/);
+  expect(Math.abs((await width("available")) - third)).toBeLessThan(3);
 
   await page.click('#dashboard [data-action="arrange"]');
   await page.click('#dashboard [data-action="reset-layout"]');
   expect(await order()).toEqual(start);
-  await expect(page.locator('[data-block="available"]')).toHaveClass(/span-2/);
+  await expect.poll(() => width("available")).toBeGreaterThan(full - 3);
 
   await goTo(page, "month");
-  await page.click('#month [data-action="arrange"]');
-  await page.locator('[data-block="planned"] [data-action="move-block"][data-step="-1"]').click();
-  await expect(page.locator('[data-sortable="month"] > .block').nth(2)).toHaveAttribute("data-block", "planned");
+  await expect(page.locator('#month [data-action="arrange"]')).toHaveCount(0);
 });
 
 test("a withdrawal cannot exceed the savings balance", async ({ page, request }) => {

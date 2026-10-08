@@ -17,18 +17,18 @@
     <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
     <link rel="manifest" href="manifest.webmanifest" />
     <!-- Styles: base.css applies everywhere, then one file per page, responsive.css last -->
-    <script src="js/translations.js?v=2026100708"></script>
-    <script src="js/i18n.js?v=2026100708"></script>
-    <script src="js/update.js?v=2026100708" defer></script>
-    <link rel="stylesheet" href="css/base.css?v=2026100708" />
-    <link rel="stylesheet" href="css/dashboard.css?v=2026100708" />
-    <link rel="stylesheet" href="css/month.css?v=2026100708" />
-    <link rel="stylesheet" href="css/month-entry.css?v=2026100708" />
-    <link rel="stylesheet" href="css/settings.css?v=2026100708" />
-    <link rel="stylesheet" href="css/themes.css?v=2026100708" />
-    <link rel="stylesheet" href="css/tour.css?v=2026100708" />
-    <link rel="stylesheet" href="css/setup.css?v=2026100708" />
-    <link rel="stylesheet" href="css/responsive.css?v=2026100708" />
+    <script src="js/translations.js?v=2026100803"></script>
+    <script src="js/i18n.js?v=2026100803"></script>
+    <script src="js/update.js?v=2026100803" defer></script>
+    <link rel="stylesheet" href="css/base.css?v=2026100803" />
+    <link rel="stylesheet" href="css/dashboard.css?v=2026100803" />
+    <link rel="stylesheet" href="css/month.css?v=2026100803" />
+    <link rel="stylesheet" href="css/month-entry.css?v=2026100803" />
+    <link rel="stylesheet" href="css/settings.css?v=2026100803" />
+    <link rel="stylesheet" href="css/themes.css?v=2026100803" />
+    <link rel="stylesheet" href="css/tour.css?v=2026100803" />
+    <link rel="stylesheet" href="css/setup.css?v=2026100803" />
+    <link rel="stylesheet" href="css/responsive.css?v=2026100803" />
   </head>
   <body>
     <div id="toast" class="toast" role="status" hidden></div>
@@ -167,7 +167,7 @@
             </div>
           </div>
           <p class="note arrange-help" data-arrange-help="dashboard" hidden>
-            Ziehe die Bereiche an der Leiste oder verschiebe sie mit ↑ ↓. Mit ↔ wird ein Bereich breiter oder schmaler. Alles wird mit deinem Konto gespeichert.
+            Ziehe einen Bereich an seiner Leiste an einen anderen Platz. Am rechten Rand ziehst du ihn so breit oder schmal, wie du willst. Alles wird mit deinem Konto gespeichert.
             <button class="link-button" data-action="reset-layout" data-sortable-for="dashboard">Standard wiederherstellen</button>
           </p>
           <!-- Getting started: only visible until everything is set up -->
@@ -208,7 +208,7 @@
               </li>
             </ol>
           </div>
-          <!-- Sortable blocks ("Anordnen"): the order is saved with the account (state.layout) -->
+          <!-- Sortable blocks ("Anordnen"): order and widths are saved with the account (state.layout) -->
           <div class="blocks" data-sortable="dashboard">
             <div class="block span-2" data-block="available" data-block-name="Noch verfügbar">
               <div class="card available-hero" id="availableHero">
@@ -303,18 +303,13 @@
               <p>Ein Monat, eine klare Übersicht.</p>
             </div>
             <div class="head-actions">
-              <button class="secondary arrange-toggle" data-action="arrange" data-sortable-for="month" aria-pressed="false">Anordnen</button>
               <button type="button" class="secondary month-button" id="monthPicker" data-action="change-month" aria-label="Lohnmonat auswählen">
                 <span id="monthPickerLabel"></span><span aria-hidden="true"> ▾</span>
               </button>
             </div>
           </div>
-          <p class="note arrange-help" data-arrange-help="month" hidden>
-            Ziehe die Bereiche an der Leiste oder verschiebe sie mit ↑ ↓. Mit ↔ wird ein Bereich breiter oder schmaler. Alles wird mit deinem Konto gespeichert.
-            <button class="link-button" data-action="reset-layout" data-sortable-for="month">Standard wiederherstellen</button>
-          </p>
           <p id="monthPeriod" class="note"></p>
-          <div class="blocks" data-sortable="month">
+          <div class="blocks">
             <div class="block span-2" data-block="kpis" data-block-name="Übersicht">
               <div class="grid4">
                 <div class="card kpi">
@@ -815,9 +810,9 @@
     </div>
 
     <!-- api.js: connection to the backend (login + database). app.js: the app logic -->
-    <script src="js/api.js?v=2026100708"></script>
-    <script src="js/tour.js?v=2026100708"></script>
-    <script src="js/setup.js?v=2026100708"></script>
-    <script src="js/app.js?v=2026100708"></script>
+    <script src="js/api.js?v=2026100803"></script>
+    <script src="js/tour.js?v=2026100803"></script>
+    <script src="js/setup.js?v=2026100803"></script>
+    <script src="js/app.js?v=2026100803"></script>
   </body>
 </html>
