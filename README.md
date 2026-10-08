@@ -18,11 +18,13 @@ frontend/   (Repository Kristian-Maras.github.io)
 ├── impressum.html          Impressum (wer die Seite betreibt)
 ├── nutzungsbedingungen.html  Nutzungsbedingungen (werden bei der Registrierung akzeptiert)
 ├── kontakt.html            Kontaktformular
+├── 404.html                Seite „Gibt es nicht“ (GitHub Pages zeigt sie bei jeder unbekannten Adresse)
 ├── manifest.webmanifest    App auf dem Home-Bildschirm (Name, Icons, Farben)
 ├── version.json            Aktuelle Versionsnummer der Website (für den Hinweis „Neu laden“)
 ├── css/
 │   ├── shared/             für alle Seiten
 │   │   ├── base.css        Farben, Schrift, Buttons, Felder, Sidebar
+│   │   ├── error.css       Fehlerseiten: 404 und „Etwas ist schiefgelaufen“ in der App
 │   │   └── themes.css      Darstellung: Akzentfarben (Standard Lila), dunkler Modus, grosse Schrift
 │   ├── app/                nur app.html
 │   │   ├── dashboard.css   Seite Dashboard
@@ -78,6 +80,7 @@ frontend/   (Repository Kristian-Maras.github.io)
 │   ├── navigation.spec.js  „Zurück“ an die gleiche Stelle
 │   ├── i18n.spec.js        Alles auf Englisch, Französisch und Italienisch
 │   ├── files.spec.js       Keine Fehler und keine fehlenden Dateien auf allen Seiten
+│   ├── errors.spec.js      404-Seite und Fehlerseite in der App
 │   └── mobile.spec.js      Handy-Ansicht
 ├── playwright.config.js    Einstellungen der Tests
 ├── package.json            Test-Werkzeug Playwright
@@ -157,10 +160,10 @@ dann `npm run test:e2e`.
 
 ## Neue Version veröffentlichen
 
-Alle CSS- und JS-Dateien werden mit einer Versionsnummer eingebunden, z. B. `css/shared/base.css?v=2026100813`,
+Alle CSS- und JS-Dateien werden mit einer Versionsnummer eingebunden, z. B. `css/shared/base.css?v=2026100814`,
 und dieselbe Nummer steht in `version.json`. Bei jeder Änderung an der Website die Nummer überall erhöhen:
-in IntelliJ **Strg+Shift+R** (Ersetzen in Dateien) → `2026100813` durch die neue Nummer ersetzen
-(z. B. Datum + laufende Nummer: `2026100813`), dann pushen.
+in IntelliJ **Strg+Shift+R** (Ersetzen in Dateien) → `2026100814` durch die neue Nummer ersetzen
+(z. B. Datum + laufende Nummer: `2026100814`), dann pushen.
 
 - Handys laden dadurch sicher die neuen Dateien statt der alten aus dem Zwischenspeicher.
 - Wer die Seite oder die App auf dem Home-Bildschirm gerade offen hat, bekommt innerhalb von

@@ -165,6 +165,16 @@ async function loadSavedData() {
   return saved || {};
 }
 
+/** Error page instead of the app: the data could not be loaded. Nothing is lost, the user can try again. */
+function showServerError(error) {
+  $("serverErrorDetail").textContent = error.status
+    ? t("Fehlercode {code}", { code: error.status })
+    : t("Server nicht erreichbar");
+  $("serverError").hidden = false;
+}
+
+$("serverErrorRetry").addEventListener("click", () => location.reload());
+
 async function start() {
   initFolds();
   let saved;
@@ -174,7 +184,7 @@ async function start() {
     // Without login (401) api() redirects; the app stays hidden meanwhile.
     if (error.message !== "Bitte neu einloggen") {
       document.documentElement.classList.remove("checking-login");
-      notify(error.message); // e.g. backend not reachable
+      showServerError(error); // e.g. backend not reachable or server error (500)
     }
     return;
   }

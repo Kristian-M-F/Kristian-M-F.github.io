@@ -13,6 +13,7 @@ const TYPES = {
   ".webp": "image/webp",
   ".woff": "font/woff",
   ".json": "application/json",
+  ".png": "image/png",
 };
 
 http
@@ -25,7 +26,9 @@ http
     }
     fs.readFile(file, (error, content) => {
       if (error) {
-        response.writeHead(404).end("Not found");
+        // Like GitHub Pages: unknown addresses get 404.html with the status 404
+        response.writeHead(404, { "Content-Type": TYPES[".html"] });
+        response.end(fs.readFileSync(path.join(ROOT, "404.html")));
         return;
       }
       response.writeHead(200, { "Content-Type": TYPES[path.extname(file)] || "application/octet-stream" });

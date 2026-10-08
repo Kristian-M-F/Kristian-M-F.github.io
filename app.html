@@ -17,21 +17,43 @@
     <link rel="apple-touch-icon" href="img/icons/apple-touch-icon.png" />
     <link rel="manifest" href="manifest.webmanifest" />
     <!-- Styles: base.css applies everywhere, then one file per page, responsive.css last -->
-    <script src="js/shared/translations.js?v=2026100813"></script>
-    <script src="js/shared/i18n.js?v=2026100813"></script>
-    <script src="js/shared/update.js?v=2026100813" defer></script>
-    <link rel="stylesheet" href="css/shared/base.css?v=2026100813" />
-    <link rel="stylesheet" href="css/app/dashboard.css?v=2026100813" />
-    <link rel="stylesheet" href="css/app/month.css?v=2026100813" />
-    <link rel="stylesheet" href="css/app/month-picker.css?v=2026100813" />
-    <link rel="stylesheet" href="css/app/settings.css?v=2026100813" />
-    <link rel="stylesheet" href="css/shared/themes.css?v=2026100813" />
-    <link rel="stylesheet" href="css/app/tour.css?v=2026100813" />
-    <link rel="stylesheet" href="css/app/setup.css?v=2026100813" />
-    <link rel="stylesheet" href="css/app/responsive.css?v=2026100813" />
+    <script src="js/shared/translations.js?v=2026100814"></script>
+    <script src="js/shared/i18n.js?v=2026100814"></script>
+    <script src="js/shared/update.js?v=2026100814" defer></script>
+    <link rel="stylesheet" href="css/shared/base.css?v=2026100814" />
+    <link rel="stylesheet" href="css/app/dashboard.css?v=2026100814" />
+    <link rel="stylesheet" href="css/app/month.css?v=2026100814" />
+    <link rel="stylesheet" href="css/app/month-picker.css?v=2026100814" />
+    <link rel="stylesheet" href="css/app/settings.css?v=2026100814" />
+    <link rel="stylesheet" href="css/shared/themes.css?v=2026100814" />
+    <link rel="stylesheet" href="css/app/tour.css?v=2026100814" />
+    <link rel="stylesheet" href="css/app/setup.css?v=2026100814" />
+    <link rel="stylesheet" href="css/app/responsive.css?v=2026100814" />
+    <link rel="stylesheet" href="css/shared/error.css?v=2026100814" />
   </head>
   <body>
     <div id="toast" class="toast" role="status" hidden></div>
+
+    <!-- Shown instead of the app when the backend cannot load the data (showServerError in js/app/main.js) -->
+    <section id="serverError" class="error-screen error-overlay" role="alert" aria-labelledby="serverErrorTitle" hidden>
+      <div class="error-top">
+        <a class="logo" href="index.html">
+          <img src="img/icons/favicon.svg" alt="" width="28" height="28" /><span>Finance OS</span>
+        </a>
+      </div>
+      <div class="error-box">
+        <div class="error-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="7" rx="2" /><rect x="3" y="13" width="18" height="7" rx="2" /><path d="M7 7.5h.01M7 16.5h.01" /><path d="M17 15l-3 3M14 15l3 3" /></svg>
+        </div>
+        <h1 id="serverErrorTitle">Etwas ist schiefgelaufen</h1>
+        <p>Der Server antwortet gerade nicht. Nach einer Pause braucht er manchmal bis zu einer Minute zum Starten. Deine Daten sind sicher gespeichert.</p>
+        <div class="error-actions">
+          <button type="button" class="primary" id="serverErrorRetry">Nochmals versuchen</button>
+          <a class="secondary" href="index.html">Zur Startseite</a>
+        </div>
+        <p class="error-detail" id="serverErrorDetail"></p>
+      </div>
+    </section>
 
     <!-- Questions and new names are asked here, not in a browser pop-up (askUser in js/app/state.js) -->
     <dialog id="appDialog" class="app-dialog" aria-labelledby="appDialogTitle" aria-describedby="appDialogText">
@@ -816,16 +838,16 @@
 
     <!-- api.js: connection to the backend (login + database).
          js/app/: the app logic, split into parts that are loaded in this order (main.js last) -->
-    <script src="js/shared/api.js?v=2026100813"></script>
-    <script src="js/app/tour.js?v=2026100813"></script>
-    <script src="js/app/setup.js?v=2026100813"></script>
-    <script src="js/app/state.js?v=2026100813"></script>
-    <script src="js/app/calc.js?v=2026100813"></script>
-    <script src="js/app/render.js?v=2026100813"></script>
-    <script src="js/app/render-settings.js?v=2026100813"></script>
-    <script src="js/app/layout.js?v=2026100813"></script>
-    <script src="js/app/navigation.js?v=2026100813"></script>
-    <script src="js/app/forms.js?v=2026100813"></script>
-    <script src="js/app/main.js?v=2026100813"></script>
+    <script src="js/shared/api.js?v=2026100814"></script>
+    <script src="js/app/tour.js?v=2026100814"></script>
+    <script src="js/app/setup.js?v=2026100814"></script>
+    <script src="js/app/state.js?v=2026100814"></script>
+    <script src="js/app/calc.js?v=2026100814"></script>
+    <script src="js/app/render.js?v=2026100814"></script>
+    <script src="js/app/render-settings.js?v=2026100814"></script>
+    <script src="js/app/layout.js?v=2026100814"></script>
+    <script src="js/app/navigation.js?v=2026100814"></script>
+    <script src="js/app/forms.js?v=2026100814"></script>
+    <script src="js/app/main.js?v=2026100814"></script>
   </body>
 </html>
