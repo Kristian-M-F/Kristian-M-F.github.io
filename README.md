@@ -1,5 +1,5 @@
-# Finance OS – Website
 
+<<<<<<< HEAD
 Die Website von Finance OS (HTML / CSS / JavaScript), veröffentlicht mit **GitHub Pages** unter
 **https://kristian-maras.github.io**. Das Backend (Login, Speichern, E-Mails) liegt im Repository
 [finance-tracker-backend](https://github.com/Kristian-Maras/finance-tracker-backend).
@@ -172,3 +172,5 @@ in IntelliJ **Strg+Shift+R** (Ersetzen in Dateien) → `2026100811` durch die ne
 `manifest.webmanifest` und die Icons in `img/icons/` machen Finance OS installierbar:
 iPhone (Safari) → Teilen → „Zum Home-Bildschirm“; Android (Chrome) → ⋮ → „App installieren“.
 Die App öffnet dann ohne Browser-Leiste direkt `app.html`.
+=======
+>>>>>>> 10993ddf51b419b35334bc95d7c1c1090e310e68
