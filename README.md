@@ -27,7 +27,7 @@ frontend/   (Repository Kristian-M-F.github.io)
 │   ├── app/                nur app.html
 │   │   ├── dashboard.css   Seite Dashboard
 │   │   ├── month.css       Seite Monat
-│   │   ├── month-entry.css Popup „Lohnmonat wählen“ (Monat ändern)
+│   │   ├── month-picker.css Popup „Lohnmonat wählen“ (Monat ändern)
 │   │   ├── settings.css    Seite Einstellungen
 │   │   ├── setup.css       Einrichtung für neue Konten (Fragen beim ersten Login)
 │   │   ├── tour.css        Geführte Tour durch die App
@@ -157,10 +157,10 @@ dann `npm run test:e2e`.
 
 ## Neue Version veröffentlichen
 
-Alle CSS- und JS-Dateien werden mit einer Versionsnummer eingebunden, z. B. `css/shared/base.css?v=2026100809`,
+Alle CSS- und JS-Dateien werden mit einer Versionsnummer eingebunden, z. B. `css/shared/base.css?v=2026100810`,
 und dieselbe Nummer steht in `version.json`. Bei jeder Änderung an der Website die Nummer überall erhöhen:
-in IntelliJ **Strg+Shift+R** (Ersetzen in Dateien) → `2026100809` durch die neue Nummer ersetzen
-(z. B. Datum + laufende Nummer: `2026100809`), dann pushen.
+in IntelliJ **Strg+Shift+R** (Ersetzen in Dateien) → `2026100810` durch die neue Nummer ersetzen
+(z. B. Datum + laufende Nummer: `2026100810`), dann pushen.
 
 - Handys laden dadurch sicher die neuen Dateien statt der alten aus dem Zwischenspeicher.
 - Wer die Seite oder die App auf dem Home-Bildschirm gerade offen hat, bekommt innerhalb von

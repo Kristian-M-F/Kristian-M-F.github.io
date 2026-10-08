@@ -122,7 +122,7 @@ function renderAvailableHero() {
   const { end } = period(month);
   const today = todayISO();
   let status;
-  if (!isTracked(month)) status = t("Nicht erfasst (vor «Tracken ab»)");
+  if (!isTracked(month)) status = t("Nicht erfasst (vor „Tracken ab“)");
   else if (!hasStarted(month)) status = t("Beginnt am {date}", { date: formatDate(period(month).start) });
   else if (today > end) status = t("Abgeschlossen");
   else {
@@ -266,7 +266,7 @@ function renderMonthPage() {
   $("monthPickerLabel").textContent = monthName(month);
 
   let status = "";
-  if (!isTracked(month)) status = " · " + t("Nicht erfasst (vor «Tracken ab»)");
+  if (!isTracked(month)) status = " · " + t("Nicht erfasst (vor „Tracken ab“)");
   else if (!hasStarted(month)) status = " · " + t("Noch nicht begonnen");
   $("monthPeriod").textContent = `${t("Lohnmonat")} ${periodLabel(month)} · ${yearLabel(apprenticeYear(month))}${status}`;
 

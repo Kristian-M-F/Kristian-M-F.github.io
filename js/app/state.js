@@ -104,10 +104,13 @@ const DEFAULT_ALLOWANCE_NAMES = {
 };
 const DEFAULT_ACCOUNT_NAMES = { main: "Lohnkonto", save: "Sparkonto" };
 const DEFAULT_LISTS = {
-  categories: ["Essen", "Freizeit/Ausgang", "Motorrad/Auto", "Kleidung", "Abos", "Schule", "Technik", "Sport", "Ferien", "Sonstiges"],
+  categories: ["Essen", "Freizeit", "Fahrzeug", "Kleidung", "Abos", "Schule", "Technik", "Sport", "Ferien", "Sonstiges"],
   incomeCategories: ["Nebenjob", "Geschenk", "Rückzahlung", "Sonstiges"],
   payments: ["Karte", "TWINT", "Bar", "Überweisung"],
 };
+// Default names that were renamed later. Accounts that still use the old default name (in any
+// language) get the new one, together with their entries; names the user typed in stay as they are.
+const FORMER_DEFAULT_NAMES = { Freizeit: ["Freizeit/Ausgang"], Fahrzeug: ["Motorrad/Auto"] };
 
 // New accounts start with public transport (on) and the meal allowance (off); more can be added.
 const STARTING_ALLOWANCES = ["transport", "food"];
@@ -306,6 +309,7 @@ function localizeDefaultNames() {
   // Every spelling of a default name (German and all translations) → its current translation.
   const localized = (germanName) => {
     const spellings = spellingsOf(germanName);
+    for (const former of FORMER_DEFAULT_NAMES[germanName] || []) spellingsOf(former).forEach((name) => spellings.add(name));
     return (name) => (spellings.has(name) ? t(germanName) : null);
   };
   let changed = false;

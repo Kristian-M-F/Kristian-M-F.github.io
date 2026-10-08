@@ -146,3 +146,20 @@ test("contact, terms, privacy policy and imprint can be reached from the setting
     await expect(help.locator(`a[href="${href}"]`)).toBeVisible();
   }
 });
+
+test("renamed default categories: old accounts get „Freizeit“ and „Fahrzeug“, with their entries", async ({ page, request }) => {
+  await openApp(page, request);
+  await expect.poll(() => page.evaluate(() => state.categories.slice(1, 3))).toEqual(["Freizeit", "Fahrzeug"]);
+  // An account from before the rename
+  await page.evaluate(() => {
+    state.categories = state.categories.map((name) => ({ Freizeit: "Freizeit/Ausgang", Fahrzeug: "Motorrad/Auto" })[name] || name);
+    state.expenses.push({ id: "old1", date: todayISO(), desc: "Kino", cat: "Freizeit/Ausgang", pay: "Karte", amount: 15 });
+    save();
+    flushData();
+  });
+  await page.waitForTimeout(1500);
+  await page.reload();
+  await expect(page.locator("#financeApp")).toBeVisible();
+  expect(await page.evaluate(() => state.categories.slice(1, 3))).toEqual(["Freizeit", "Fahrzeug"]);
+  expect(await page.evaluate(() => state.expenses.find((entry) => entry.id === "old1").cat)).toBe("Freizeit");
+});
