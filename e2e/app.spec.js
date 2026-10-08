@@ -114,7 +114,7 @@ test("dashboard blocks can be dragged and resized at the edge; the month page ha
   // Dragging the right edge: "still available" becomes half as wide
   const available = page.locator('[data-block="available"]');
   const full = await width("available");
-  const edge = await available.locator("[data-block-resize]").boundingBox();
+  const edge = await available.locator('[data-block-resize="right"]').boundingBox();
   await page.mouse.move(edge.x + edge.width / 2, edge.y + edge.height / 2);
   await page.mouse.down();
   await page.mouse.move(edge.x + edge.width / 2 - full / 2, edge.y + edge.height / 2, { steps: 12 });
@@ -149,6 +149,28 @@ test("dashboard blocks can be dragged and resized at the edge; the month page ha
   expect(Math.abs(landed.x - saveNow.x)).toBeLessThan(3);
   expect(landed.y).toBeGreaterThan(saveNow.bottom);
   expect(landed.y - saveNow.bottom).toBeLessThan(30);
+
+  // Into a gap that is narrower than the block: it becomes just narrow enough to fit
+  const saveEdge = await savings.locator('[data-block-resize="right"]').boundingBox();
+  await page.mouse.move(saveEdge.x + saveEdge.width / 2, saveEdge.y + saveEdge.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(saveEdge.x + saveEdge.width / 2 - full / 4, saveEdge.y + saveEdge.height / 2, { steps: 10 });
+  await page.mouse.up();
+  const quarter = (await savings.boundingBox()).width;
+  expect(quarter).toBeLessThan(full * 0.3);
+  const mainBar = await main.locator(".block-name").boundingBox();
+  await page.mouse.move(mainBar.x + 10, mainBar.y + mainBar.height / 2);
+  await page.mouse.down();
+  const saveSmall = await savings.boundingBox();
+  await page.mouse.move(saveSmall.x + saveSmall.width + 60, saveSmall.y + 20, { steps: 15 });
+  await page.mouse.up();
+  await page.waitForTimeout(400);
+  const fitted = await main.boundingBox();
+  const saveAfter = await savings.boundingBox();
+  expect(Math.abs(fitted.y - saveAfter.y)).toBeLessThan(3);
+  expect(fitted.x).toBeGreaterThan(saveAfter.x + saveAfter.width);
+  expect(fitted.width).toBeLessThan(full * 0.3);
+  expect(fitted.x + fitted.width).toBeLessThan(full * 1.02 + (await available.boundingBox()).x);
   const arranged = await order();
 
   // "Ausblenden": while arranging the block stays faded with "Ausgeblendet", afterwards it is gone
@@ -168,10 +190,22 @@ test("dashboard blocks can be dragged and resized at the edge; the month page ha
   await expect(page.locator("#financeApp")).toBeVisible();
   expect(await order()).toEqual(arranged);
   expect(Math.abs((await width("available")) - half)).toBeLessThan(3);
-  expect(Math.abs((await box(main)).x - (await box(savings)).x)).toBeLessThan(3);
+  expect(Math.abs((await box(main)).y - (await box(savings)).y)).toBeLessThan(3);
   await expect(categoriesBlock).toBeHidden();
 
+  // The left edge also changes the width; the right side stays where it is
   await page.click('#dashboard [data-action="arrange"]');
+  const before = await available.boundingBox();
+  const leftEdge = await available.locator('[data-block-resize="left"]').boundingBox();
+  await page.mouse.move(leftEdge.x + leftEdge.width / 2, leftEdge.y + leftEdge.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(leftEdge.x + leftEdge.width / 2 + full / 8, leftEdge.y + leftEdge.height / 2, { steps: 10 });
+  await page.mouse.up();
+  await page.waitForTimeout(400);
+  const after = await available.boundingBox();
+  expect(after.x).toBeGreaterThan(before.x + full / 10);
+  expect(Math.abs(after.x + after.width - (before.x + before.width))).toBeLessThan(3);
+
   await page.click('#dashboard [data-action="reset-layout"]');
   expect(await order()).toEqual(start);
   await expect.poll(() => width("available")).toBeGreaterThan(full - 3);

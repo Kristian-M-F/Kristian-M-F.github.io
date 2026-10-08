@@ -1642,7 +1642,7 @@ function render() {
 // below a short block. While arranging:
 // - drag a block by its bar: it follows the pointer, a dashed area shows where it will land,
 //   the other blocks glide out of the way;
-// - drag the right edge to make it wider or narrower;
+// - drag the left or right edge to make it wider or narrower;
 // - keyboard: arrow keys move the focused bar, Shift + left/right changes the width;
 // - "Ausblenden" hides a block; while arranging it stays visible (faded) to show it again;
 // - a click outside the blocks ends arranging.
@@ -1796,7 +1796,11 @@ function addBlockBar(block) {
       </button>
     </div>`,
   );
-  block.insertAdjacentHTML("beforeend", `<div class="block-resize" data-block-resize aria-hidden="true" title="${t("Breiter oder schmaler ziehen")}"></div>`);
+  block.insertAdjacentHTML(
+    "beforeend",
+    `<div class="block-resize block-resize-left" data-block-resize="left" aria-hidden="true" title="${t("Breiter oder schmaler ziehen")}"></div>
+     <div class="block-resize" data-block-resize="right" aria-hidden="true" title="${t("Breiter oder schmaler ziehen")}"></div>`,
+  );
   block.insertAdjacentHTML("beforeend", `<span class="block-hidden-label" aria-hidden="true">${t("Ausgeblendet")}</span>`);
 }
 
@@ -1863,7 +1867,7 @@ function resetLayout(data) {
   save();
 }
 
-const minColumns = (container) => Math.ceil(((PHONE.matches ? 130 : 240) + 14) / container._unit);
+const minColumns = (container) => Math.ceil(((PHONE.matches ? 130 : 160) + 14) / container._unit);
 
 let dragState = null;
 
@@ -1885,6 +1889,7 @@ function startMove(event, bar) {
   block.after(placeholder);
   block.classList.add("dragging");
   dragState = { block };
+  const fullWidth = currentGrid[block.dataset.block].w; // own width; narrower only to fit a gap
 
   let lastX = event.clientX;
   let lastY = event.clientY;
@@ -1900,35 +1905,53 @@ function startMove(event, bar) {
     const item = currentGrid[block.dataset.block];
     const others = blocksOf(name).filter((el) => el !== block);
     const exact = left / container._unit;
-    const edges = [0, COLUMNS - item.w, ...others.flatMap((el) => [el._x, el._x + el._w])];
+    const edges = [0, COLUMNS - fullWidth, ...others.flatMap((el) => [el._x, el._x + el._w])];
     const nearest = edges.reduce((best, edge) => (Math.abs(edge - exact) < Math.abs(best - exact) ? edge : best), Infinity);
     const column = Math.abs(nearest - exact) <= 1.5 ? nearest : Math.round(exact);
-    const x = Math.min(COLUMNS - item.w, Math.max(0, column));
-    // Place: try every position in the order and take the one where the block lands
-    // closest to where the pointer holds it (so it also fits into a gap next to a tall block).
+    const snappedX = Math.min(COLUMNS - fullWidth, Math.max(0, column));
+    const pointerColumn = Math.min(COLUMNS - 1, Math.max(0, Math.floor((lastX - area.left) / container._unit)));
     const gap = parseFloat(getComputedStyle(container).getPropertyValue("--gap")) || 14;
-    const landingTop = (index) => {
+    const minimum = minColumns(container);
+
+    // Free columns before the block at position `index` in the order (the "skyline").
+    const skylineBefore = (index) => {
       const skyline = new Array(COLUMNS).fill(0);
-      const sequence = [...others.slice(0, index), placeholder, ...others.slice(index)];
-      for (const el of sequence) {
-        const [ex, ew, eh] = el === placeholder ? [x, item.w, placeholder.offsetHeight] : [el._x, el._w, el._h];
-        const at = Math.max(...skyline.slice(ex, ex + ew));
-        if (el === placeholder) return at;
-        for (let c = ex; c < ex + ew; c++) skyline[c] = at + eh + gap;
+      for (const el of others.slice(0, index)) {
+        const at = Math.max(...skyline.slice(el._x, el._x + el._w));
+        for (let c = el._x; c < el._x + el._w; c++) skyline[c] = at + el._h + gap;
       }
-      return 0;
+      return skyline;
     };
-    let index = 0;
-    let best = Infinity;
+
+    // Try every position in the order, each with the block's own width and, if the pointer is
+    // over a narrower gap, made narrow enough to fit into it. Take the place closest to where
+    // the pointer holds the block; with equal distance the one that moves the others the least
+    // (later in the order), then the wider one.
+    let choice = null;
     for (let i = 0; i <= others.length; i++) {
-      const distance = Math.abs(landingTop(i) - top);
-      if (distance < best - 1) {
-        best = distance;
-        index = i;
+      const skyline = skylineBefore(i);
+      const candidates = [{ x: snappedX, w: fullWidth }];
+      const level = skyline[pointerColumn];
+      let from = pointerColumn;
+      let to = pointerColumn + 1;
+      while (from > 0 && skyline[from - 1] <= level) from--;
+      while (to < COLUMNS && skyline[to] <= level) to++;
+      const free = to - from;
+      if (free < fullWidth && free >= minimum) candidates.push({ x: from, w: free });
+      for (const candidate of candidates) {
+        const landing = Math.max(...skyline.slice(candidate.x, candidate.x + candidate.w));
+        const distance = Math.abs(landing - top);
+        const tie = Math.abs(distance - choice?.distance) <= 1;
+        if (!choice || distance < choice.distance - 1 || (tie && (i > choice.index || (i === choice.index && candidate.w > choice.w)))) {
+          choice = { ...candidate, index: i, distance };
+        }
       }
     }
+    const { index, x } = choice;
+    const widthChanged = item.w !== choice.w;
+    item.w = choice.w;
     const next = others[index] || null;
-    if (item.x !== x || placeholder.nextElementSibling !== next || placeholder.previousElementSibling !== (others[index - 1] || null)) {
+    if (widthChanged || item.x !== x || placeholder.nextElementSibling !== next || placeholder.previousElementSibling !== (others[index - 1] || null)) {
       item.x = x;
       if (next) next.before(placeholder);
       else container.append(placeholder);
@@ -1972,22 +1995,35 @@ function startMove(event, bar) {
   document.addEventListener("pointercancel", onUp);
 }
 
-// Resizing: drag the right edge; the width snaps to the columns and the others make room.
+// Resizing: drag the left or right edge; the width snaps to the columns and the others make room.
+// On the left edge the right side of the block stays where it is.
 function startResize(event, handle) {
   const block = handle.closest(".block");
   const container = block.parentElement;
   const name = container.dataset.sortable;
   const item = currentGrid[block.dataset.block];
+  const fromLeft = handle.dataset.blockResize === "left";
   const startX = event.clientX;
-  const startWidth = block.getBoundingClientRect().width;
+  const startColumn = item.x;
+  const startWidth = item.w;
+  const right = item.x + item.w;
   event.preventDefault();
   block.classList.add("resizing");
 
   const onMove = (move) => {
-    const pixels = startWidth + move.clientX - startX;
-    const w = Math.min(COLUMNS - item.x, Math.max(minColumns(container), Math.round((pixels + 14) / container._unit)));
+    const columns = Math.round((move.clientX - startX) / container._unit);
+    const min = Math.min(minColumns(container), startWidth);
+    let x = startColumn;
+    let w;
+    if (fromLeft) {
+      x = Math.min(right - min, Math.max(0, startColumn + columns));
+      w = right - x;
+    } else {
+      w = Math.min(COLUMNS - startColumn, Math.max(min, startWidth + columns));
+    }
     block.dataset.size = `${Math.round((w * 100) / COLUMNS)} %`;
-    if (w === item.w) return;
+    if (w === item.w && x === item.x) return;
+    item.x = x;
     item.w = w;
     placeBlocks(name);
   };

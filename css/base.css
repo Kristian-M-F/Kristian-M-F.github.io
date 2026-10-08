@@ -1129,7 +1129,7 @@ tr.more-row:hover td {
   display: block;
 }
 
-/* Right edge: drag it to change the width */
+/* Left and right edge: drag them to change the width */
 .arranging .block-resize {
   position: absolute;
   top: 0;
@@ -1153,6 +1153,11 @@ tr.more-row:hover td {
   background: var(--brand);
   box-shadow: 0 0 0 3px var(--panel);
   transition: height 0.15s ease;
+}
+
+.arranging .block-resize-left {
+  right: auto;
+  left: -9px;
 }
 
 .arranging .block-resize:hover::before,

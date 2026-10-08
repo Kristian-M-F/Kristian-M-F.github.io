@@ -1080,3 +1080,24 @@
     gap: 2px;
   }
 }
+
+/* Very narrow blocks (about 160–240 px) */
+@container (max-width: 240px) {
+  .card {
+    padding: 12px;
+  }
+
+  .hero-amount {
+    font-size: 19px;
+  }
+
+  .account-card strong,
+  .kpi strong {
+    font-size: 17px;
+  }
+
+  .card,
+  .fold-title {
+    overflow-wrap: anywhere;
+  }
+}
