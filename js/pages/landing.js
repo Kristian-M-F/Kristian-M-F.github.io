@@ -1,5 +1,5 @@
 // Landing page behaviour: header shadow and entrance animations.
-// (Restoring the scroll position when coming back is done in js/site.js.)
+// (Restoring the scroll position when coming back is done in js/shared/site.js.)
 // Everything here is optional; without JavaScript or with reduced motion the page
 // is fully visible and works the same.
 
@@ -10,7 +10,7 @@ const updateHeaderShadow = () => header.classList.toggle("scrolled", window.scro
 updateHeaderShadow();
 window.addEventListener("scroll", updateHeaderShadow, { passive: true });
 
-// Runs after js/site.js has restored the scroll position, so sections the visitor
+// Runs after js/shared/site.js has restored the scroll position, so sections the visitor
 // already scrolled past are shown right away.
 document.addEventListener("DOMContentLoaded", () => {
   if (!prefersReducedMotion) startAnimations();

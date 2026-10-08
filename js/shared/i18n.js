@@ -1,5 +1,5 @@
 // Translations: German is the source language, English, French and Italian are looked up
-// in js/translations.js ("German text": ["English", "Français", "Italiano"]).
+// in js/shared/translations.js ("German text": ["English", "Français", "Italiano"]).
 //
 // I18N.t(text, params) translates a single text and fills placeholders such as {n}.
 // Static page text is translated on load; elements with translate="no" are skipped.

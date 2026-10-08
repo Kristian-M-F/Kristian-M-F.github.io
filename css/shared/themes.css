@@ -1,5 +1,5 @@
 /* Appearance: accent colour, light/dark mode, text size.
-   Controlled by attributes on <html>, set by applyAppearance() in app.js:
+   Controlled by attributes on <html>, set by applyAppearance() in js/app/state.js:
      data-accent = green | blue | violet (default) | orange | pink
      data-theme  = light | dark   (without the attribute the page follows the device)
      data-text   = normal | large

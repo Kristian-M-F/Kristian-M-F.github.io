@@ -13,27 +13,27 @@
       name="description"
       content="Dein persönlicher Finance Tracker mit Ausgaben, Sparen und Monatsbudget."
     />
-    <link rel="icon" href="img/favicon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
+    <link rel="icon" href="img/icons/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="img/icons/apple-touch-icon.png" />
     <link rel="manifest" href="manifest.webmanifest" />
     <!-- Styles: base.css applies everywhere, then one file per page, responsive.css last -->
-    <script src="js/translations.js?v=2026100808"></script>
-    <script src="js/i18n.js?v=2026100808"></script>
-    <script src="js/update.js?v=2026100808" defer></script>
-    <link rel="stylesheet" href="css/base.css?v=2026100808" />
-    <link rel="stylesheet" href="css/dashboard.css?v=2026100808" />
-    <link rel="stylesheet" href="css/month.css?v=2026100808" />
-    <link rel="stylesheet" href="css/month-entry.css?v=2026100808" />
-    <link rel="stylesheet" href="css/settings.css?v=2026100808" />
-    <link rel="stylesheet" href="css/themes.css?v=2026100808" />
-    <link rel="stylesheet" href="css/tour.css?v=2026100808" />
-    <link rel="stylesheet" href="css/setup.css?v=2026100808" />
-    <link rel="stylesheet" href="css/responsive.css?v=2026100808" />
+    <script src="js/shared/translations.js?v=2026100809"></script>
+    <script src="js/shared/i18n.js?v=2026100809"></script>
+    <script src="js/shared/update.js?v=2026100809" defer></script>
+    <link rel="stylesheet" href="css/shared/base.css?v=2026100809" />
+    <link rel="stylesheet" href="css/app/dashboard.css?v=2026100809" />
+    <link rel="stylesheet" href="css/app/month.css?v=2026100809" />
+    <link rel="stylesheet" href="css/app/month-entry.css?v=2026100809" />
+    <link rel="stylesheet" href="css/app/settings.css?v=2026100809" />
+    <link rel="stylesheet" href="css/shared/themes.css?v=2026100809" />
+    <link rel="stylesheet" href="css/app/tour.css?v=2026100809" />
+    <link rel="stylesheet" href="css/app/setup.css?v=2026100809" />
+    <link rel="stylesheet" href="css/app/responsive.css?v=2026100809" />
   </head>
   <body>
     <div id="toast" class="toast" role="status" hidden></div>
 
-    <!-- Questions and new names are asked here, not in a browser pop-up (askUser in app.js) -->
+    <!-- Questions and new names are asked here, not in a browser pop-up (askUser in js/app/state.js) -->
     <dialog id="appDialog" class="app-dialog" aria-labelledby="appDialogTitle" aria-describedby="appDialogText">
       <form method="dialog" id="appDialogForm">
         <h2 id="appDialogTitle"></h2>
@@ -49,7 +49,7 @@
       </form>
     </dialog>
 
-    <!-- Wage, expenses and savings of every pay month since the start (renderComparisonDialog in app.js) -->
+    <!-- Wage, expenses and savings of every pay month since the start (showComparison in js/app/render.js) -->
     <dialog id="comparisonDialog" class="app-dialog comparison-dialog" aria-labelledby="comparisonDialogTitle">
       <h2 id="comparisonDialogTitle">Lohn, Ausgaben und Sparen seit Lehrbeginn</h2>
       <div class="chart-legend">
@@ -63,7 +63,7 @@
       </div>
     </dialog>
 
-    <!-- "Monat ändern": pop-up with a year switch and the twelve months (openMonthEntry in app.js) -->
+    <!-- "Monat ändern": pop-up with a year switch and the twelve months (openMonthEntry in js/app/navigation.js) -->
     <dialog id="monthEntry" class="app-dialog month-dialog" aria-labelledby="entryTitle">
       <h2 id="entryTitle">Lohnmonat wählen</h2>
       <div class="month-year">
@@ -78,7 +78,7 @@
       </div>
     </dialog>
 
-    <!-- First-time setup for new accounts (js/setup.js, css/setup.css): the app behind is blurred -->
+    <!-- First-time setup for new accounts (js/app/setup.js, css/app/setup.css): the app behind is blurred -->
     <section id="setup" class="setup" role="dialog" aria-modal="true" aria-labelledby="setupTitle" hidden>
       <div class="setup-card">
         <div class="setup-head">
@@ -98,7 +98,7 @@
       </div>
     </section>
 
-    <!-- App: sidebar navigation and content (css/base.css) -->
+    <!-- App: sidebar navigation and content (css/shared/base.css) -->
     <div class="app" id="financeApp">
       <aside class="sidebar">
         <div class="sidebar-top">
@@ -154,7 +154,7 @@
       </aside>
 
       <main class="content">
-        <!-- Dashboard page (css/dashboard.css) -->
+        <!-- Dashboard page (css/app/dashboard.css) -->
         <section id="dashboard" class="page active">
           <div class="head">
             <div>
@@ -220,7 +220,7 @@
                 <div class="summary" id="currentSummary"></div>
               </div>
             </div>
-            <!-- One block per account (wage account, savings accounts) is added here by app.js -->
+            <!-- One block per account (wage account, savings accounts) is added here by js/app/render-settings.js -->
             <div class="block" data-block="upcoming" data-block-name="Kommt noch in diesem Lohnmonat">
               <details class="card fold" data-fold="dash-upcoming" open>
                 <summary><span class="fold-title">Kommt noch in diesem Lohnmonat</span><span class="fold-count" data-count-for="upcomingRows"></span></summary>
@@ -295,7 +295,7 @@
           </div>
         </section>
 
-        <!-- Month page (css/month.css) -->
+        <!-- Month page (css/app/month.css) -->
         <section id="month" class="page">
           <div class="head">
             <div>
@@ -382,7 +382,7 @@
           </div>
         </section>
 
-        <!-- Entries page: income, expenses, savings (css/base.css) -->
+        <!-- Entries page: income, expenses, savings (css/shared/base.css) -->
         <section id="expenses" class="page">
           <div class="head">
             <div>
@@ -426,7 +426,7 @@
                 Abbrechen
               </button>
             </div>
-            <!-- What the chosen kind does with "available" (filled in by app.js) -->
+            <!-- What the chosen kind does with "available" (filled in by js/app) -->
             <p class="note entry-hint" id="entryHint" aria-live="polite"></p>
           </div>
           <details class="card fold section" data-fold="entries-list" open>
@@ -450,7 +450,7 @@
           </details>
         </section>
 
-        <!-- Recurring payments page (css/base.css) -->
+        <!-- Recurring payments page (css/shared/base.css) -->
         <section id="recurring" class="page">
           <div class="head">
             <div>
@@ -526,7 +526,7 @@
           </details>
         </section>
 
-        <!-- Settings page (css/settings.css) -->
+        <!-- Settings page (css/app/settings.css) -->
         <section id="settings" class="page">
           <div class="head">
             <div>
@@ -709,7 +709,7 @@
                 Umbenennen ändert auch frühere Einträge. Entfernen nimmt die Bezeichnung nur aus der Auswahl –
                 frühere Einträge bleiben, wie sie sind.
               </p>
-              <!-- One group per list; filled in by app.js (renderLists) -->
+              <!-- One group per list; filled in by js/app/render-settings.js (renderLists) -->
               <div class="list-groups">
                 <section class="list-group" data-list="categories" aria-labelledby="listTitleCategories">
                   <h3 class="group-title" id="listTitleCategories">Kategorien für Ausgaben</h3>
@@ -814,10 +814,18 @@
       </main>
     </div>
 
-    <!-- api.js: connection to the backend (login + database). app.js: the app logic -->
-    <script src="js/api.js?v=2026100808"></script>
-    <script src="js/tour.js?v=2026100808"></script>
-    <script src="js/setup.js?v=2026100808"></script>
-    <script src="js/app.js?v=2026100808"></script>
+    <!-- api.js: connection to the backend (login + database).
+         js/app/: the app logic, split into parts that are loaded in this order (main.js last) -->
+    <script src="js/shared/api.js?v=2026100809"></script>
+    <script src="js/app/tour.js?v=2026100809"></script>
+    <script src="js/app/setup.js?v=2026100809"></script>
+    <script src="js/app/state.js?v=2026100809"></script>
+    <script src="js/app/calc.js?v=2026100809"></script>
+    <script src="js/app/render.js?v=2026100809"></script>
+    <script src="js/app/render-settings.js?v=2026100809"></script>
+    <script src="js/app/layout.js?v=2026100809"></script>
+    <script src="js/app/navigation.js?v=2026100809"></script>
+    <script src="js/app/forms.js?v=2026100809"></script>
+    <script src="js/app/main.js?v=2026100809"></script>
   </body>
 </html>

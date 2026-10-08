@@ -443,7 +443,7 @@ window.TRANSLATIONS = {
   "Deine Eingaben werden automatisch in diesem Browser gespeichert.": ["Your entries are saved automatically in this browser.", "Tes saisies sont enregistrées automatiquement dans ce navigateur.", "Le tue voci vengono salvate automaticamente in questo browser."],
   "Alle Finanzdaten auf 0 zurücksetzen": ["Reset all financial data to 0", "Remettre toutes les données financières à 0", "Azzera tutti i dati finanziari"],
 
-  // App: texts from app.js
+  // App: texts from js/app/
   "Eingenommen": ["Received", "Encaissé", "Incassato"],
   "Ausgegeben": ["Spent", "Dépensé", "Speso"],
   "Ausgabe": ["Expense", "Dépense", "Spesa"],
@@ -712,7 +712,7 @@ window.TRANSLATIONS = {
   "Regeln für die Nutzung": ["Rules for using Finance OS", "Règles d'utilisation", "Regole d'uso"],
   "Welche Daten gespeichert werden": ["Which data is stored", "Quelles données sont enregistrées", "Quali dati vengono salvati"],
   "Wer hinter Finance OS steht": ["Who is behind Finance OS", "Qui se cache derrière Finance OS", "Chi c'è dietro Finance OS"],
-  // First-time setup (js/setup.js)
+  // First-time setup (js/app/setup.js)
   "Wie oft?": ["How often?", "À quelle fréquence ?", "Con che frequenza?"],
   "Wann hat deine Lehre begonnen?": ["When did your apprenticeship start?", "Quand ton apprentissage a-t-il commencé ?", "Quando è iniziato il tuo tirocinio?"],
   "Damit weiss Finance OS, in welchem Lehrjahr du bist.": ["This tells Finance OS which apprenticeship year you are in.", "Ainsi, Finance OS sait en quelle année d'apprentissage tu es.", "Così Finance OS sa in quale anno di tirocinio sei."],
@@ -783,7 +783,7 @@ window.TRANSLATIONS = {
   // Undo after deleting
   "Rückgängig": ["Undo", "Annuler", "Annulla"],
   "Eintrag wiederhergestellt": ["Entry restored", "Entrée restaurée", "Voce ripristinata"],
-  // Note about a new version (js/update.js)
+  // Note about a new version (js/shared/update.js)
   "Neu laden": ["Reload", "Recharger", "Ricarica"],
   // Account cards (short, fit on one line on phones)
   "Übrig im Lohnmonat": ["Left this month", "Reste ce mois", "Rimasto nel mese"],

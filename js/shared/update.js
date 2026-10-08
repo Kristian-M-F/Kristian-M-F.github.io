@@ -1,6 +1,6 @@
 // Tells visitors when a newer version of the website is online.
 //
-// Every page loads this file as js/update.js?v=<version>. version.json contains the version that
+// Every page loads this file as js/shared/update.js?v=<version>. version.json contains the version that
 // is online right now. If they differ (after a push with a new ?v= number), a pop-up in the
 // middle of the screen asks to reload; the page behind is blurred until then. Checked shortly after opening, every 5 minutes and when the tab or the
 // home-screen app becomes visible again.
@@ -43,7 +43,7 @@
     const overlay = document.createElement("div");
     overlay.className = "update-overlay";
     overlay.innerHTML = `<div class="update-card" role="alertdialog" aria-modal="true" aria-labelledby="updateTitle" aria-describedby="updateText">
-        <img src="img/icon-192.png" alt="" width="56" height="56" />
+        <img src="img/icons/icon-192.png" alt="" width="56" height="56" />
         <h2 id="updateTitle">${t("Neue Version verfügbar")}</h2>
         <p id="updateText">${t("Finance OS wurde aktualisiert. Lade die Seite neu, um weiterzumachen. Deine Daten bleiben gespeichert.")}</p>
         <button type="button" class="update-reload">${t("Neu laden")}</button>

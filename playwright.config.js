@@ -10,7 +10,14 @@
 
 const { defineConfig, devices } = require("@playwright/test");
 
-const BACKEND_DIR = process.env.BACKEND_DIR || "../../projects/backen-finance";
+const fs = require("fs");
+const path = require("path");
+
+// The backend folder next to this one: finance-os/backend (new layout) or the old place.
+const BACKEND_DIR =
+  process.env.BACKEND_DIR ||
+  ["../backend", "../../projects/backen-finance"].find((dir) => fs.existsSync(path.join(__dirname, dir, "pom.xml"))) ||
+  "../backend";
 
 module.exports = defineConfig({
   testDir: "e2e",

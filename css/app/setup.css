@@ -1,4 +1,4 @@
-/* First-time setup for new accounts (js/setup.js).
+/* First-time setup for new accounts (js/app/setup.js).
    The app behind it is blurred and cannot be used until the questions are answered. */
 
 body.setup-open {

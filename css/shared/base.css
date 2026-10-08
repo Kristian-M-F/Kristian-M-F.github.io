@@ -6,28 +6,28 @@
 
 @font-face {
   font-family: "Inter";
-  src: url("../fonts/Inter-Regular.woff") format("woff");
+  src: url("../../fonts/Inter-Regular.woff") format("woff");
   font-weight: 400;
   font-display: swap;
 }
 
 @font-face {
   font-family: "Inter";
-  src: url("../fonts/Inter-SemiBold.woff") format("woff");
+  src: url("../../fonts/Inter-SemiBold.woff") format("woff");
   font-weight: 500 650;
   font-display: swap;
 }
 
 @font-face {
   font-family: "Inter";
-  src: url("../fonts/Inter-Bold.woff") format("woff");
+  src: url("../../fonts/Inter-Bold.woff") format("woff");
   font-weight: 700 900;
   font-display: swap;
 }
 
 @font-face {
   font-family: "Inter Display";
-  src: url("../fonts/InterDisplay-Bold.woff") format("woff");
+  src: url("../../fonts/InterDisplay-Bold.woff") format("woff");
   font-weight: 700 900;
   font-display: swap;
 }
@@ -113,7 +113,7 @@
 /* Dark mode
    Landing, login and privacy pages follow the device setting.
    In the app it can be fixed under Settings → Appearance
-   (app.js then sets data-theme="light" or "dark" on <html>). */
+   (js/app/state.js then sets data-theme="light" or "dark" on <html>). */
 
 :root {
   color-scheme: light dark; /* date pickers, scrollbars etc. adapt */
@@ -201,12 +201,12 @@
   display: none !important;
 }
 
-/* Hide the page until it is translated into the chosen language (js/i18n.js) */
+/* Hide the page until it is translated into the chosen language (js/shared/i18n.js) */
 .i18n-wait body {
   visibility: hidden;
 }
 
-/* The app stays hidden until the backend has confirmed the login (see start() in app.js) */
+/* The app stays hidden until the backend has confirmed the login (see start() in js/app/main.js) */
 .checking-login body {
   visibility: hidden;
 }
@@ -974,7 +974,7 @@ tr.more-row:hover td {
 
 /* Blocks on the dashboard and the month page. The month page uses a fixed two-column grid;
    on the dashboard every block has its own width in percent (--w, phone: --wm) and can be
-   moved and resized while arranging ("Anordnen", js/app.js). */
+   moved and resized while arranging ("Anordnen", js/app/layout.js). */
 
 .blocks {
   display: grid;
@@ -997,7 +997,7 @@ tr.more-row:hover td {
   height: 100%;
 }
 
-/* Dashboard: a grid of 24 columns. app.js places every block (width and position, as high
+/* Dashboard: a grid of 24 columns. js/app/layout.js places every block (width and position, as high
    up in its columns as there is room); the blocks glide to their new place. */
 .blocks[data-sortable] {
   --gap: 14px;
@@ -1307,7 +1307,7 @@ tr.more-row:hover td {
   }
 }
 
-/* "Neue Version verfügbar" (js/update.js): pop-up in the middle, everything behind blurred */
+/* "Neue Version verfügbar" (js/shared/update.js): pop-up in the middle, everything behind blurred */
 body.update-open {
   overflow: hidden;
 }

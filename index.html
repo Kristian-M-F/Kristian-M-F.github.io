@@ -14,18 +14,18 @@
     <meta name="theme-color" content="#0e131b" media="(prefers-color-scheme: dark)" />
     <meta property="og:title" content="Finance OS – der Finance Tracker für Lernende" />
     <meta property="og:description" content="Lohn, Ausgaben, Daueraufträge und Sparen – pro Lohnmonat auf einen Blick. Kostenlos und ohne Werbung." />
-    <meta property="og:image" content="img/app-dashboard.webp" />
-    <link rel="icon" href="img/favicon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
+    <meta property="og:image" content="img/screenshots/app-dashboard.webp" />
+    <link rel="icon" href="img/icons/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="img/icons/apple-touch-icon.png" />
     <link rel="manifest" href="manifest.webmanifest" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Finance OS" />
-    <script src="js/translations.js?v=2026100808"></script>
-    <script src="js/i18n.js?v=2026100808"></script>
-    <script src="js/update.js?v=2026100808" defer></script>
-    <script src="js/site.js?v=2026100808"></script>
-    <link rel="stylesheet" href="css/base.css?v=2026100808" />
-    <link rel="stylesheet" href="css/landing.css?v=2026100808" />
+    <script src="js/shared/translations.js?v=2026100809"></script>
+    <script src="js/shared/i18n.js?v=2026100809"></script>
+    <script src="js/shared/update.js?v=2026100809" defer></script>
+    <script src="js/shared/site.js?v=2026100809"></script>
+    <link rel="stylesheet" href="css/shared/base.css?v=2026100809" />
+    <link rel="stylesheet" href="css/pages/landing.css?v=2026100809" />
   </head>
   <body class="landing">
     <a class="skip-link" href="#content">Zum Inhalt springen</a>
@@ -34,7 +34,7 @@
     <header class="site-header">
       <div class="wrap header-inner">
         <a class="brand" href="index.html" aria-label="Finance OS – Startseite">
-          <img src="img/favicon.svg" alt="" width="28" height="28" />
+          <img src="img/icons/favicon.svg" alt="" width="28" height="28" />
           <span>Finance OS</span>
         </a>
         <nav class="site-nav" aria-label="Seitenbereiche">
@@ -158,11 +158,11 @@
             <picture>
               <!-- Dark device: screenshot in dark mode -->
               <!-- Phone: screenshot of the phone view; dark device: dark screenshot -->
-              <source media="(prefers-color-scheme: dark) and (max-width: 700px)" srcset="img/app-phone-dark.webp" width="585" height="1170" />
-              <source media="(max-width: 700px)" srcset="img/app-phone.webp" width="585" height="1170" />
-              <source media="(prefers-color-scheme: dark)" srcset="img/app-dashboard-dark.webp" />
+              <source media="(prefers-color-scheme: dark) and (max-width: 700px)" srcset="img/screenshots/app-phone-dark.webp" width="585" height="1170" />
+              <source media="(max-width: 700px)" srcset="img/screenshots/app-phone.webp" width="585" height="1170" />
+              <source media="(prefers-color-scheme: dark)" srcset="img/screenshots/app-dashboard-dark.webp" />
               <img
-                src="img/app-dashboard.webp"
+                src="img/screenshots/app-dashboard.webp"
                 width="1280"
                 height="820"
                 loading="lazy"
@@ -209,7 +209,7 @@
           <div class="home-screen" aria-hidden="true">
             <div class="home-grid">
               <i></i><i></i><i></i><i></i>
-              <i></i><span class="home-app"><img src="img/icon-192.png" alt="" width="44" height="44" /><small>Finance OS</small></span><i></i><i></i>
+              <i></i><span class="home-app"><img src="img/icons/icon-192.png" alt="" width="44" height="44" /><small>Finance OS</small></span><i></i><i></i>
               <i></i><i></i><i></i><i></i>
               <i></i><i></i><i></i><i></i>
             </div>
@@ -384,7 +384,7 @@
     <footer class="site-footer">
       <div class="wrap footer-inner">
         <a class="brand" href="index.html">
-          <img src="img/favicon.svg" alt="" width="24" height="24" />
+          <img src="img/icons/favicon.svg" alt="" width="24" height="24" />
           <span>Finance OS</span>
         </a>
         <nav aria-label="Weitere Seiten">
@@ -398,6 +398,6 @@
         <p>© 2026 Finance OS, Zürich</p>
       </div>
     </footer>
-    <script src="js/landing.js?v=2026100808"></script>
+    <script src="js/pages/landing.js?v=2026100809"></script>
   </body>
 </html>

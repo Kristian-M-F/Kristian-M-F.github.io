@@ -1,5 +1,5 @@
 // "Back" links on the privacy and contact pages: return to the exact place the visitor
-// came from (same page, same view, same scroll position; see js/site.js).
+// came from (same page, same view, same scroll position; see js/shared/site.js).
 
 document.querySelectorAll("[data-back]").forEach((link) => {
   link.addEventListener("click", (event) => {

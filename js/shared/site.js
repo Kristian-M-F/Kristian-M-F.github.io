@@ -2,9 +2,9 @@
 // theme is applied before the first paint.
 //  - Light/dark follows the device; the light bulb button overrides it.
 //  - Remembers where the visitor came from and the scroll position of every page,
-//    so "back" returns to exactly the same place (see js/back.js).
+//    so "back" returns to exactly the same place (see js/shared/back.js).
 //  - Burger menu on small screens.
-//  - The language select is wired up in js/i18n.js.
+//  - The language select is wired up in js/shared/i18n.js.
 
 const THEME_KEY = "financeOS_theme"; // "light", "dark" or empty (follow the device)
 const deviceDarkQuery = window.matchMedia("(prefers-color-scheme: dark)");

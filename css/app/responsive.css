@@ -754,7 +754,7 @@
     font-size: 15px;
   }
 
-  /* Dashboard on the phone: own positions (app.js); by default the accounts side by side */
+  /* Dashboard on the phone: own positions (js/app/layout.js); by default the accounts side by side */
   .blocks[data-sortable] {
     --gap: 10px;
   }

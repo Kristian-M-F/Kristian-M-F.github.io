@@ -1160,7 +1160,7 @@ html {
   }
 }
 
-/* Animations (js/landing.js sets .motion on <html> unless reduced motion is on) */
+/* Animations (js/pages/landing.js sets .motion on <html> unless reduced motion is on) */
 
 .site-header {
   transition: box-shadow 0.2s ease, border-color 0.2s ease;

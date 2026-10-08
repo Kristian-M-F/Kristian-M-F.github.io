@@ -1,5 +1,5 @@
 // First-time setup ("Einrichtung"): the questions a new account answers before the app can be used.
-// The answers are written straight into the settings and standing orders (applySetup in app.js),
+// The answers are written straight into the settings and standing orders (applySetup in js/app/navigation.js),
 // so they can be changed there later. The app behind it is blurred and cannot be used meanwhile.
 //
 // Setup.open({ categories, onFinish }) shows it; onFinish(answers) receives the answers.
