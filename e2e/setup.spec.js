@@ -27,6 +27,13 @@ test("a new account answers the setup first; the answers end up in the settings"
 
   await setup.locator('[data-answer="paydayOther"]').selectOption("20");
   await next.click();
+
+  // From when to track: this pay month is preselected; here the first month (start of the apprenticeship)
+  await expect(setup.locator(".setup-months .month-cell.selected")).toHaveCount(1);
+  await expect(setup.locator(".setup-months .month-cell").first()).toContainText("20.");
+  await setup.locator('.setup-months [data-month$="-08"]').click();
+  await expect(setup.locator(".setup-track-note")).toContainText("alle Lohnmonate");
+  await next.click();
   await setup.locator('[data-choice="thirteenth"][data-value="12"]').click();
   await next.click();
 
@@ -67,6 +74,7 @@ test("a new account answers the setup first; the answers end up in the settings"
   await page.click('[data-settings-tab-button="pay"]');
   await expect(page.locator("#setYears")).toHaveValue("3");
   await expect(page.locator("#setPayday")).toHaveValue("20");
+  await expect(page.locator("#setTrackFrom")).toHaveValue("");
   await expect(page.locator("#setThirteenth")).toHaveValue("12");
   await expect(page.locator("#salary0")).toHaveValue(/800/);
   await expect(page.locator("#salary2")).toHaveValue(/1300/);
@@ -84,3 +92,31 @@ test("a new account answers the setup first; the answers end up in the settings"
   await expect(page.locator("#financeApp")).toBeVisible();
   await expect(setup).toBeHidden();
 });
+
+test("months before „Tracken ab“ do not count", async ({ page, request }) => {
+  const startYear = new Date().getFullYear() - 1;
+  await createUser(page, request, { setup: { startYear, trackFrom: "current" } });
+  await skipTour(page);
+
+  // Only the current pay month counts: one wage in the statistics, the year before is not tracked
+  await page.locator('details[data-fold="dash-stats"] summary').click();
+  await expect(page.locator("#dIncome")).toHaveText(/1.000\.00/);
+  await expect(page.locator("#yearCards .untracked").first()).toContainText("Nicht erfasst");
+
+  // In "Monat ändern" the earlier months are marked
+  await page.locator('[data-action="change-month"]:visible').first().click();
+  await page.locator('[data-action="picker-year"][data-step="-1"]').click();
+  await expect(page.locator(`#monthGrid [data-month="${startYear}-08"]`)).toHaveClass(/untracked/);
+  await page.locator('[data-action="close-month-entry"]').click();
+
+  // Settings: from the start of the apprenticeship, every started pay month counts again
+  await goTo(page, "settings");
+  await page.click('[data-settings-tab-button="pay"]');
+  const tracked = await page.locator("#setTrackFrom").inputValue();
+  expect(tracked).toMatch(/^\d{4}-\d{2}$/);
+  await page.locator("#setTrackFrom").selectOption("");
+  await goTo(page, "dashboard");
+  const months = await page.locator("#setTrackFrom option").count(); // start … current pay month
+  await expect(page.locator("#dIncome")).toHaveText(new RegExp(`${(months * 1000).toLocaleString("de-CH").replace(/\D/g, ".")}\\.00`));
+});
+

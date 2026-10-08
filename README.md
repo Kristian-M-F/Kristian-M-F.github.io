@@ -32,7 +32,7 @@ Kristian-M-F.github.io/
 │   └── contact.css         Kontaktformular
 ├── js/
 │   ├── app.js              Logik von Finance OS (Konten, Lohn, Pauschalen, Einträge …)
-│   ├── setup.js            Einrichtung für neue Konten: Lehre, Lohn, 13. Monatslohn, Pauschalen, Abos
+│   ├── setup.js            Einrichtung für neue Konten: Lehre, Lohn, Tracken ab, 13. Monatslohn, Pauschalen, Abos
 │   ├── tour.js             Geführte Tour (startet nach der Einrichtung)
 │   ├── login.js            Login-Seite inkl. Passwort-Regeln
 │   ├── contact.js          Kontaktformular prüfen und senden
@@ -90,10 +90,18 @@ bleiben, wie sie sind. Die E-Mails des Backends kommen in der Sprache der Websit
 ## Einrichtung für neue Konten
 
 Beim ersten Login erscheint ein Fenster mit Fragen (`js/setup.js`); die App dahinter ist verschwommen
-und nicht bedienbar. Pflicht: Lehrbeginn, Dauer der Lehre, Lohntag, 13. Monatslohn, Lohn pro Lehrjahr
-und Pauschalen. Überspringbar: Abos/feste Zahlungen. Die Antworten werden direkt in die Einstellungen
+und nicht bedienbar. Pflicht: Lehrbeginn, Dauer der Lehre, Lohntag, „Ab wann willst du deine Finanzen
+tracken?“, 13. Monatslohn, Lohn pro Lehrjahr und Pauschalen. Überspringbar: Abos/feste Zahlungen. Die Antworten werden direkt in die Einstellungen
 und als Daueraufträge gespeichert (`applySetup` in `js/app.js`) und können dort jederzeit geändert werden.
 Konten, die schon einen Lohn eingetragen haben, sehen die Einrichtung nicht.
+
+## Tracken ab
+
+Wer Finance OS erst später in der Lehre benutzt, wählt einen Lohnmonat „Tracken ab“ (Einrichtung oder
+*Einstellungen → Lehre und Lohn*). Monate davor zählen nirgends mit: kein Lohn, kein Sparen, keine
+Daueraufträge, nichts in Konten und Statistik. Im „Monat ändern“ sind sie gestrichelt, in „Gespart pro
+Lehrjahr“ steht „Nicht erfasst“. Lehrjahr, Lohnhöhe und 13. Monatslohn hängen weiter am Lehrbeginn.
+Gespeichert als `trackFrom` („JJJJ-MM“, leer = ab Lehrbeginn).
 
 ## Geführte Tour
 
@@ -130,10 +138,10 @@ dann `npm run test:e2e`.
 
 ## Neue Version veröffentlichen
 
-Alle CSS- und JS-Dateien werden mit einer Versionsnummer eingebunden, z. B. `css/base.css?v=2026100806`,
+Alle CSS- und JS-Dateien werden mit einer Versionsnummer eingebunden, z. B. `css/base.css?v=2026100807`,
 und dieselbe Nummer steht in `version.json`. Bei jeder Änderung an der Website die Nummer überall erhöhen:
-in IntelliJ **Strg+Shift+R** (Ersetzen in Dateien) → `2026100806` durch die neue Nummer ersetzen
-(z. B. Datum + laufende Nummer: `2026100806`), dann pushen.
+in IntelliJ **Strg+Shift+R** (Ersetzen in Dateien) → `2026100807` durch die neue Nummer ersetzen
+(z. B. Datum + laufende Nummer: `2026100807`), dann pushen.
 
 - Handys laden dadurch sicher die neuen Dateien statt der alten aus dem Zwischenspeicher.
 - Wer die Seite oder die App auf dem Home-Bildschirm gerade offen hat, bekommt innerhalb von

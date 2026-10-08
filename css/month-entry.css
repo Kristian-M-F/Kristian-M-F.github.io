@@ -71,6 +71,12 @@
   background: var(--on-dark);
 }
 
+/* Before "Tracken ab": can be opened, but does not count */
+.month-cell.untracked:not(.selected) {
+  border-style: dashed;
+  color: var(--muted);
+}
+
 .month-cell:disabled {
   border-style: dashed;
   background: transparent;

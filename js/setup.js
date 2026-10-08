@@ -3,7 +3,7 @@
 // so they can be changed there later. The app behind it is blurred and cannot be used meanwhile.
 //
 // Setup.open({ categories, onFinish }) shows it; onFinish(answers) receives the answers.
-// Steps 1–6 must be answered; step 7 (subscriptions) can be skipped.
+// Steps 1–7 must be answered; step 8 (subscriptions) can be skipped.
 
 const Setup = (() => {
   const t = I18N.t;
@@ -26,6 +26,23 @@ const Setup = (() => {
   };
   const monthName = (month) => new Date(2026, month - 1).toLocaleDateString(I18N.locale, { month: "long" });
   const todayISO = () => new Date().toISOString().slice(0, 10);
+  const pad2 = (n) => String(n).padStart(2, "0");
+  const addMonths = (month, count) => {
+    const [year, number] = month.split("-").map(Number);
+    return new Date(Date.UTC(year, number - 1 + count, 1)).toISOString().slice(0, 7);
+  };
+
+  // "Tracken ab": the pay months that can be chosen, from the start of the apprenticeship to today.
+  function trackRange() {
+    const first = `${answers.startYear}-${pad2(answers.startMonth)}`;
+    const today = todayISO();
+    const current = addMonths(today.slice(0, 7), Number(today.slice(8, 10)) < answers.payday ? -1 : 0);
+    const end = addMonths(first, (answers.years || 4) * 12 - 1);
+    const last = current < first ? first : current > end ? end : current;
+    return { first, last };
+  }
+  const trackLabel = (month, long = false) =>
+    `${answers.payday}. ${new Date(Number(month.slice(0, 4)), Number(month.slice(5)) - 1).toLocaleDateString(I18N.locale, long ? { month: "long", year: "numeric" } : { month: "short" }).replace(".", "")}`;
 
   function freshAnswers() {
     return {
@@ -42,6 +59,8 @@ const Setup = (() => {
       ],
       ownAllowance: { name: "", amount: "", per: "month" },
       orders: [],
+      trackFrom: null, // "YYYY-MM"; chosen after the payday
+      trackYear: null,
     };
   }
 
@@ -106,6 +125,37 @@ const Setup = (() => {
           </label>`;
       },
       check: () => (answers.payday ? "" : t("Bitte wähle eine Antwort.")),
+    },
+    {
+      title: () => t("Ab wann willst du deine Finanzen tracken?"),
+      note: () => t("Monate davor zählen nicht mit – also kein Lohn, kein Sparen und keine Daueraufträge. Wähle den Lohnmonat, ab dem du alles einträgst."),
+      html: () => {
+        const { first, last } = trackRange();
+        if (!answers.trackFrom || answers.trackFrom < first || answers.trackFrom > last) answers.trackFrom = last;
+        if (!answers.trackYear) answers.trackYear = Number(answers.trackFrom.slice(0, 4));
+        const year = answers.trackYear;
+        const cells = Array.from({ length: 12 }, (_, i) => {
+          const month = `${year}-${pad2(i + 1)}`;
+          const selected = month === answers.trackFrom;
+          const allowed = month >= first && month <= last;
+          return `<button type="button" class="month-cell ${selected ? "selected" : ""}" role="radio" aria-checked="${selected}"
+            data-setup="track-month" data-month="${month}" aria-label="${trackLabel(month, true)}" ${allowed ? "" : "disabled"}>${trackLabel(month)}</button>`;
+        }).join("");
+        const summary = answers.trackFrom === first
+          ? t("Ab Lehrbeginn: alle Lohnmonate zählen mit.")
+          : t("Ab {date} zählt alles mit, die Monate davor nicht.", { date: trackLabel(answers.trackFrom, true) });
+        return `<div class="month-year setup-year">
+            <button type="button" class="icon-button" data-setup="track-year" data-step="-1" aria-label="${t("Vorheriges Jahr")}" ${year <= Number(first.slice(0, 4)) ? "disabled" : ""}>‹</button>
+            <b>${year}</b>
+            <button type="button" class="icon-button" data-setup="track-year" data-step="1" aria-label="${t("Nächstes Jahr")}" ${year >= Number(last.slice(0, 4)) ? "disabled" : ""}>›</button>
+          </div>
+          <div class="month-grid setup-months" role="radiogroup" aria-label="${t("Ab wann willst du deine Finanzen tracken?")}">${cells}</div>
+          <p class="note setup-track-note">${summary}</p>`;
+      },
+      check: () => {
+        const { first, last } = trackRange();
+        return answers.trackFrom && answers.trackFrom >= first && answers.trackFrom <= last ? "" : t("Bitte wähle einen Monat.");
+      },
     },
     {
       title: () => t("Hast du einen 13. Monatslohn?"),
@@ -221,6 +271,7 @@ const Setup = (() => {
           [t("Lehrbeginn"), `${monthName(answers.startMonth)} ${answers.startYear}`],
           [t("Dauer der Lehre"), t("{n} Jahre", { n: answers.years })],
           [t("Lohn kommt am"), `${answers.payday}.`],
+          [t("Tracken ab"), answers.trackFrom === trackRange().first ? t("Ab Lehrbeginn") : trackLabel(answers.trackFrom, true)],
           [t("13. Monatslohn"), thirteenth[answers.thirteenth]],
           ...Array.from({ length: answers.years }, (_, i) => [t("{n}. Lehrjahr", { n: i + 1 }), chf(answers.wages[i])]),
           [t("Pauschalen"), allowances],
@@ -276,7 +327,10 @@ const Setup = (() => {
   function onInput(event) {
     const field = event.target;
     const data = field.dataset;
-    if (data.answer === "startMonth" || data.answer === "startYear") answers[data.answer] = Number(field.value);
+    if (data.answer === "startMonth" || data.answer === "startYear") {
+      answers[data.answer] = Number(field.value);
+      answers.trackYear = null;
+    }
     if (data.answer === "paydayOther" && field.value) {
       answers.payday = Number(field.value);
       document.querySelectorAll('[data-choice="payday"]').forEach((button) => button.setAttribute("aria-checked", "false"));
@@ -304,6 +358,17 @@ const Setup = (() => {
       return;
     }
     const action = event.target.closest("[data-setup]")?.dataset.setup;
+    if (action === "track-month") {
+      answers.trackFrom = event.target.closest("[data-setup]").dataset.month;
+      render();
+      $("setupBody").querySelector(".month-cell.selected")?.focus();
+      return;
+    }
+    if (action === "track-year") {
+      answers.trackYear += Number(event.target.closest("[data-setup]").dataset.step);
+      render();
+      return;
+    }
     if (action === "add-order") {
       answers.orders.push({ name: "", amount: "", interval: "monthly", start: todayISO(), cat: categories.find((name) => /abo/i.test(name)) || categories[0] || "" });
       render();

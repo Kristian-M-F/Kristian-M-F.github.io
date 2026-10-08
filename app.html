@@ -17,18 +17,18 @@
     <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
     <link rel="manifest" href="manifest.webmanifest" />
     <!-- Styles: base.css applies everywhere, then one file per page, responsive.css last -->
-    <script src="js/translations.js?v=2026100806"></script>
-    <script src="js/i18n.js?v=2026100806"></script>
-    <script src="js/update.js?v=2026100806" defer></script>
-    <link rel="stylesheet" href="css/base.css?v=2026100806" />
-    <link rel="stylesheet" href="css/dashboard.css?v=2026100806" />
-    <link rel="stylesheet" href="css/month.css?v=2026100806" />
-    <link rel="stylesheet" href="css/month-entry.css?v=2026100806" />
-    <link rel="stylesheet" href="css/settings.css?v=2026100806" />
-    <link rel="stylesheet" href="css/themes.css?v=2026100806" />
-    <link rel="stylesheet" href="css/tour.css?v=2026100806" />
-    <link rel="stylesheet" href="css/setup.css?v=2026100806" />
-    <link rel="stylesheet" href="css/responsive.css?v=2026100806" />
+    <script src="js/translations.js?v=2026100807"></script>
+    <script src="js/i18n.js?v=2026100807"></script>
+    <script src="js/update.js?v=2026100807" defer></script>
+    <link rel="stylesheet" href="css/base.css?v=2026100807" />
+    <link rel="stylesheet" href="css/dashboard.css?v=2026100807" />
+    <link rel="stylesheet" href="css/month.css?v=2026100807" />
+    <link rel="stylesheet" href="css/month-entry.css?v=2026100807" />
+    <link rel="stylesheet" href="css/settings.css?v=2026100807" />
+    <link rel="stylesheet" href="css/themes.css?v=2026100807" />
+    <link rel="stylesheet" href="css/tour.css?v=2026100807" />
+    <link rel="stylesheet" href="css/setup.css?v=2026100807" />
+    <link rel="stylesheet" href="css/responsive.css?v=2026100807" />
   </head>
   <body>
     <div id="toast" class="toast" role="status" hidden></div>
@@ -571,9 +571,14 @@
                     <option value="12">Mit Dezemberlohn</option>
                   </select>
                 </div>
+                <div class="field half">
+                  <label for="setTrackFrom">Tracken ab</label>
+                  <select id="setTrackFrom"></select>
+                </div>
               </div>
               <p class="note" id="paydayNote"></p>
               <p class="note" id="thirteenthNote"></p>
+              <p class="note">Monate vor „Tracken ab“ zählen nicht mit: kein Lohn, kein Sparen, nichts in der Statistik. Praktisch, wenn du Finance OS erst später in der Lehre benutzt.</p>
             </div>
           </details>
 
@@ -810,9 +815,9 @@
     </div>
 
     <!-- api.js: connection to the backend (login + database). app.js: the app logic -->
-    <script src="js/api.js?v=2026100806"></script>
-    <script src="js/tour.js?v=2026100806"></script>
-    <script src="js/setup.js?v=2026100806"></script>
-    <script src="js/app.js?v=2026100806"></script>
+    <script src="js/api.js?v=2026100807"></script>
+    <script src="js/tour.js?v=2026100807"></script>
+    <script src="js/setup.js?v=2026100807"></script>
+    <script src="js/app.js?v=2026100807"></script>
   </body>
 </html>

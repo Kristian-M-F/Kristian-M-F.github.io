@@ -749,6 +749,13 @@ tr:hover td {
   box-shadow: none;
 }
 
+/* A year before "Tracken ab" */
+.year-grid .card.untracked {
+  border-style: dashed;
+  background: transparent;
+  color: var(--muted);
+}
+
 /* Long lists: "Show all …" */
 
 .more-row td,

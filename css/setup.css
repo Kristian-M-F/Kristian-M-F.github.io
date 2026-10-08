@@ -292,3 +292,22 @@ body.setup-open .app {
     transition: none;
   }
 }
+
+/* "Ab wann willst du deine Finanzen tracken?": ‹ year › and the pay months (like "Monat ändern") */
+.setup-year {
+  margin-bottom: 10px;
+}
+
+.setup-months {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.setup-track-note {
+  margin: 4px 0 0;
+}
+
+@media (max-width: 560px) {
+  .setup-months {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

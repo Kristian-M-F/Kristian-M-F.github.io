@@ -82,7 +82,7 @@ const DATE_FIELDS = ["exDate", "recStart", "recEnd", "setStart"];
 const DEFAULT_DATE_FIELDS = ["exDate", "recStart"];
 const DRAFT_FIELDS = ["entryKind", ...Object.values(FORMS).flatMap((form) => form.fields)];
 const SETTINGS_FIELD =
-  /^(setStart|setYears|setPayday|setThirteenth|setAutoAccount|salary\d|extraSave\d)$/;
+  /^(setStart|setYears|setPayday|setThirteenth|setTrackFrom|setAutoAccount|salary\d|extraSave\d)$/;
 
 // Data
 
@@ -146,6 +146,9 @@ function createEmptyData() {
     paidRecurring: {},
     appearance: { ...DEFAULT_APPEARANCE },
     currentMonth: null,
+    // "Tracken ab": first pay month that counts ("YYYY-MM"); null = from the start of the
+    // apprenticeship. Months before it count nowhere (for people who start using Finance OS later).
+    trackFrom: null,
     drafts: {},
     editing: {},
   };
@@ -630,9 +633,19 @@ function apprenticeYear(month) {
   return Math.min(state.years - 1, Math.max(0, year));
 }
 
-// Months included in the totals: every started pay month of the apprenticeship.
+// "Tracken ab": the first pay month that counts. Months before it are not tracked:
+// no wage, no saving, no standing orders, nothing in the statistics.
+function trackStart() {
+  const first = firstMonth();
+  return state.trackFrom && state.trackFrom > first ? state.trackFrom : first;
+}
+
+const isTracked = (month) => month >= trackStart();
+const counts = (month) => hasStarted(month) && isTracked(month);
+
+// Months included in the totals: every started and tracked pay month of the apprenticeship.
 function countedMonths() {
-  return monthList().filter(hasStarted);
+  return monthList().filter(counts);
 }
 
 // The pay month of today, or the nearest month of the apprenticeship.
@@ -760,6 +773,9 @@ function thirteenthText() {
 }
 
 function monthSummary(month) {
+  if (!isTracked(month)) {
+    return { salary: 0, bonus: 0, allowances: [], allowanceSave: 0, extra: 0, withdrawn: 0, otherIncome: 0, income: 0, saved: 0, spent: 0, available: 0 };
+  }
   const year = apprenticeYear(month);
   const paid = hasStarted(month);
   const amount = (list) => (paid ? Number(list[year]) || 0 : 0);
@@ -812,7 +828,7 @@ function categoryTotals(months = countedMonths()) {
     const key = category || t("Sonstiges");
     result[key] = (result[key] || 0) + (Number(amount) || 0);
   };
-  for (const month of months.filter(hasStarted)) {
+  for (const month of months.filter(counts)) {
     entriesIn(state.expenses, month).forEach((entry) => add(entry.cat, entry.amount));
     dueRecurring(month, "expense").forEach((order) => add(order.cat, order.amount));
   }
@@ -833,7 +849,7 @@ function accountMoves(months, withOpening = false) {
   const add = (id, amount) => {
     if (id in balance) balance[id] += Number(amount) || 0;
   };
-  for (const month of months.filter(hasStarted)) {
+  for (const month of months.filter(counts)) {
     const summary = monthSummary(month);
     add(spendingAccount().id, summary.available);
     add(autoId, summary.allowanceSave + summary.extra);
@@ -967,6 +983,15 @@ function fillSelects() {
 function yearCards() {
   const months = countedMonths();
   return yearIndexes().map((year) => {
+    // A year that lies completely before "Tracken ab" was not tracked.
+    const lastOfYear = addMonths(firstMonth(), year * 12 + 11);
+    if (!isTracked(lastOfYear)) {
+      return `<div class="card kpi untracked">
+      <span class="label">${yearLabel(year)}</span>
+      <strong>–</strong>
+      <div class="sub">${t("Nicht erfasst")}</div>
+    </div>`;
+    }
     const saved = sumBy(
       months.filter((month) => apprenticeYear(month) === year),
       (month) => monthSummary(month).saved,
@@ -1005,7 +1030,8 @@ function renderAvailableHero() {
   const { end } = period(month);
   const today = todayISO();
   let status;
-  if (!hasStarted(month)) status = t("Beginnt am {date}", { date: formatDate(period(month).start) });
+  if (!isTracked(month)) status = t("Nicht erfasst (vor «Tracken ab»)");
+  else if (!hasStarted(month)) status = t("Beginnt am {date}", { date: formatDate(period(month).start) });
   else if (today > end) status = t("Abgeschlossen");
   else {
     const days = Math.round((Date.parse(end) - Date.parse(today)) / 86400000) + 1;
@@ -1148,7 +1174,8 @@ function renderMonthPage() {
   $("monthPickerLabel").textContent = monthName(month);
 
   let status = "";
-  if (!hasStarted(month)) status = " · " + t("Noch nicht begonnen");
+  if (!isTracked(month)) status = " · " + t("Nicht erfasst (vor «Tracken ab»)");
+  else if (!hasStarted(month)) status = " · " + t("Noch nicht begonnen");
   $("monthPeriod").textContent = `${t("Lohnmonat")} ${periodLabel(month)} · ${yearLabel(apprenticeYear(month))}${status}`;
 
   const availableClass = summary.available < 0 ? "bad" : "good";
@@ -1503,11 +1530,25 @@ function changeAccountStart(field) {
   persist();
 }
 
+// "Tracken ab" in the settings: the start of the apprenticeship or any pay month up to today.
+function renderTrackFrom() {
+  const first = firstMonth();
+  const last = monthList().filter(hasStarted).at(-1) || first;
+  const months = monthList().filter((month) => month <= last);
+  const label = (month) => `${formatDate(period(month).start)}`;
+  $("setTrackFrom").innerHTML = months
+    .map((month, i) => `<option value="${i === 0 ? "" : month}">${i === 0 ? t("Ab Lehrbeginn ({date})", { date: label(month) }) : label(month)}</option>`)
+    .join("");
+  const start = trackStart();
+  setValue("setTrackFrom", start === first ? "" : months.includes(start) ? start : "");
+}
+
 function renderSettings() {
   setValue("setStart", state.start);
   setValue("setYears", String(state.years));
   setValue("setPayday", String(state.payday));
   setValue("setThirteenth", state.thirteenth);
+  renderTrackFrom();
   $("setAutoAccount").innerHTML = savingAccounts()
     .map((account) => `<option value="${account.id}">${escapeHTML(account.name)}</option>`)
     .join("");
@@ -2163,6 +2204,7 @@ function applySetup(answers) {
   state.years = answers.years;
   state.payday = answers.payday;
   state.thirteenth = answers.thirteenth;
+  state.trackFrom = answers.trackFrom && answers.trackFrom > firstMonth() ? answers.trackFrom : null;
   state.salaries = Array.from({ length: MAX_YEARS }, (_, i) => (i < answers.years ? money(answers.wages[i]) : 0));
 
   const wanted = answers.allowances === "yes";
@@ -2231,9 +2273,11 @@ function renderMonthGrid() {
   $("monthGrid").innerHTML = Array.from({ length: 12 }, (_, i) => {
     const month = `${pickerYear}-${pad2(i + 1)}`;
     const label = new Date(pickerYear, i).toLocaleDateString(I18N.locale, { month: "short" }).replace(".", "");
-    const classes = ["month-cell", month === currentMonth ? "selected" : "", month === today ? "today" : ""].join(" ");
+    const untracked = months.includes(month) && !isTracked(month);
+    const classes = ["month-cell", month === currentMonth ? "selected" : "", month === today ? "today" : "", untracked ? "untracked" : ""].join(" ");
+    const name = untracked ? `${monthName(month)} – ${t("Nicht erfasst")}` : monthName(month);
     return `<button type="button" class="${classes}" data-action="pick-month" data-month="${month}"
-      aria-pressed="${month === currentMonth}" aria-label="${monthName(month)}" ${months.includes(month) ? "" : "disabled"}>${label}</button>`;
+      aria-pressed="${month === currentMonth}" aria-label="${name}" title="${untracked ? t("Nicht erfasst") : ""}" ${months.includes(month) ? "" : "disabled"}>${label}</button>`;
   }).join("");
   $("pickerPeriod").textContent = `${monthName(currentMonth)} · ${periodLabel(currentMonth)}`;
 }
@@ -2474,8 +2518,9 @@ function saveSettings() {
   const payday = Math.min(28, Math.max(1, Number($("setPayday").value) || 25));
   const thirteenth = ["none", "spread", "11", "12"].includes($("setThirteenth").value) ? $("setThirteenth").value : "none";
   const autoAccount = $("setAutoAccount").value;
+  const trackFrom = /^\d{4}-\d{2}$/.test($("setTrackFrom").value) ? $("setTrackFrom").value : null;
 
-  Object.assign(state, { start, years, payday, thirteenth, salaries, extraSave });
+  Object.assign(state, { start, years, payday, thirteenth, salaries, extraSave, trackFrom });
   if (savingAccounts().some((account) => account.id === autoAccount)) state.autoAccount = autoAccount;
   if (!monthList().includes(currentMonth)) {
     setCurrentMonth(initialMonth());

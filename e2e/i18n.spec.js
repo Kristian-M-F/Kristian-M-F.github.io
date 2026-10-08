@@ -84,6 +84,9 @@ for (const [language, expected] of Object.entries(LANGUAGES)) {
       await setup.locator('[data-choice="payday"][data-value="25"]').click();
       await check("setup payday");
       await page.click("#setupNext");
+      await expect(setup.locator(".setup-months .month-cell.selected")).toHaveCount(1);
+      await check("setup tracking start");
+      await page.click("#setupNext");
       await setup.locator('[data-choice="thirteenth"][data-value="spread"]').click();
       await check("setup 13th");
       await page.click("#setupNext");

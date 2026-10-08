@@ -106,11 +106,11 @@ async function logIn(page, { email, password = PASSWORD }) {
 
 /**
  * Answers the first-time setup of a new account like a person would.
- * Defaults: 4-year apprenticeship, paid on the 25th, no 13th salary, CHF 1000 every year,
- * no allowances and no subscriptions.
+ * Defaults: 4-year apprenticeship, paid on the 25th, tracked from the start, no 13th salary,
+ * CHF 1000 every year, no allowances and no subscriptions.
  */
 async function completeSetup(page, answers = {}) {
-  const { years = 4, payday = 25, thirteenth = "none", wage = 1000, startYear = null } = answers;
+  const { years = 4, payday = 25, thirteenth = "none", wage = 1000, startYear = null, trackFrom = "start" } = answers;
   const setup = page.locator("#setup");
   const next = page.locator("#setupNext");
   await base.expect(setup).toBeVisible();
@@ -120,6 +120,13 @@ async function completeSetup(page, answers = {}) {
   await setup.locator(`[data-choice="years"][data-value="${years}"]`).click();
   await next.click();
   await setup.locator(`[data-choice="payday"][data-value="${payday}"]`).click();
+  await next.click();
+  // "Ab wann willst du deine Finanzen tracken?": from the start (default here) or this month (preselected)
+  if (trackFrom === "start") {
+    const previous = setup.locator('[data-setup="track-year"][data-step="-1"]');
+    while (await previous.isEnabled()) await previous.click();
+    await setup.locator(".setup-months .month-cell:not([disabled])").first().click();
+  }
   await next.click();
   await setup.locator(`[data-choice="thirteenth"][data-value="${thirteenth}"]`).click();
   await next.click();
