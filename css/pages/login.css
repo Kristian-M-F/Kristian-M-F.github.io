@@ -485,3 +485,26 @@ a {
 .delete-confirm .auth-back {
   justify-self: center;
 }
+
+/* Pop-up "Du hast dein Konto gelöscht" (after ?deleted) */
+.deleted-dialog {
+  text-align: center;
+}
+
+.deleted-dialog .dialog-buttons {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.deleted-dialog .primary,
+.deleted-dialog .secondary {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+}
+
+.deleted-dialog .link-button {
+  align-self: center;
+  margin-top: 4px;
+}

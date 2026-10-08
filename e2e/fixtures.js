@@ -178,6 +178,7 @@ async function expectNoHorizontalScroll(page) {
 
 module.exports = {
   test,
+  API_URL,
   expect: base.expect,
   PASSWORD,
   uniqueEmail,

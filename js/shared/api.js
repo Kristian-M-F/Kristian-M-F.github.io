@@ -60,7 +60,8 @@ try {
 
 /**
  * Sends a request to the backend and returns the parsed JSON (or null for 204).
- * On 401 the user is sent to the login page unless redirectOn401 is false.
+ * On 401 the user is sent to the login page unless redirectOn401 is false
+ * (with ?deleted if the account no longer exists).
  */
 async function api(path, { method = "GET", body, redirectOn401 = true } = {}) {
   let response;
@@ -79,10 +80,14 @@ async function api(path, { method = "GET", body, redirectOn401 = true } = {}) {
     );
   }
 
-  if (response.status === 401) forgetLogin();
-  if (response.status === 401 && redirectOn401) {
-    location.replace("login.html");
-    throw new Error("Bitte neu einloggen");
+  if (response.status === 401) {
+    forgetLogin();
+    // The account was deleted (e.g. confirmed on another device): the login page says so.
+    const deleted = (await response.clone().json().catch(() => null))?.code === "ACCOUNT_DELETED";
+    if (redirectOn401) {
+      location.replace(deleted ? "login.html?deleted" : "login.html");
+      throw new Error("Bitte neu einloggen");
+    }
   }
   if (response.status === 204) return null;
 

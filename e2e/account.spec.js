@@ -1,6 +1,6 @@
 // Profile: user name, password, email address, data download and account deletion.
 const fs = require("fs");
-const { test, expect, PASSWORD, uniqueEmail, linkFromMail, openApp, goTo, logIn, skipTour } = require("./fixtures");
+const { test, expect, API_URL, PASSWORD, uniqueEmail, linkFromMail, openApp, goTo, logIn, skipTour } = require("./fixtures");
 
 async function openProfile(page) {
   await goTo(page, "settings");
@@ -84,7 +84,14 @@ test("deleting the account needs the password and the link from the email", asyn
   await expect(page.locator("#authForm")).toBeHidden();
   await page.click("#deleteConfirmBtn");
   await page.waitForURL("**/login.html*");
-  await expect(page.locator("#authNotice")).toContainText("gelöscht");
+  // Pop-up "account deleted" with a link to the login
+  await expect(page.locator("#deletedDialog")).toBeVisible();
+  await expect(page.locator("#deletedTitle")).toHaveText("Du hast dein Konto gelöscht");
+  await expect(page.locator("#deletedRegister")).toHaveAttribute("href", "login.html?register");
+  await expect(page.locator("#deletedHome")).toHaveAttribute("href", "index.html");
+  await page.click("#deletedLogin");
+  await expect(page.locator("#deletedDialog")).toBeHidden();
+  await expect(page.locator("#email")).toBeVisible();
 
   await page.fill("#email", email);
   await page.fill("#password", PASSWORD);
@@ -95,4 +102,25 @@ test("deleting the account needs the password and the link from the email", asyn
   await page.goto(link);
   await page.click("#deleteConfirmBtn");
   await expect(page.locator("#authError")).toContainText("ungültig");
+});
+
+test("deleted on another device: back in the app, a pop-up says the account is deleted", async ({ page, request }) => {
+  const { email } = await openApp(page, request);
+  await openPrivacySection(page);
+  await page.fill("#deletePassword", PASSWORD);
+  await page.click('[data-action="delete-account"]');
+  await expect(page.locator("#deleteSent")).toContainText("E-Mail");
+
+  // The link from the email is confirmed on the phone; the app stays open on the laptop.
+  const link = await linkFromMail(request, email, "delete");
+  const token = new URL(link, "http://localhost").searchParams.get("delete");
+  const confirmed = await request.post(`${API_URL}/auth/confirm-delete`, { data: { token } });
+  expect(confirmed.ok()).toBe(true);
+
+  // Back in the tab on the laptop
+  await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
+  await page.waitForURL("**/login.html*");
+  await expect(page.locator("#deletedDialog")).toBeVisible();
+  await page.click("#deletedLogin");
+  await expect(page.locator("#deletedDialog")).toBeHidden();
 });

@@ -68,7 +68,9 @@ const Setup = (() => {
 
   // Buttons for a choice; the chosen one is pressed (aria-pressed), like radio buttons.
   function choices(name, options, selected) {
-    return `<div class="setup-choices" role="radiogroup">${options
+    // Long answers (e.g. the 13th salary) get two wide columns instead of narrow boxes.
+    const wide = options.some(([, label]) => String(label).length > 14);
+    return `<div class="setup-choices${wide ? " setup-choices-wide" : ""}" role="radiogroup">${options
       .map(
         ([value, label, hint]) => `<button type="button" class="setup-choice" role="radio" data-choice="${name}" data-value="${value}"
           aria-checked="${String(selected) === String(value)}">

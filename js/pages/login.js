@@ -294,7 +294,7 @@ async function handleUrlParameters() {
   history.replaceState(null, "", location.pathname);
 
   if (params.has("deleted")) {
-    showNotice("Dein Konto und alle zugehörigen Daten wurden gelöscht.");
+    $("deletedDialog").showModal();
   }
   if (params.has("forgot")) {
     setMode("forgot");

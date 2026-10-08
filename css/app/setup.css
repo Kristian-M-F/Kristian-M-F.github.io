@@ -99,6 +99,11 @@ body.setup-open .app {
   gap: 8px;
 }
 
+/* Long answers: two columns, one column on narrow phones */
+.setup-choices-wide {
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
 .setup-choice {
   display: flex;
   flex-direction: column;
@@ -116,6 +121,10 @@ body.setup-open .app {
 
 .setup-choice:hover:not(:disabled) {
   border-color: var(--line-strong);
+}
+
+.setup-choice b {
+  overflow-wrap: anywhere;
 }
 
 .setup-choice small {

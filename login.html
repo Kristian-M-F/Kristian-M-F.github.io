@@ -14,12 +14,12 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Finance OS" />
-    <script src="js/shared/translations.js?v=2026100811"></script>
-    <script src="js/shared/i18n.js?v=2026100811"></script>
-    <script src="js/shared/update.js?v=2026100811" defer></script>
-    <script src="js/shared/site.js?v=2026100811"></script>
-    <link rel="stylesheet" href="css/shared/base.css?v=2026100811" />
-    <link rel="stylesheet" href="css/pages/login.css?v=2026100811" />
+    <script src="js/shared/translations.js?v=2026100813"></script>
+    <script src="js/shared/i18n.js?v=2026100813"></script>
+    <script src="js/shared/update.js?v=2026100813" defer></script>
+    <script src="js/shared/site.js?v=2026100813"></script>
+    <link rel="stylesheet" href="css/shared/base.css?v=2026100813" />
+    <link rel="stylesheet" href="css/pages/login.css?v=2026100813" />
   </head>
   <body>
     <div class="auth-layout">
@@ -150,7 +150,18 @@
       </main>
     </div>
 
-    <script src="js/shared/api.js?v=2026100811"></script>
-    <script src="js/pages/login.js?v=2026100811"></script>
+    <!-- After the account deletion (also when it was confirmed on another device) -->
+    <dialog id="deletedDialog" class="app-dialog deleted-dialog" aria-labelledby="deletedTitle" aria-describedby="deletedText">
+      <h2 id="deletedTitle">Du hast dein Konto gelöscht</h2>
+      <p id="deletedText" class="note">Dein Konto und alle zugehörigen Daten wurden gelöscht.</p>
+      <div class="dialog-buttons">
+        <a class="primary" href="login.html" id="deletedLogin">Zum Login</a>
+        <a class="secondary" href="login.html?register" id="deletedRegister">Neues Konto erstellen</a>
+        <a class="link-button" href="index.html" id="deletedHome">Zur Startseite</a>
+      </div>
+    </dialog>
+
+    <script src="js/shared/api.js?v=2026100813"></script>
+    <script src="js/pages/login.js?v=2026100813"></script>
   </body>
 </html>

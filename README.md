@@ -1,5 +1,5 @@
+# Finance OS – Website
 
-<<<<<<< HEAD
 Die Website von Finance OS (HTML / CSS / JavaScript), veröffentlicht mit **GitHub Pages** unter
 **https://kristian-maras.github.io**. Das Backend (Login, Speichern, E-Mails) liegt im Repository
 [finance-tracker-backend](https://github.com/Kristian-Maras/finance-tracker-backend).
@@ -157,10 +157,10 @@ dann `npm run test:e2e`.
 
 ## Neue Version veröffentlichen
 
-Alle CSS- und JS-Dateien werden mit einer Versionsnummer eingebunden, z. B. `css/shared/base.css?v=2026100811`,
+Alle CSS- und JS-Dateien werden mit einer Versionsnummer eingebunden, z. B. `css/shared/base.css?v=2026100813`,
 und dieselbe Nummer steht in `version.json`. Bei jeder Änderung an der Website die Nummer überall erhöhen:
-in IntelliJ **Strg+Shift+R** (Ersetzen in Dateien) → `2026100811` durch die neue Nummer ersetzen
-(z. B. Datum + laufende Nummer: `2026100811`), dann pushen.
+in IntelliJ **Strg+Shift+R** (Ersetzen in Dateien) → `2026100813` durch die neue Nummer ersetzen
+(z. B. Datum + laufende Nummer: `2026100813`), dann pushen.
 
 - Handys laden dadurch sicher die neuen Dateien statt der alten aus dem Zwischenspeicher.
 - Wer die Seite oder die App auf dem Home-Bildschirm gerade offen hat, bekommt innerhalb von
@@ -172,5 +172,3 @@ in IntelliJ **Strg+Shift+R** (Ersetzen in Dateien) → `2026100811` durch die ne
 `manifest.webmanifest` und die Icons in `img/icons/` machen Finance OS installierbar:
 iPhone (Safari) → Teilen → „Zum Home-Bildschirm“; Android (Chrome) → ⋮ → „App installieren“.
 Die App öffnet dann ohne Browser-Leiste direkt `app.html`.
-=======
->>>>>>> 10993ddf51b419b35334bc95d7c1c1090e310e68

@@ -133,8 +133,20 @@ document.addEventListener("visibilitychange", () => {
   if (ready && !document.hidden) {
     calculationDate = todayISO();
     render();
+    checkLogin();
   }
 });
+
+// Back in the tab: is the login still valid? If the account was deleted meanwhile (e.g. the
+// deletion was confirmed on the phone), api() goes to the login page, which says so.
+let lastLoginCheck = 0;
+function checkLogin() {
+  if (!ONLINE || Date.now() - lastLoginCheck < 10000) return;
+  lastLoginCheck = Date.now();
+  api("/auth/me").catch(() => {
+    // Not reachable: try again on the next return to the tab.
+  });
+}
 
 window.addEventListener("pagehide", flushData);
 
