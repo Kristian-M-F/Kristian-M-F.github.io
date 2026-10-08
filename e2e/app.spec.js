@@ -324,3 +324,29 @@ test("the dashboard compares wage, expenses and savings; all months open in a po
   await page.click('[data-action="close-comparison"]');
   await expect(page.locator("#comparisonDialog")).toBeHidden();
 });
+
+test("two blocks side by side share their edge: one gets wider, the other narrower", async ({ page, request }) => {
+  await openApp(page, request);
+  await page.click('#dashboard [data-action="arrange"]');
+  const main = page.locator('[data-block="account-main"]');
+  const save = page.locator('[data-block="account-save"]');
+  await page.waitForTimeout(400); // the blocks glide into their arranging places
+  const mainBefore = await main.boundingBox();
+  const saveBefore = await save.boundingBox();
+  expect(Math.abs(mainBefore.y - saveBefore.y)).toBeLessThan(2); // next to each other
+
+  // The savings account's left edge to the left: the wage account becomes narrower
+  const edge = await save.locator('[data-block-resize="left"]').boundingBox();
+  await page.mouse.move(edge.x + edge.width / 2, edge.y + edge.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(edge.x + edge.width / 2 - 160, edge.y + edge.height / 2, { steps: 10 });
+  await page.mouse.up();
+  await page.waitForTimeout(400);
+  const mainAfter = await main.boundingBox();
+  const saveAfter = await save.boundingBox();
+  expect(Math.abs(mainAfter.y - saveAfter.y)).toBeLessThan(2); // still in one row
+  expect(mainAfter.width).toBeLessThan(mainBefore.width - 100);
+  expect(saveAfter.width).toBeGreaterThan(saveBefore.width + 100);
+  expect(Math.abs(mainAfter.x - mainBefore.x)).toBeLessThan(2); // outer edges stay
+  expect(Math.abs(saveAfter.x + saveAfter.width - (saveBefore.x + saveBefore.width))).toBeLessThan(2);
+});

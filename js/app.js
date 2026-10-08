@@ -1530,10 +1530,11 @@ function changeAccountStart(field) {
   persist();
 }
 
-// "Tracken ab" in the settings: the start of the apprenticeship or any pay month up to today.
+// "Tracken ab" in the settings: the start of the apprenticeship or any pay month up to the next one.
 function renderTrackFrom() {
   const first = firstMonth();
-  const last = monthList().filter(hasStarted).at(-1) || first;
+  const started = monthList().filter(hasStarted).at(-1);
+  const last = started ? monthList().find((month) => month > started) || started : first;
   const months = monthList().filter((month) => month <= last);
   const label = (month) => `${formatDate(period(month).start)}`;
   $("setTrackFrom").innerHTML = months
@@ -2036,8 +2037,9 @@ function startMove(event, bar) {
   document.addEventListener("pointercancel", onUp);
 }
 
-// Resizing: drag the left or right edge; the width snaps to the columns and the others make room.
-// On the left edge the right side of the block stays where it is.
+// Resizing: drag the left or right edge; the width snaps to the columns.
+// Blocks right next to that edge (in the same row) share it: they get narrower or wider by the
+// same amount, their other edge stays where it is. Without a neighbour the others make room.
 function startResize(event, handle) {
   const block = handle.closest(".block");
   const container = block.parentElement;
@@ -2045,27 +2047,41 @@ function startResize(event, handle) {
   const item = currentGrid[block.dataset.block];
   const fromLeft = handle.dataset.blockResize === "left";
   const startX = event.clientX;
-  const startColumn = item.x;
-  const startWidth = item.w;
+  const left = item.x;
   const right = item.x + item.w;
+  const edge = fromLeft ? left : right;
+  const minimum = (width) => Math.min(minColumns(container), width);
+  const overlaps = (el) => el._top < block._top + block._h && block._top < el._top + el._h;
+  // Neighbours touching this edge, with their position at the start
+  const neighbours = blocksOf(name)
+    .filter((el) => el !== block && !el.matches(".block-hidden:not(.arranging > *)") && overlaps(el))
+    .filter((el) => (fromLeft ? el._x + el._w === left : el._x === right))
+    .map((el) => ({ item: currentGrid[el.dataset.block], x: el._x, w: el._w }));
   event.preventDefault();
   block.classList.add("resizing");
 
   const onMove = (move) => {
-    const columns = Math.round((move.clientX - startX) / container._unit);
-    const min = Math.min(minColumns(container), startWidth);
-    let x = startColumn;
-    let w;
+    let boundary = edge + Math.round((move.clientX - startX) / container._unit);
     if (fromLeft) {
-      x = Math.min(right - min, Math.max(0, startColumn + columns));
-      w = right - x;
+      boundary = Math.min(right - minimum(item.w), Math.max(0, boundary));
+      for (const n of neighbours) boundary = Math.max(boundary, n.x + minimum(n.w));
     } else {
-      w = Math.min(COLUMNS - startColumn, Math.max(min, startWidth + columns));
+      boundary = Math.max(left + minimum(item.w), Math.min(COLUMNS, boundary));
+      for (const n of neighbours) boundary = Math.min(boundary, n.x + n.w - minimum(n.w));
     }
+    const x = fromLeft ? boundary : left;
+    const w = fromLeft ? right - boundary : boundary - left;
     block.dataset.size = `${Math.round((w * 100) / COLUMNS)} %`;
     if (w === item.w && x === item.x) return;
     item.x = x;
     item.w = w;
+    for (const n of neighbours) {
+      if (fromLeft) n.item.w = boundary - n.x; // its left edge stays
+      else {
+        n.item.x = boundary; // its right edge stays
+        n.item.w = n.x + n.w - boundary;
+      }
+    }
     placeBlocks(name);
   };
   const onUp = () => {

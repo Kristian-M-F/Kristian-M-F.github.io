@@ -31,6 +31,11 @@ test("a new account answers the setup first; the answers end up in the settings"
   // From when to track: this pay month is preselected; here the first month (start of the apprenticeship)
   await expect(setup.locator(".setup-months .month-cell.selected")).toHaveCount(1);
   await expect(setup.locator(".setup-months .month-cell").first()).toContainText("20.");
+  // The next pay month can be chosen too
+  const selectedMonth = await setup.locator(".setup-months .month-cell.selected").getAttribute("data-month");
+  const [y, m] = selectedMonth.split("-").map(Number);
+  const nextMonth = new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 7);
+  if (nextMonth.startsWith(String(y))) await expect(setup.locator(`.setup-months [data-month="${nextMonth}"]`)).toBeEnabled();
   await setup.locator('.setup-months [data-month$="-08"]').click();
   await expect(setup.locator(".setup-track-note")).toContainText("alle Lohnmonate");
   await next.click();
@@ -116,7 +121,7 @@ test("months before „Tracken ab“ do not count", async ({ page, request }) =>
   expect(tracked).toMatch(/^\d{4}-\d{2}$/);
   await page.locator("#setTrackFrom").selectOption("");
   await goTo(page, "dashboard");
-  const months = await page.locator("#setTrackFrom option").count(); // start … current pay month
+  const months = (await page.locator("#setTrackFrom option").count()) - 1; // start … current pay month (+ the next one)
   await expect(page.locator("#dIncome")).toHaveText(new RegExp(`${(months * 1000).toLocaleString("de-CH").replace(/\D/g, ".")}\\.00`));
 });
 

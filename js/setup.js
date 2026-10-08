@@ -32,13 +32,15 @@ const Setup = (() => {
     return new Date(Date.UTC(year, number - 1 + count, 1)).toISOString().slice(0, 7);
   };
 
-  // "Tracken ab": the pay months that can be chosen, from the start of the apprenticeship to today.
+  // "Tracken ab": the pay months that can be chosen, from the start of the apprenticeship to the
+  // next pay month (for someone who wants to start fresh with the next wage).
   function trackRange() {
     const first = `${answers.startYear}-${pad2(answers.startMonth)}`;
     const today = todayISO();
     const current = addMonths(today.slice(0, 7), Number(today.slice(8, 10)) < answers.payday ? -1 : 0);
     const end = addMonths(first, (answers.years || 4) * 12 - 1);
-    const last = current < first ? first : current > end ? end : current;
+    const next = addMonths(current, 1);
+    const last = next < first ? first : next > end ? end : next;
     return { first, last };
   }
   const trackLabel = (month, long = false) =>
@@ -131,7 +133,9 @@ const Setup = (() => {
       note: () => t("Monate davor zählen nicht mit – also kein Lohn, kein Sparen und keine Daueraufträge. Wähle den Lohnmonat, ab dem du alles einträgst."),
       html: () => {
         const { first, last } = trackRange();
-        if (!answers.trackFrom || answers.trackFrom < first || answers.trackFrom > last) answers.trackFrom = last;
+        // Preselected: today's pay month (the next one is only chosen on purpose)
+        const preselected = last > first ? addMonths(last, -1) : first;
+        if (!answers.trackFrom || answers.trackFrom < first || answers.trackFrom > last) answers.trackFrom = preselected;
         if (!answers.trackYear) answers.trackYear = Number(answers.trackFrom.slice(0, 4));
         const year = answers.trackYear;
         const cells = Array.from({ length: 12 }, (_, i) => {
