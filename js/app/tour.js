@@ -40,6 +40,12 @@ const Tour = (() => {
       text: "Wie viel du in diesem Lohnmonat noch ausgeben kannst – und deine Kontostände. Die Statistik seit Lehrbeginn klappst du unten auf.",
     },
     {
+      target: ['#dashboard [data-action="arrange"]'],
+      page: "dashboard",
+      title: "Dashboard anordnen",
+      text: "Mit „Anordnen“ stellst du dein Dashboard selbst zusammen: Bereiche verschieben, am Rand breiter oder schmaler ziehen und ausblenden. Tippe daneben, wenn du fertig bist.",
+    },
+    {
       target: [".mobile-month", '.month-switch [data-action="change-month"]'],
       title: "Lohnmonat wechseln",
       text: "Ein Lohnmonat läuft vom Lohntag bis zum Tag davor. Hier wechselst du zu einem anderen Monat.",

@@ -140,6 +140,8 @@ window.TRANSLATIONS = {
   "Du hast dein Konto gelöscht": ["You deleted your account", "Tu as supprimé ton compte", "Hai eliminato il tuo account"],
   "Zum Login": ["Go to login", "Aller à la connexion", "Vai al login"],
   "Neues Konto erstellen": ["Create a new account", "Créer un nouveau compte", "Crea un nuovo account"],
+  "Dashboard anordnen": ["Arrange the dashboard", "Organiser le tableau de bord", "Disporre la dashboard"],
+  "Mit „Anordnen“ stellst du dein Dashboard selbst zusammen: Bereiche verschieben, am Rand breiter oder schmaler ziehen und ausblenden. Tippe daneben, wenn du fertig bist.": ["With “Arrange” you put your dashboard together yourself: move sections, drag their edges to make them wider or narrower, and hide them. Tap beside them when you're done.", "Avec « Organiser », tu composes toi-même ton tableau de bord : déplacer des sections, les élargir ou les rétrécir par le bord et les masquer. Touche à côté quand tu as fini.", "Con «Disponi» componi tu stesso la dashboard: sposta le sezioni, allargale o restringile dal bordo e nascondile. Tocca accanto quando hai finito."],
   "Zur Startseite": ["Go to the home page", "Aller à la page d'accueil", "Vai alla pagina iniziale"],
   "Zur App": ["Go to the app", "Aller à l'app", "Vai all'app"],
   "Seite nicht gefunden – Finance OS": ["Page not found – Finance OS", "Page introuvable – Finance OS", "Pagina non trovata – Finance OS"],
