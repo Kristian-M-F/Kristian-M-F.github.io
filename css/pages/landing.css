@@ -394,11 +394,11 @@ html {
 }
 
 .ledger-rows .save b {
-  color: var(--orange);
+  color: var(--orange-text);
 }
 
 .ledger-rows .out b {
-  color: var(--spending);
+  color: var(--spending-text);
 }
 
 .ledger-total {

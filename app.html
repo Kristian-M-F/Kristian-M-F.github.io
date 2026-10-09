@@ -17,19 +17,19 @@
     <link rel="apple-touch-icon" href="img/icons/apple-touch-icon.png" />
     <link rel="manifest" href="manifest.webmanifest" />
     <!-- Styles: base.css applies everywhere, then one file per page, responsive.css last -->
-    <script src="js/shared/translations.js?v=2026100818"></script>
-    <script src="js/shared/i18n.js?v=2026100818"></script>
-    <script src="js/shared/update.js?v=2026100818" defer></script>
-    <link rel="stylesheet" href="css/shared/base.css?v=2026100818" />
-    <link rel="stylesheet" href="css/app/dashboard.css?v=2026100818" />
-    <link rel="stylesheet" href="css/app/month.css?v=2026100818" />
-    <link rel="stylesheet" href="css/app/month-picker.css?v=2026100818" />
-    <link rel="stylesheet" href="css/app/settings.css?v=2026100818" />
-    <link rel="stylesheet" href="css/shared/themes.css?v=2026100818" />
-    <link rel="stylesheet" href="css/app/tour.css?v=2026100818" />
-    <link rel="stylesheet" href="css/app/setup.css?v=2026100818" />
-    <link rel="stylesheet" href="css/app/responsive.css?v=2026100818" />
-    <link rel="stylesheet" href="css/shared/error.css?v=2026100818" />
+    <script src="js/shared/translations.js?v=2026100819"></script>
+    <script src="js/shared/i18n.js?v=2026100819"></script>
+    <script src="js/shared/update.js?v=2026100819" defer></script>
+    <link rel="stylesheet" href="css/shared/base.css?v=2026100819" />
+    <link rel="stylesheet" href="css/app/dashboard.css?v=2026100819" />
+    <link rel="stylesheet" href="css/app/month.css?v=2026100819" />
+    <link rel="stylesheet" href="css/app/month-picker.css?v=2026100819" />
+    <link rel="stylesheet" href="css/app/settings.css?v=2026100819" />
+    <link rel="stylesheet" href="css/shared/themes.css?v=2026100819" />
+    <link rel="stylesheet" href="css/app/tour.css?v=2026100819" />
+    <link rel="stylesheet" href="css/app/setup.css?v=2026100819" />
+    <link rel="stylesheet" href="css/app/responsive.css?v=2026100819" />
+    <link rel="stylesheet" href="css/shared/error.css?v=2026100819" />
   </head>
   <body>
     <div id="toast" class="toast" role="status" hidden></div>
@@ -265,7 +265,7 @@
             <!-- One block per account (wage account, savings accounts) is added here by js/app/render-settings.js -->
             <div class="block" data-block="upcoming" data-block-name="Kommt noch in diesem Lohnmonat">
               <details class="card fold" data-fold="dash-upcoming" open>
-                <summary><span class="fold-title">Kommt noch in diesem Lohnmonat</span><span class="fold-count" data-count-for="upcomingRows"></span></summary>
+                <summary><h2 class="fold-title">Kommt noch in diesem Lohnmonat</h2><span class="fold-count" data-count-for="upcomingRows"></span></summary>
                 <div class="fold-body">
                   <ul class="upcoming" id="upcomingRows"></ul>
                 </div>
@@ -273,7 +273,7 @@
             </div>
             <div class="block" data-block="categories" data-block-name="Ausgaben nach Kategorie">
               <details class="card fold" data-fold="dash-month-categories" data-mobile="closed" open>
-                <summary><span class="fold-title">Ausgaben nach Kategorie</span></summary>
+                <summary><h2 class="fold-title">Ausgaben nach Kategorie</h2></summary>
                 <div class="fold-body">
                   <p class="note">In diesem Lohnmonat, inklusive Daueraufträge</p>
                   <div id="monthCategoryChart"></div>
@@ -282,7 +282,7 @@
             </div>
             <div class="block span-2" data-block="stats" data-block-name="Statistik seit Lehrbeginn">
               <details class="card fold stats" data-fold="dash-stats" data-default="closed">
-                <summary><span class="fold-title">Statistik seit Lehrbeginn</span></summary>
+                <summary><h2 class="fold-title">Statistik seit Lehrbeginn</h2></summary>
                 <div class="fold-body">
                   <div class="grid4">
                     <div class="kpi">
@@ -371,7 +371,7 @@
             </div>
             <div class="block" data-block="ledger" data-block-name="Monatsrechnung">
               <details class="card fold" data-fold="month-ledger" open>
-                <summary><span class="fold-title">Monatsrechnung</span><span class="fold-count" data-count-for="monthMath"></span></summary>
+                <summary><h2 class="fold-title">Monatsrechnung</h2><span class="fold-count" data-count-for="monthMath"></span></summary>
                 <div class="fold-body">
                 <p class="note">Neueste zuerst · nur Buchungen bis heute.</p>
                 <table class="compact-list">
@@ -392,7 +392,7 @@
             </div>
             <div class="block" data-block="budget" data-block-name="Budget-Nutzung">
               <details class="card fold" data-fold="month-budget" open>
-                <summary><span class="fold-title">Budget-Nutzung</span></summary>
+                <summary><h2 class="fold-title">Budget-Nutzung</h2></summary>
                 <div class="fold-body">
                 <div class="budget">
                   <!-- Red: spent, orange: saved – each as a share of the income -->
@@ -408,7 +408,7 @@
             </div>
             <div class="block span-2" data-block="planned" data-block-name="Geplante Zahlungen">
               <details class="card fold" data-fold="month-planned" data-mobile="closed" open>
-                  <summary><span class="fold-title">Geplante Zahlungen</span><span class="fold-count" data-count-for="plannedPaymentsRows"></span></summary>
+                  <summary><h2 class="fold-title">Geplante Zahlungen</h2><span class="fold-count" data-count-for="plannedPaymentsRows"></span></summary>
                   <div class="fold-body">
                 <p class="note">Daueraufträge im ausgewählten Lohnmonat · Status manuell aktualisierbar.</p>
                 <table class="compact-list">
@@ -477,7 +477,7 @@
             <p class="note entry-hint" id="entryHint" aria-live="polite"></p>
           </div>
           <details class="card fold section" data-fold="entries-list" open>
-              <summary><span class="fold-title">Einträge in diesem Lohnmonat</span><span class="fold-count" data-count-for="allExpenses"></span></summary>
+              <summary><h2 class="fold-title">Einträge in diesem Lohnmonat</h2><span class="fold-count" data-count-for="allExpenses"></span></summary>
               <div class="fold-body">
             <p class="note" id="entriesMonth"></p>
             <table class="compact-list entry-table">
@@ -550,7 +550,7 @@
             </div>
           </div>
           <details class="card fold section" data-fold="recurring-list" open>
-              <summary><span class="fold-title">Alle Daueraufträge</span><span class="fold-count" data-count-for="recurringRows"></span></summary>
+              <summary><h2 class="fold-title">Alle Daueraufträge</h2><span class="fold-count" data-count-for="recurringRows"></span></summary>
               <div class="fold-body">
             <p class="note">Ab dem Fälligkeitstag gilt ein Dauerauftrag als bezahlt und wird von „Verfügbar“ abgezogen. Unter Monat → Geplante Zahlungen kannst du das ändern.</p>
             <p class="note"><span>Status im Lohnmonat</span> <b id="recurringMonth"></b></p>
@@ -589,7 +589,7 @@
             <button role="tab" data-settings-tab-button="account">Profil</button>
           </div>
           <details class="card fold section" data-fold="settings-basics" data-settings-tab="pay" open>
-            <summary><span class="fold-title">Lehre</span></summary>
+            <summary><h2 class="fold-title">Lehre</h2></summary>
             <div class="fold-body">
               <p class="note">Grunddaten deiner Lehre. Änderungen werden sofort gespeichert.</p>
               <div class="row">
@@ -631,7 +631,7 @@
 
           <!-- Salary, allowances and automatic saving belong together: everything that happens on payday -->
           <details class="card fold section" data-fold="settings-pay" data-settings-tab="pay" open>
-            <summary><span class="fold-title">Lohn, Pauschalen und Sparen am Lohntag</span></summary>
+            <summary><h2 class="fold-title">Lohn, Pauschalen und Sparen am Lohntag</h2></summary>
             <div class="fold-body">
               <h3 class="group-title">1 · Lohn pro Lehrjahr</h3>
               <p class="note">
@@ -667,7 +667,7 @@
           </details>
 
           <details class="card fold section" data-fold="settings-appearance" data-settings-tab="look" open>
-            <summary><span class="fold-title">Darstellung</span></summary>
+            <summary><h2 class="fold-title">Darstellung</h2></summary>
             <div class="fold-body appearance">
               <p class="note">Gilt sofort und wird mit deinem Konto gespeichert.</p>
               <fieldset>
@@ -732,7 +732,7 @@
 
           <!-- Accounts: one spending account and any number of savings accounts -->
           <details class="card fold section" data-fold="settings-accounts" data-settings-tab="lists" open>
-            <summary><span class="fold-title">Konten</span></summary>
+            <summary><h2 class="fold-title">Konten</h2></summary>
             <div class="fold-body">
               <p class="note">
                 Lohn, Pauschalen und Ausgaben laufen über das Lohnkonto. Was du sparst, geht auf ein Sparkonto und ist
@@ -750,7 +750,7 @@
           </details>
 
           <details class="card fold section" data-fold="settings-lists" data-settings-tab="lists" open>
-            <summary><span class="fold-title">Kategorien und Zahlungsarten</span></summary>
+            <summary><h2 class="fold-title">Kategorien und Zahlungsarten</h2></summary>
             <div class="fold-body">
               <p class="note">
                 Umbenennen ändert auch frühere Einträge. Entfernen nimmt die Bezeichnung nur aus der Auswahl –
@@ -788,7 +788,7 @@
 
           <!-- Only visible when logged in (via http://localhost:8080) -->
           <details id="accountCard" hidden class="card fold section" data-fold="settings-account" data-settings-tab="account" open>
-              <summary><span class="fold-title">Mein Konto</span></summary>
+              <summary><h2 class="fold-title">Mein Konto</h2></summary>
               <div class="fold-body">
             <p class="note">Angemeldet als <strong id="accountEmail"></strong></p>
 
@@ -814,7 +814,7 @@
           </details>
 
           <details id="privacyCard" hidden class="card fold section" data-fold="settings-privacy" data-settings-tab="account" data-default="closed" open>
-              <summary><span class="fold-title">Datenschutz: Daten herunterladen oder Konto löschen</span></summary>
+              <summary><h2 class="fold-title">Datenschutz: Daten herunterladen oder Konto löschen</h2></summary>
               <div class="fold-body">
             <p class="note">
               Nach dem Schweizer Datenschutzgesetz (DSG) kannst du jederzeit alle über dich
@@ -838,7 +838,7 @@
           </details>
 
           <details class="card fold section" data-fold="settings-help" data-settings-tab="account" open>
-            <summary><span class="fold-title">Hilfe &amp; Rechtliches</span></summary>
+            <summary><h2 class="fold-title">Hilfe &amp; Rechtliches</h2></summary>
             <div class="fold-body">
               <p class="note">Öffnet sich in einem neuen Tab, Finance OS bleibt offen.</p>
               <ul class="help-links">
@@ -851,7 +851,7 @@
           </details>
 
           <details class="card fold section" data-fold="settings-reset" data-settings-tab="account" data-default="closed" open>
-              <summary><span class="fold-title">Datenverwaltung</span></summary>
+              <summary><h2 class="fold-title">Datenverwaltung</h2></summary>
               <div class="fold-body">
             <p class="note" id="storageNote">Deine Eingaben werden automatisch in diesem Browser gespeichert.</p>
             <button class="secondary" data-action="reset-all">Alle Finanzdaten auf 0 zurücksetzen</button>
@@ -863,17 +863,17 @@
 
     <!-- api.js: connection to the backend (login + database).
          js/app/: the app logic, split into parts that are loaded in this order (main.js last) -->
-    <script src="js/shared/api.js?v=2026100818"></script>
-    <script src="js/app/tour.js?v=2026100818"></script>
-    <script src="js/app/setup.js?v=2026100818"></script>
-    <script src="js/app/state.js?v=2026100818"></script>
-    <script src="js/app/calc.js?v=2026100818"></script>
-    <script src="js/app/render.js?v=2026100818"></script>
-    <script src="js/app/render-settings.js?v=2026100818"></script>
-    <script src="js/app/layout.js?v=2026100818"></script>
-    <script src="js/app/navigation.js?v=2026100818"></script>
-    <script src="js/app/forms.js?v=2026100818"></script>
-    <script src="js/app/payday.js?v=2026100818"></script>
-    <script src="js/app/main.js?v=2026100818"></script>
+    <script src="js/shared/api.js?v=2026100819"></script>
+    <script src="js/app/tour.js?v=2026100819"></script>
+    <script src="js/app/setup.js?v=2026100819"></script>
+    <script src="js/app/state.js?v=2026100819"></script>
+    <script src="js/app/calc.js?v=2026100819"></script>
+    <script src="js/app/render.js?v=2026100819"></script>
+    <script src="js/app/render-settings.js?v=2026100819"></script>
+    <script src="js/app/layout.js?v=2026100819"></script>
+    <script src="js/app/navigation.js?v=2026100819"></script>
+    <script src="js/app/forms.js?v=2026100819"></script>
+    <script src="js/app/payday.js?v=2026100819"></script>
+    <script src="js/app/main.js?v=2026100819"></script>
   </body>
 </html>

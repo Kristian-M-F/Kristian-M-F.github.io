@@ -29,8 +29,11 @@ a {
   padding: 0;
 }
 
-.auth-intro h1 {
+/* Big text on the left: looks like a heading, but the page heading (h1) is the form title */
+.auth-intro .auth-headline {
+  color: var(--on-dark);
   font-size: 34px;
+  font-weight: 700;
   line-height: 1.2;
   margin: 0 0 14px;
   max-width: 440px;
@@ -121,7 +124,7 @@ a {
   box-shadow: var(--shadow-tab);
 }
 
-.auth-card h2 {
+.auth-card h1 {
   margin: 0;
   font-size: 24px;
 }
@@ -320,8 +323,8 @@ a {
 
 .terms-check input {
   flex: none;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   min-height: 0;
   margin: 1px 0 0;
   padding: 0;

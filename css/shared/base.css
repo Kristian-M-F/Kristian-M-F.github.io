@@ -36,7 +36,7 @@
   --bg: #f4f6fa;
   --panel: #fff;
   --ink: #151b2a;
-  --muted: #747d91;
+  --muted: #646d80; /* darker than before: at least 4.5:1 contrast on white and grey */
   --label: #596478;
   --line: #e5e8ef;
   --nav: #111827;
@@ -66,6 +66,7 @@
   --warn-text: #845d17;
   --danger-line: #f0caca;
   --spending-text: #a3482b;
+  --orange-text: #9a5a00; /* orange for text (the bars stay --orange) */
   --shadow: 0 8px 28px rgba(25, 35, 55, 0.035);
 
   /* Text and icons on dark or coloured areas (menu, buttons, landing sections) */
@@ -153,6 +154,8 @@
     --warn-text: #f0bf6e;
     --danger-line: #5a2e33;
     --spending-text: #e9997d;
+  --orange-text: var(--orange);
+    --orange-text: var(--orange);
     --shadow: none;
     --error-soft: rgba(240, 124, 124, 0.14);
     --saved: #7aa7ff;
@@ -188,6 +191,7 @@
   --warn-text: #f0bf6e;
   --danger-line: #5a2e33;
   --spending-text: #e9997d;
+  --orange-text: var(--orange);
   --shadow: none;
   --error-soft: rgba(240, 124, 124, 0.14);
   --saved: #7aa7ff;
@@ -721,6 +725,12 @@ tr:hover td {
 
 .fold-title {
   min-width: 0;
+}
+
+/* The section titles are headings (h2) for screen readers, but look like before */
+h2.fold-title {
+  margin: 0;
+  font: inherit;
 }
 
 /* Number of entries next to the title */
