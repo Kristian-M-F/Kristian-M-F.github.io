@@ -252,7 +252,7 @@ function thirteenthText() {
 
 function monthSummary(month) {
   if (!isTracked(month)) {
-    return { salary: 0, bonus: 0, allowances: [], allowanceSave: 0, extra: 0, withdrawn: 0, otherIncome: 0, income: 0, saved: 0, spent: 0, available: 0 };
+    return { salary: 0, bonus: 0, allowances: [], allowanceSave: 0, extra: 0, withdrawn: 0, otherIncome: 0, carriedIn: 0, carriedOut: 0, income: 0, saved: 0, spent: 0, available: 0 };
   }
   const year = apprenticeYear(month);
   const paid = hasStarted(month);
@@ -282,10 +282,18 @@ function monthSummary(month) {
   const saved =
     allowanceSave + extra + total(entriesIn(state.savingEntries, month)) + total(dueRecurring(month, "saving")) - withdrawn;
   const spent = total(entriesIn(state.expenses, month)) + total(dueRecurring(month, "expense"));
+  // Left over at the last payday and taken along into this month, or from this month into the next.
+  const carriedIn = carriedFrom(addMonths(month, -1));
+  const carriedOut = carriedFrom(month);
   return {
-    salary, bonus, allowances, allowanceSave, extra, withdrawn, otherIncome,
-    income, saved, spent, available: income + otherIncome - saved - spent,
+    salary, bonus, allowances, allowanceSave, extra, withdrawn, otherIncome, carriedIn, carriedOut,
+    income, saved, spent, available: income + otherIncome + carriedIn - carriedOut - saved - spent,
   };
+}
+
+// Amount taken from this pay month into the next one (payday question, js/app/payday.js)
+function carriedFrom(month) {
+  return sumBy((state.carryOvers || []).filter((carry) => carry.from === month), (carry) => carry.amount);
 }
 
 function totals() {
@@ -375,6 +383,13 @@ function monthLedger(month) {
   }
   for (const entry of entriesIn(state.incomeEntries, month)) {
     add(entry.date, entry.desc, entry.amount, "income", "");
+  }
+  // Payday question: left over from the last pay month / taken into the next one
+  for (const carry of (state.carryOvers || []).filter((item) => addMonths(item.from, 1) === month)) {
+    add(start, t("Übertrag aus {month}", { month: monthName(carry.from) }), carry.amount, "carryIn", carryUndo(carry));
+  }
+  for (const carry of (state.carryOvers || []).filter((item) => item.from === month)) {
+    add(period(month).end, t("In den {month} mitgenommen", { month: monthName(addMonths(month, 1)) }), carry.amount, "carryOut", carryUndo(carry));
   }
 
   // Newest first; on the same day the most recently added row comes first.

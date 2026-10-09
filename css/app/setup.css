@@ -320,3 +320,51 @@ body.setup-open .app {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+/* Payday question: save the money left over or take it along (js/app/payday.js) */
+.payday-dialog {
+  width: min(460px, calc(100vw - 32px));
+}
+
+.payday-amount {
+  margin: 6px 0 16px;
+  font-family: "Inter Display", Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--brand-text);
+}
+
+.payday-question {
+  margin-bottom: 10px;
+}
+
+.payday-dialog .setup-choices {
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.payday-dialog .setup-choice {
+  min-height: 64px;
+}
+
+.payday-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.payday-dialog .payday-fields .field {
+  margin: 0;
+}
+
+.payday-error:empty {
+  display: none;
+}
+
+.payday-error {
+  margin: 10px 0 0;
+  color: var(--red);
+  font-size: 14px;
+}

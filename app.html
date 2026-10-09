@@ -17,22 +17,42 @@
     <link rel="apple-touch-icon" href="img/icons/apple-touch-icon.png" />
     <link rel="manifest" href="manifest.webmanifest" />
     <!-- Styles: base.css applies everywhere, then one file per page, responsive.css last -->
-    <script src="js/shared/translations.js?v=2026100817"></script>
-    <script src="js/shared/i18n.js?v=2026100817"></script>
-    <script src="js/shared/update.js?v=2026100817" defer></script>
-    <link rel="stylesheet" href="css/shared/base.css?v=2026100817" />
-    <link rel="stylesheet" href="css/app/dashboard.css?v=2026100817" />
-    <link rel="stylesheet" href="css/app/month.css?v=2026100817" />
-    <link rel="stylesheet" href="css/app/month-picker.css?v=2026100817" />
-    <link rel="stylesheet" href="css/app/settings.css?v=2026100817" />
-    <link rel="stylesheet" href="css/shared/themes.css?v=2026100817" />
-    <link rel="stylesheet" href="css/app/tour.css?v=2026100817" />
-    <link rel="stylesheet" href="css/app/setup.css?v=2026100817" />
-    <link rel="stylesheet" href="css/app/responsive.css?v=2026100817" />
-    <link rel="stylesheet" href="css/shared/error.css?v=2026100817" />
+    <script src="js/shared/translations.js?v=2026100818"></script>
+    <script src="js/shared/i18n.js?v=2026100818"></script>
+    <script src="js/shared/update.js?v=2026100818" defer></script>
+    <link rel="stylesheet" href="css/shared/base.css?v=2026100818" />
+    <link rel="stylesheet" href="css/app/dashboard.css?v=2026100818" />
+    <link rel="stylesheet" href="css/app/month.css?v=2026100818" />
+    <link rel="stylesheet" href="css/app/month-picker.css?v=2026100818" />
+    <link rel="stylesheet" href="css/app/settings.css?v=2026100818" />
+    <link rel="stylesheet" href="css/shared/themes.css?v=2026100818" />
+    <link rel="stylesheet" href="css/app/tour.css?v=2026100818" />
+    <link rel="stylesheet" href="css/app/setup.css?v=2026100818" />
+    <link rel="stylesheet" href="css/app/responsive.css?v=2026100818" />
+    <link rel="stylesheet" href="css/shared/error.css?v=2026100818" />
   </head>
   <body>
     <div id="toast" class="toast" role="status" hidden></div>
+
+    <!-- On payday: save the money left over from the last pay month or take it along (js/app/payday.js) -->
+    <dialog id="paydayDialog" class="app-dialog payday-dialog" aria-labelledby="paydayTitle" aria-describedby="paydayText">
+      <h2 id="paydayTitle">Neuer Lohnmonat – dein Lohn ist da</h2>
+      <p class="note" id="paydayText"></p>
+      <p class="payday-amount" id="paydayAmount"></p>
+      <p class="note payday-question">Was möchtest du damit machen?</p>
+      <div class="setup-choices" id="paydayChoices" role="radiogroup" aria-label="Was möchtest du damit machen?"></div>
+      <div class="payday-fields">
+        <label class="field"><span>Betrag</span>
+          <span class="setup-money"><input id="paydayInput" inputmode="decimal" autocomplete="off" /><small>CHF</small></span>
+        </label>
+        <label class="field" id="paydayAccountField"><span>Auf welches Konto?</span><select id="paydayAccount"></select></label>
+      </div>
+      <p class="payday-error" id="paydayError" role="alert"></p>
+      <div class="dialog-buttons">
+        <button type="button" class="secondary" data-action="payday-later">Später</button>
+        <button type="button" class="primary" data-action="payday-confirm">Bestätigen</button>
+      </div>
+    </dialog>
 
     <!-- Shown instead of the app when the backend cannot load the data (showServerError in js/app/main.js) -->
     <section id="serverError" class="error-screen error-overlay" role="alert" aria-labelledby="serverErrorTitle" hidden>
@@ -843,16 +863,17 @@
 
     <!-- api.js: connection to the backend (login + database).
          js/app/: the app logic, split into parts that are loaded in this order (main.js last) -->
-    <script src="js/shared/api.js?v=2026100817"></script>
-    <script src="js/app/tour.js?v=2026100817"></script>
-    <script src="js/app/setup.js?v=2026100817"></script>
-    <script src="js/app/state.js?v=2026100817"></script>
-    <script src="js/app/calc.js?v=2026100817"></script>
-    <script src="js/app/render.js?v=2026100817"></script>
-    <script src="js/app/render-settings.js?v=2026100817"></script>
-    <script src="js/app/layout.js?v=2026100817"></script>
-    <script src="js/app/navigation.js?v=2026100817"></script>
-    <script src="js/app/forms.js?v=2026100817"></script>
-    <script src="js/app/main.js?v=2026100817"></script>
+    <script src="js/shared/api.js?v=2026100818"></script>
+    <script src="js/app/tour.js?v=2026100818"></script>
+    <script src="js/app/setup.js?v=2026100818"></script>
+    <script src="js/app/state.js?v=2026100818"></script>
+    <script src="js/app/calc.js?v=2026100818"></script>
+    <script src="js/app/render.js?v=2026100818"></script>
+    <script src="js/app/render-settings.js?v=2026100818"></script>
+    <script src="js/app/layout.js?v=2026100818"></script>
+    <script src="js/app/navigation.js?v=2026100818"></script>
+    <script src="js/app/forms.js?v=2026100818"></script>
+    <script src="js/app/payday.js?v=2026100818"></script>
+    <script src="js/app/main.js?v=2026100818"></script>
   </body>
 </html>

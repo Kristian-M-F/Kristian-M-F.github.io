@@ -1,7 +1,7 @@
 "use strict";
 
 // Finance OS app, part: Events (clicks, inputs, keys) and start. Loaded last.
-// Loaded by app.html in this order: state.js → calc.js → render.js → render-settings.js → layout.js → navigation.js → forms.js → main.js
+// Loaded by app.html in this order: state.js → calc.js → render.js → render-settings.js → layout.js → navigation.js → forms.js → payday.js → main.js
 
 // Events
 
@@ -16,6 +16,10 @@ const actions = {
   "start-tour": startTour,
   "show-comparison": showComparison,
   "close-comparison": () => $("comparisonDialog").close(),
+  "payday-choice": choosePayday,
+  "payday-confirm": confirmPayday,
+  "payday-later": () => $("paydayDialog").close(),
+  "undo-carry": undoCarry,
   "new-entry": openNewEntry,
   "toggle-recurring-payment": toggleRecurringPayment,
   "toggle-theme": toggleTheme,
@@ -134,6 +138,7 @@ document.addEventListener("visibilitychange", () => {
     calculationDate = todayISO();
     render();
     checkLogin();
+    checkPayday();
   }
 });
 
@@ -215,6 +220,7 @@ async function start() {
   if (!state.setupDone) state.setupDone = true; // accounts from before the setup existed
   save();
   if (!state.tourDone) startTour();
+  else checkPayday();
 }
 
 start();

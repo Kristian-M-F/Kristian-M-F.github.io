@@ -39,6 +39,9 @@ const AMOUNT_STYLES = {
   expense: { sign: "−", className: "bad" },
   saving: { sign: "↗", className: "transfer" },
   withdraw: { sign: "↙", className: "good" },
+  // Left over at payday and taken into the next pay month (js/app/payday.js)
+  carryIn: { sign: "+", className: "good" },
+  carryOut: { sign: "→", className: "transfer" },
 };
 // Standing order interval -> number of months between payments
 const INTERVALS = {
@@ -153,6 +156,12 @@ function createEmptyData() {
     // "Tracken ab": first pay month that counts ("YYYY-MM"); null = from the start of the
     // apprenticeship. Months before it count nowhere (for people who start using Finance OS later).
     trackFrom: null,
+    // Payday question (js/app/payday.js): money taken from a pay month into the next one
+    // ({ id, from: "YYYY-MM", amount }), the pay months already asked about, and the first
+    // pay month that may be asked about (set when the question is used for the first time).
+    carryOvers: [],
+    paydayAnswered: [],
+    paydayStart: null,
     drafts: {},
     editing: {},
   };

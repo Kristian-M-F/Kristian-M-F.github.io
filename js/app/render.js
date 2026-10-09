@@ -133,7 +133,7 @@ function renderAvailableHero() {
 
   $("heroAmount").textContent = chf(summary.available);
   $("heroAmount").classList.toggle("bad", summary.available < 0);
-  const money = summary.income + summary.otherIncome;
+  const money = summary.income + summary.otherIncome + summary.carriedIn;
   const used = money ? ((summary.saved + summary.spent) / money) * 100 : 0;
   $("heroBar").style.width = Math.min(100, Math.max(0, used)) + "%";
   $("heroBar").classList.toggle("over", summary.available < 0);
@@ -148,6 +148,8 @@ function renderAvailableHero() {
   $("currentSummary").innerHTML = `
     ${line("+", t("Lohn + Pauschalen"), summary.income, true)}
     ${line("+", t("Weitere Einnahmen"), summary.otherIncome)}
+    ${line("+", t("Übertrag aus {month}", { month: monthName(addMonths(month, -1)) }), summary.carriedIn)}
+    ${line("−", t("In den {month} mitgenommen", { month: monthName(addMonths(month, 1)) }), summary.carriedOut)}
     ${line("−", t("Ausgaben"), summary.spent, true)}
     ${line("−", t("Gespart"), summary.saved, true)}`;
 }
@@ -311,7 +313,7 @@ function renderMonthPage() {
         .join("")
     : emptyRow(5, t("Keine geplanten Daueraufträge in diesem Lohnmonat."));
 
-  const money = summary.income + summary.otherIncome;
+  const money = summary.income + summary.otherIncome + summary.carriedIn;
   const used = money ? ((summary.saved + summary.spent) / money) * 100 : 0;
   // Spent (red) and saved (orange) as a share of the income; together at most the full bar.
   const spentPercent = money ? (Math.max(0, summary.spent) / money) * 100 : 0;

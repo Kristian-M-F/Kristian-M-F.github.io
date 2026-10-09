@@ -57,6 +57,7 @@ frontend/   (Repository Kristian-Maras.github.io)
 │   │   ├── layout.js       Dashboard anordnen: verschieben, Breite ändern, ausblenden
 │   │   ├── navigation.js   Seiten, Menü, Pop-ups, Hell/Dunkel, Einrichtung/Tour starten, Monat wählen
 │   │   ├── forms.js        Speichern/Löschen von Einträgen und Daueraufträgen, Einstellungen, Konto
+│   │   ├── payday.js       Am Lohntag: Übriges sparen oder in den nächsten Monat mitnehmen
 │   │   └── main.js         Klicks, Eingaben, Tasten und Start (immer zuletzt)
 │   └── pages/              öffentliche Seiten
 │       ├── landing.js      Animationen der Startseite
@@ -81,6 +82,7 @@ frontend/   (Repository Kristian-Maras.github.io)
 │   ├── i18n.spec.js        Alles auf Englisch, Französisch und Italienisch
 │   ├── files.spec.js       Keine Fehler und keine fehlenden Dateien auf allen Seiten
 │   ├── errors.spec.js      404-Seite und Fehlerseite in der App
+│   ├── payday.spec.js      Frage am Lohntag (sparen oder mitnehmen)
 │   └── mobile.spec.js      Handy-Ansicht
 ├── playwright.config.js    Einstellungen der Tests
 ├── package.json            Test-Werkzeug Playwright
@@ -160,10 +162,10 @@ dann `npm run test:e2e`.
 
 ## Neue Version veröffentlichen
 
-Alle CSS- und JS-Dateien werden mit einer Versionsnummer eingebunden, z. B. `css/shared/base.css?v=2026100817`,
+Alle CSS- und JS-Dateien werden mit einer Versionsnummer eingebunden, z. B. `css/shared/base.css?v=2026100818`,
 und dieselbe Nummer steht in `version.json`. Bei jeder Änderung an der Website die Nummer überall erhöhen:
-in IntelliJ **Strg+Shift+R** (Ersetzen in Dateien) → `2026100817` durch die neue Nummer ersetzen
-(z. B. Datum + laufende Nummer: `2026100817`), dann pushen.
+in IntelliJ **Strg+Shift+R** (Ersetzen in Dateien) → `2026100818` durch die neue Nummer ersetzen
+(z. B. Datum + laufende Nummer: `2026100818`), dann pushen.
 
 - Handys laden dadurch sicher die neuen Dateien statt der alten aus dem Zwischenspeicher.
 - Wer die Seite oder die App auf dem Home-Bildschirm gerade offen hat, bekommt innerhalb von
