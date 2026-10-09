@@ -296,8 +296,8 @@ function renderSettings() {
     $("thirteenth" + i).textContent = state.thirteenth === "none" ? "–" : chf(amount);
     $("thirteenthSave" + i).checked = Boolean((state.thirteenthSave || [])[i]);
   }
-  // The switch only makes sense when the 13th is paid out extra (November or December)
-  $("yearSettings").closest("table").classList.toggle("thirteenth-paid", ["11", "12"].includes(state.thirteenth));
+  // The switch is there whenever there is a 13th-month salary (extra in Nov/Dec or spread over 12 wages)
+  $("yearSettings").closest("table").classList.toggle("thirteenth-paid", ["11", "12", "spread"].includes(state.thirteenth));
   $("thirteenthNote").textContent = thirteenthText();
   $("yearSettings").closest("table").classList.toggle("no-thirteenth", state.thirteenth === "none");
   $("thirteenthHead").textContent = state.thirteenth === "spread" ? t("Davon 13. Monatslohn") : t("13. Monatslohn pro Jahr");

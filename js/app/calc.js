@@ -243,7 +243,11 @@ function thirteenthPerYear(monthlyWage) {
 
 function thirteenthText() {
   if (state.thirteenth === "spread") {
-    return t("Dein Nettolohn enthält den 13. Monatslohn schon: Er wird nicht zusätzlich ausbezahlt. Die Spalte zeigt den Anteil in jedem Lohn (Nettolohn ÷ 13).");
+    return (
+      t("Dein Nettolohn enthält den 13. Monatslohn schon: Er wird nicht zusätzlich ausbezahlt. Die Spalte zeigt den Anteil in jedem Lohn (Nettolohn ÷ 13).") +
+      " " +
+      t("Mit dem Schalter sparst du diesen Anteil jeden Monat direkt aufs Sparkonto.")
+    );
   }
   const saveHint = " " + t("Mit dem Schalter beim 13. Monatslohn sparst du ihn direkt aufs Sparkonto.");
   if (state.thirteenth === "11") return t("Mit dem Novemberlohn kommt ein zusätzlicher Monatslohn dazu.") + saveHint;
@@ -260,8 +264,15 @@ function monthSummary(month) {
   const amount = (list) => (paid ? Number(list[year]) || 0 : 0);
   const salary = amount(state.salaries);
   const bonus = thirteenthSalary(month, salary);
-  // 13th-month salary saved straight away (switch in the settings, per apprenticeship year)
-  const bonusSave = bonus && (state.thirteenthSave || [])[year] ? bonus : 0;
+  // 13th-month salary saved straight away (switch in the settings, per apprenticeship year):
+  // paid in November/December -> the whole extra wage once; spread over 12 wages -> the part in
+  // every wage (net wage ÷ 13) each month.
+  const saveThirteenth = Boolean((state.thirteenthSave || [])[year]);
+  const bonusSave = !saveThirteenth
+    ? 0
+    : state.thirteenth === "spread"
+      ? Math.round((salary / 13) * 100) / 100
+      : bonus;
   // A yearly allowance comes once, with the first wage of each apprenticeship year.
   const firstOfYear = monthsBetween(firstMonth(), month) % 12 === 0;
   const allowances = enabledAllowances()

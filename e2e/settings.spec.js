@@ -123,7 +123,14 @@ test("the 13th-month salary per year is calculated", async ({ page, request }) =
   });
   expect(december.save).toBe(true);
   if (december.summary.bonus) expect(december.summary.bonusSave).toBe(1300);
+  // Spread over the 12 wages: the switch is there too; the part in every wage (1300 ÷ 13) is saved each month
   await page.selectOption("#setThirteenth", "spread");
+  await expect(page.locator('label:has(#thirteenthSave0)')).toBeVisible();
+  await expect(page.locator("#thirteenthSave0")).toBeChecked();
+  const spread = await page.evaluate(() => monthSummary(monthList()[0]));
+  if (spread.salary) expect(spread.bonusSave).toBe(100);
+  // No 13th-month salary: no switch
+  await page.selectOption("#setThirteenth", "none");
   await expect(page.locator('label:has(#thirteenthSave0)')).toBeHidden();
 });
 
