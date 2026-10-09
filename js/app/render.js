@@ -313,8 +313,15 @@ function renderMonthPage() {
 
   const money = summary.income + summary.otherIncome;
   const used = money ? ((summary.saved + summary.spent) / money) * 100 : 0;
-  $("budgetBar").style.width = Math.min(100, Math.max(0, used)) + "%";
-  $("budgetBar").classList.toggle("over", summary.available < 0);
+  // Spent (red) and saved (orange) as a share of the income; together at most the full bar.
+  const spentPercent = money ? (Math.max(0, summary.spent) / money) * 100 : 0;
+  const savedPercent = money ? (Math.max(0, summary.saved) / money) * 100 : 0;
+  const spentWidth = Math.min(100, spentPercent);
+  $("budgetSpent").style.width = spentWidth + "%";
+  $("budgetSaved").style.width = Math.min(100 - spentWidth, savedPercent) + "%";
+  $("budgetSpentPercent").textContent = percent(spentPercent);
+  $("budgetSavedPercent").textContent = percent(savedPercent);
+  $("budgetLegend").hidden = !money;
   if (!money) {
     $("budgetText").textContent = t("Noch keine Einnahmen erfasst.");
   } else {

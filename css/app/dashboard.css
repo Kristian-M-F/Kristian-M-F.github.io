@@ -59,6 +59,28 @@
   margin-top: 22px;
 }
 
+/* "Budget-Nutzung": spent (red) and saved (orange) side by side in one bar */
+.progress.budget-split {
+  display: flex;
+}
+
+.progress.budget-split span {
+  flex: none;
+}
+
+.budget .budget-spent {
+  background: var(--red);
+}
+
+.budget .budget-saved {
+  background: var(--orange);
+}
+
+.budget-legend {
+  margin: 12px 0 4px;
+}
+
+
 .chart {
   height: 220px;
   display: flex;
