@@ -1,0 +1,180 @@
+/* Sparzukunft page: total until the end of the apprenticeship, then one card per apprenticeship year */
+
+/* Total, with one bar per apprenticeship year */
+.future-total {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  gap: 28px;
+  align-items: center;
+}
+
+.future-total-sum p {
+  margin: 0;
+  color: var(--label);
+  font-size: 15px;
+}
+
+.future-total-sum strong {
+  display: block;
+  margin: 4px 0 6px;
+  color: var(--brand-text);
+  font-size: 36px;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.future-total-sum small {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.future-years {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.future-years li {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.future-years li > span:first-child {
+  color: var(--label);
+}
+
+.future-years b {
+  min-width: 96px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.future-bar {
+  height: 10px;
+  border-radius: 99px;
+  background: var(--track);
+  overflow: hidden;
+}
+
+.future-bar span {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: var(--orange);
+}
+
+/* One card per apprenticeship year */
+.save-overview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.save-year h2 {
+  margin: 0 0 8px;
+  color: var(--label);
+  font-size: 14px;
+}
+
+.save-headline {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.save-headline b {
+  color: var(--brand-text);
+  font-size: 20px;
+}
+
+.save-meter {
+  height: 8px;
+  margin: 12px 0 8px;
+  border-radius: 99px;
+  background: var(--track);
+  overflow: hidden;
+}
+
+.save-meter span {
+  display: block;
+  height: 100%;
+  background: var(--orange);
+}
+
+.save-left {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.save-left b {
+  color: var(--ink);
+}
+
+.save-headline b,
+.save-left b,
+.save-yearly b {
+  white-space: nowrap;
+}
+
+.save-parts {
+  display: grid;
+  gap: 5px;
+  margin: 12px 0 0;
+  padding: 10px 0 0;
+  border-top: 1px dashed var(--line);
+  list-style: none;
+  font-size: 14px;
+}
+
+.save-parts li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--label);
+}
+
+.save-parts b {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.save-yearly {
+  margin: 10px 0 0;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: var(--brand-soft);
+  font-size: 13px;
+}
+
+@media (max-width: 760px) {
+  .future-total {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .future-total-sum strong {
+    font-size: 30px;
+  }
+
+  .future-years li {
+    grid-template-columns: 76px minmax(0, 1fr) auto;
+    gap: 10px;
+    font-size: 13px;
+  }
+
+  .future-years b {
+    min-width: 0;
+  }
+
+  .save-overview {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}

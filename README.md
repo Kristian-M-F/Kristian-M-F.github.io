@@ -31,6 +31,7 @@ frontend/   (Repository Kristian-Maras.github.io)
 │   │   ├── month.css       Seite Monat
 │   │   ├── month-picker.css Popup „Lohnmonat wählen“ (Monat ändern)
 │   │   ├── settings.css    Seite Einstellungen
+│   │   ├── future.css      Seite Sparzukunft
 │   │   ├── setup.css       Einrichtung für neue Konten (Fragen beim ersten Login)
 │   │   ├── tour.css        Geführte Tour durch die App
 │   │   └── responsive.css  Handy/Tablet in der App (wird zuletzt geladen)
@@ -54,6 +55,7 @@ frontend/   (Repository Kristian-Maras.github.io)
 │   │   ├── calc.js         Lohnmonate und Berechnungen: Lohn, 13. Monatslohn, Daueraufträge, Konten, Tracken ab
 │   │   ├── render.js       Anzeige: Dashboard, Statistik, Monatsseite, Listen der Einträge/Daueraufträge
 │   │   ├── render-settings.js  Anzeige der Einstellungen: Lohn, Pauschalen, Konten, Listen, Handy-Tabellen
+│   │   ├── future.js       Seite Sparzukunft: so viel sparst du pro Lehrjahr und bis zum Ende der Lehre
 │   │   ├── layout.js       Dashboard anordnen: verschieben, Breite ändern, ausblenden
 │   │   ├── navigation.js   Seiten, Menü, Pop-ups, Hell/Dunkel, Einrichtung/Tour starten, Monat wählen
 │   │   ├── forms.js        Speichern/Löschen von Einträgen und Daueraufträgen, Einstellungen, Konto
@@ -162,10 +164,10 @@ dann `npm run test:e2e`.
 
 ## Neue Version veröffentlichen
 
-Alle CSS- und JS-Dateien werden mit einer Versionsnummer eingebunden, z. B. `css/shared/base.css?v=2026100821`,
+Alle CSS- und JS-Dateien werden mit einer Versionsnummer eingebunden, z. B. `css/shared/base.css?v=2026100822`,
 und dieselbe Nummer steht in `version.json`. Bei jeder Änderung an der Website die Nummer überall erhöhen:
-in IntelliJ **Strg+Shift+R** (Ersetzen in Dateien) → `2026100821` durch die neue Nummer ersetzen
-(z. B. Datum + laufende Nummer: `2026100821`), dann pushen.
+in IntelliJ **Strg+Shift+R** (Ersetzen in Dateien) → `2026100822` durch die neue Nummer ersetzen
+(z. B. Datum + laufende Nummer: `2026100822`), dann pushen.
 
 - Handys laden dadurch sicher die neuen Dateien statt der alten aus dem Zwischenspeicher.
 - Wer die Seite oder die App auf dem Home-Bildschirm gerade offen hat, bekommt innerhalb von

@@ -1,7 +1,7 @@
 "use strict";
 
 // Finance OS app, part: Navigation: pages, settings tabs, menu, pop-ups, light/dark, first-time setup, tour, choosing the month.
-// Loaded by app.html in this order: state.js → calc.js → render.js → render-settings.js → layout.js → navigation.js → forms.js → main.js
+// Loaded by app.html in this order: state.js → calc.js → render.js → render-settings.js → future.js → layout.js → navigation.js → forms.js → payday.js → main.js
 
 // Navigation
 

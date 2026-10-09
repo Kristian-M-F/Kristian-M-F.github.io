@@ -1,7 +1,7 @@
 "use strict";
 
 // Finance OS app, part: Pay months and calculations: dates, wage, 13th-month salary, standing orders, totals, account balances, "Tracken ab".
-// Loaded by app.html in this order: state.js → calc.js → render.js → render-settings.js → layout.js → navigation.js → forms.js → main.js
+// Loaded by app.html in this order: state.js → calc.js → render.js → render-settings.js → future.js → layout.js → navigation.js → forms.js → main.js
 
 // Dates and pay months
 
@@ -374,12 +374,30 @@ function monthLedger(month) {
   // label: small second line under the description, only where it adds information
   const year = yearLabel(apprenticeYear(month));
   const automatic = t("Automatisch");
-  add(start, t("Lohn"), summary.salary, "income", `${automatic} · ${year}`);
+  // Salary and allowances come together, so they are one row ("Lohn + Essenspauschale") with the
+  // single amounts below; without allowances it is just "Lohn".
+  const paid = summary.allowances.filter((allowance) => allowance.amount);
+  if (summary.salary && paid.length) {
+    // Names only where something is saved ("Essenspauschale sparen"); here just "+ Pauschale(n)"
+    const allowanceSum = paid.reduce((sum, allowance) => sum + allowance.amount, 0);
+    const allowanceText = paid.length === 1 ? t("Pauschale") : t("Pauschalen");
+    add(
+      start,
+      `${t("Lohn")} + ${allowanceText}`,
+      summary.salary + allowanceSum,
+      "income",
+      `${t("Lohn")} ${chf(summary.salary)} + ${allowanceText} ${chf(allowanceSum)} · ${year}`,
+    );
+  } else {
+    add(start, t("Lohn"), summary.salary, "income", `${automatic} · ${year}`);
+    for (const allowance of paid) {
+      add(start, allowance.name, allowance.amount, "income", allowance.per === "year" ? t("Pauschale · jährlich") : t("Pauschale · automatisch"));
+    }
+  }
   add(start, t("13. Monatslohn"), summary.bonus, "income", automatic);
   const autoName = state.accounts.find((account) => account.id === state.autoAccount)?.name || "";
   const toSavings = t("Aufs Sparkonto „{name}“", { name: autoName });
   for (const allowance of summary.allowances) {
-    add(start, allowance.name, allowance.amount, "income", allowance.per === "year" ? t("Pauschale · jährlich") : t("Pauschale · automatisch"));
     add(start, t("{name} sparen", { name: allowance.name }), allowance.save, "saving", toSavings);
   }
   add(start, t("Automatisch sparen"), summary.extra, "saving", toSavings);

@@ -1,7 +1,7 @@
 "use strict";
 
 // Finance OS app, part: Arranging the dashboard ("Anordnen"): drag, resize, hide.
-// Loaded by app.html in this order: state.js → calc.js → render.js → render-settings.js → layout.js → navigation.js → forms.js → main.js
+// Loaded by app.html in this order: state.js → calc.js → render.js → render-settings.js → future.js → layout.js → navigation.js → forms.js → main.js
 
 // Arranging the blocks on the dashboard ("Anordnen").
 // The dashboard is a grid of 24 columns. Every block has a column (x) and a width (w); it sits

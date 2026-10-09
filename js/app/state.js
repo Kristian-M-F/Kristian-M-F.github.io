@@ -2,7 +2,7 @@
 
 // Finance OS app (app.html), part 1: constants, data, appearance, storage, helpers, dialogs.
 // The app is split into several files that share their names (classic scripts, no modules).
-// app.html loads them in this order: state.js → calc.js → render.js → render-settings.js → layout.js → navigation.js → forms.js → main.js
+// app.html loads them in this order: state.js → calc.js → render.js → render-settings.js → future.js → layout.js → navigation.js → forms.js → main.js
 // Code that runs right away may only use what is defined in the same or an earlier file.
 
 // Translate the static page text before any user data is rendered,

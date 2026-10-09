@@ -1,7 +1,7 @@
 "use strict";
 
 // Finance OS app, part: Showing the settings: wage table, allowances, accounts and account cards, lists, phone tables, collapsible sections.
-// Loaded by app.html in this order: state.js → calc.js → render.js → render-settings.js → layout.js → navigation.js → forms.js → main.js
+// Loaded by app.html in this order: state.js → calc.js → render.js → render-settings.js → future.js → layout.js → navigation.js → forms.js → main.js
 
 // Wage table with one row per apprenticeship year. Rebuilt only when the length changes,
 // otherwise typed values would be lost.
@@ -75,6 +75,7 @@ function renderAllowances() {
               <option value="month" ${yearly ? "" : "selected"}>${t("monatlich")}</option>
               <option value="year" ${yearly ? "selected" : ""}>${t("jährlich")}</option>
             </select>` : ""}
+            <button class="secondary allowance-rename" data-action="rename-allowance" data-id="${allowance.id}" aria-label="${t("{name} umbenennen", { name })}" title="${t("Umbenennen")}"><span aria-hidden="true">✎</span></button>
             <button class="danger" data-action="delete-allowance" data-id="${allowance.id}" aria-label="${t("{name} entfernen", { name })}">${t("Entfernen")}</button>
           </div>
           ${years}
@@ -127,6 +128,19 @@ function addAllowance() {
   $("allowanceName").value = "";
   persist();
   notify("Pauschale hinzugefügt");
+}
+
+async function renameAllowance(id) {
+  const allowance = state.allowances.find((allowance) => allowance.id === id);
+  if (!allowance) return;
+  const name = await askUser({ title: t("Umbenennen"), label: t("Neuer Name für die Pauschale"), value: allowance.name, okLabel: t("Speichern") });
+  if (!name || name === allowance.name) return;
+  if (state.allowances.some((other) => other !== allowance && other.name.toLowerCase() === name.toLowerCase())) {
+    return notify("Diese Pauschale gibt es schon.");
+  }
+  allowance.name = name;
+  persist();
+  notify("Umbenannt");
 }
 
 async function deleteAllowance(id) {
@@ -405,6 +419,7 @@ function render() {
   renderEntryList();
   renderRecurringList();
   renderSettings();
+  renderFuture();
   renderLists();
   updateEditButtons();
   addMobileLabels();

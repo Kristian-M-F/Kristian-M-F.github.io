@@ -26,7 +26,7 @@
 .chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -35,9 +35,9 @@
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 0;
   max-width: 100%;
-  padding: 4px 4px 4px 12px;
+  padding: 3px 4px 3px 11px;
   border: 1px solid var(--line);
   border-radius: 99px;
   background: var(--panel);
@@ -51,7 +51,7 @@
 .chip-button {
   display: grid;
   place-items: center;
-  width: 28px;
+  width: 24px;
   height: 28px;
   min-height: 0;
   padding: 0;
@@ -192,6 +192,13 @@
   padding-top: 6px;
   padding-bottom: 6px;
   font-size: 14px;
+}
+
+.allowance-head .allowance-rename {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 4px 8px;
+  font-size: 15px;
 }
 
 .allowance-head .danger {

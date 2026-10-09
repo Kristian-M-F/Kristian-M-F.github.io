@@ -1,7 +1,7 @@
 "use strict";
 
 // Finance OS app, part: Events (clicks, inputs, keys) and start. Loaded last.
-// Loaded by app.html in this order: state.js → calc.js → render.js → render-settings.js → layout.js → navigation.js → forms.js → payday.js → main.js
+// Loaded by app.html in this order: state.js → calc.js → render.js → render-settings.js → future.js → layout.js → navigation.js → forms.js → payday.js → main.js
 
 // Events
 
@@ -27,6 +27,8 @@ const actions = {
   "add-account": addAccount,
   "rename-account": (data) => renameAccount(data.id),
   "delete-account-item": (data) => deleteMoneyAccount(data.id),
+  "rename-allowance": (data) => renameAllowance(data.id),
+  "edit-saving": editSaving,
   "delete-allowance": (data) => deleteAllowance(data.id),
   "save-entry": saveEntry,
   "save-recurring": saveRecurring,

@@ -17,19 +17,20 @@
     <link rel="apple-touch-icon" href="img/icons/apple-touch-icon.png" />
     <link rel="manifest" href="manifest.webmanifest" />
     <!-- Styles: base.css applies everywhere, then one file per page, responsive.css last -->
-    <script src="js/shared/translations.js?v=2026100821"></script>
-    <script src="js/shared/i18n.js?v=2026100821"></script>
-    <script src="js/shared/update.js?v=2026100821" defer></script>
-    <link rel="stylesheet" href="css/shared/base.css?v=2026100821" />
-    <link rel="stylesheet" href="css/app/dashboard.css?v=2026100821" />
-    <link rel="stylesheet" href="css/app/month.css?v=2026100821" />
-    <link rel="stylesheet" href="css/app/month-picker.css?v=2026100821" />
-    <link rel="stylesheet" href="css/app/settings.css?v=2026100821" />
-    <link rel="stylesheet" href="css/shared/themes.css?v=2026100821" />
-    <link rel="stylesheet" href="css/app/tour.css?v=2026100821" />
-    <link rel="stylesheet" href="css/app/setup.css?v=2026100821" />
-    <link rel="stylesheet" href="css/app/responsive.css?v=2026100821" />
-    <link rel="stylesheet" href="css/shared/error.css?v=2026100821" />
+    <script src="js/shared/translations.js?v=2026100822"></script>
+    <script src="js/shared/i18n.js?v=2026100822"></script>
+    <script src="js/shared/update.js?v=2026100822" defer></script>
+    <link rel="stylesheet" href="css/shared/base.css?v=2026100822" />
+    <link rel="stylesheet" href="css/app/dashboard.css?v=2026100822" />
+    <link rel="stylesheet" href="css/app/month.css?v=2026100822" />
+    <link rel="stylesheet" href="css/app/month-picker.css?v=2026100822" />
+    <link rel="stylesheet" href="css/app/settings.css?v=2026100822" />
+    <link rel="stylesheet" href="css/app/future.css?v=2026100822" />
+    <link rel="stylesheet" href="css/shared/themes.css?v=2026100822" />
+    <link rel="stylesheet" href="css/app/tour.css?v=2026100822" />
+    <link rel="stylesheet" href="css/app/setup.css?v=2026100822" />
+    <link rel="stylesheet" href="css/app/responsive.css?v=2026100822" />
+    <link rel="stylesheet" href="css/shared/error.css?v=2026100822" />
   </head>
   <body>
     <div id="toast" class="toast" role="status" hidden></div>
@@ -167,8 +168,11 @@
           <button data-page="recurring">
             <span class="nav-icon" aria-hidden="true">↻</span><span class="nav-long">Daueraufträge</span><span class="nav-short" aria-hidden="true">Aufträge</span>
           </button>
+          <button data-page="future">
+            <span class="nav-icon" aria-hidden="true">↗</span><span class="nav-long">Sparzukunft</span><span class="nav-short" aria-hidden="true">Sparen</span>
+          </button>
           <button data-page="settings">
-            <span class="nav-icon" aria-hidden="true">⚙</span><span>Einstellungen</span>
+            <span class="nav-icon" aria-hidden="true">⚙</span><span class="nav-long">Einstellungen</span><span class="nav-short" aria-hidden="true">Optionen</span>
           </button>
         </nav>
         <!-- Desktop: bottom of the sidebar. Phone: menu behind the burger icon -->
@@ -581,6 +585,28 @@
         </section>
 
         <!-- Settings page (css/app/settings.css) -->
+        <!-- Sparzukunft: what is saved until the end of the apprenticeship (js/app/future.js, css/app/future.css) -->
+        <section id="future" class="page">
+          <div class="head">
+            <div>
+              <h1>Sparzukunft</h1>
+              <p>So viel sparst du in jedem Lehrjahr – mit „Automatisch sparen“, den gesparten Pauschalen und dem 13. Lohn.</p>
+            </div>
+            <div class="head-actions">
+              <button class="secondary" data-action="edit-saving">Beträge ändern</button>
+            </div>
+          </div>
+          <div class="card future-total">
+            <div class="future-total-sum">
+              <p>Bis zum Ende der Lehre sparst du</p>
+              <strong id="futureTotal"></strong>
+              <small id="futureTotalNote"></small>
+            </div>
+            <ul class="future-years" id="futureYears" aria-label="Pro Lehrjahr"></ul>
+          </div>
+          <div id="saveOverview" class="save-overview section"></div>
+        </section>
+
         <section id="settings" class="page">
           <div class="head">
             <div>
@@ -870,17 +896,18 @@
 
     <!-- api.js: connection to the backend (login + database).
          js/app/: the app logic, split into parts that are loaded in this order (main.js last) -->
-    <script src="js/shared/api.js?v=2026100821"></script>
-    <script src="js/app/tour.js?v=2026100821"></script>
-    <script src="js/app/setup.js?v=2026100821"></script>
-    <script src="js/app/state.js?v=2026100821"></script>
-    <script src="js/app/calc.js?v=2026100821"></script>
-    <script src="js/app/render.js?v=2026100821"></script>
-    <script src="js/app/render-settings.js?v=2026100821"></script>
-    <script src="js/app/layout.js?v=2026100821"></script>
-    <script src="js/app/navigation.js?v=2026100821"></script>
-    <script src="js/app/forms.js?v=2026100821"></script>
-    <script src="js/app/payday.js?v=2026100821"></script>
-    <script src="js/app/main.js?v=2026100821"></script>
+    <script src="js/shared/api.js?v=2026100822"></script>
+    <script src="js/app/tour.js?v=2026100822"></script>
+    <script src="js/app/setup.js?v=2026100822"></script>
+    <script src="js/app/state.js?v=2026100822"></script>
+    <script src="js/app/calc.js?v=2026100822"></script>
+    <script src="js/app/render.js?v=2026100822"></script>
+    <script src="js/app/render-settings.js?v=2026100822"></script>
+    <script src="js/app/future.js?v=2026100822"></script>
+    <script src="js/app/layout.js?v=2026100822"></script>
+    <script src="js/app/navigation.js?v=2026100822"></script>
+    <script src="js/app/forms.js?v=2026100822"></script>
+    <script src="js/app/payday.js?v=2026100822"></script>
+    <script src="js/app/main.js?v=2026100822"></script>
   </body>
 </html>

@@ -1,7 +1,7 @@
 "use strict";
 
 // Finance OS app, part: Showing the data: dashboard, statistics, month page, entry and standing-order lists.
-// Loaded by app.html in this order: state.js → calc.js → render.js → render-settings.js → layout.js → navigation.js → forms.js → main.js
+// Loaded by app.html in this order: state.js → calc.js → render.js → render-settings.js → future.js → layout.js → navigation.js → forms.js → main.js
 
 // Rendering
 

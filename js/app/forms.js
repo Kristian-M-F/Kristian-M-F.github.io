@@ -1,7 +1,7 @@
 "use strict";
 
 // Finance OS app, part: Forms: saving and deleting entries and standing orders, settings, categories, profile and account.
-// Loaded by app.html in this order: state.js → calc.js → render.js → render-settings.js → layout.js → navigation.js → forms.js → main.js
+// Loaded by app.html in this order: state.js → calc.js → render.js → render-settings.js → future.js → layout.js → navigation.js → forms.js → main.js
 
 // Forms and drafts
 
