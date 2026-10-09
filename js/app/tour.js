@@ -19,6 +19,12 @@ const Tour = (() => {
       text: "Unter Einstellungen trägst du Lohntag, Lohn, Pauschalen und deine Konten ein. Damit rechnet Finance OS alles Weitere.",
     },
     {
+      target: ['[data-settings-tab-button="lists"]'],
+      page: "settings",
+      title: "Kategorien anpassen",
+      text: "Unter „Konten & Kategorien“ benennst du Kategorien um, fügst eigene hinzu oder entfernst sie – für Ausgaben und für Einnahmen.",
+    },
+    {
       target: ['#dashboard [data-action="new-entry"]'],
       page: "dashboard",
       title: "Einnahmen und Ausgaben erfassen",
