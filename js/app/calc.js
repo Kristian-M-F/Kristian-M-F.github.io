@@ -245,20 +245,23 @@ function thirteenthText() {
   if (state.thirteenth === "spread") {
     return t("Dein Nettolohn enthält den 13. Monatslohn schon: Er wird nicht zusätzlich ausbezahlt. Die Spalte zeigt den Anteil in jedem Lohn (Nettolohn ÷ 13).");
   }
-  if (state.thirteenth === "11") return t("Mit dem Novemberlohn kommt ein zusätzlicher Monatslohn dazu.");
-  if (state.thirteenth === "12") return t("Mit dem Dezemberlohn kommt ein zusätzlicher Monatslohn dazu.");
+  const saveHint = " " + t("Mit dem Schalter beim 13. Monatslohn sparst du ihn direkt aufs Sparkonto.");
+  if (state.thirteenth === "11") return t("Mit dem Novemberlohn kommt ein zusätzlicher Monatslohn dazu.") + saveHint;
+  if (state.thirteenth === "12") return t("Mit dem Dezemberlohn kommt ein zusätzlicher Monatslohn dazu.") + saveHint;
   return "";
 }
 
 function monthSummary(month) {
   if (!isTracked(month)) {
-    return { salary: 0, bonus: 0, allowances: [], allowanceSave: 0, extra: 0, withdrawn: 0, otherIncome: 0, carriedIn: 0, carriedOut: 0, income: 0, saved: 0, spent: 0, available: 0 };
+    return { salary: 0, bonus: 0, bonusSave: 0, allowances: [], allowanceSave: 0, extra: 0, withdrawn: 0, otherIncome: 0, carriedIn: 0, carriedOut: 0, income: 0, saved: 0, spent: 0, available: 0 };
   }
   const year = apprenticeYear(month);
   const paid = hasStarted(month);
   const amount = (list) => (paid ? Number(list[year]) || 0 : 0);
   const salary = amount(state.salaries);
   const bonus = thirteenthSalary(month, salary);
+  // 13th-month salary saved straight away (switch in the settings, per apprenticeship year)
+  const bonusSave = bonus && (state.thirteenthSave || [])[year] ? bonus : 0;
   // A yearly allowance comes once, with the first wage of each apprenticeship year.
   const firstOfYear = monthsBetween(firstMonth(), month) % 12 === 0;
   const allowances = enabledAllowances()
@@ -280,13 +283,13 @@ function monthSummary(month) {
   const otherIncome = total(entriesIn(state.incomeEntries, month)) + total(dueRecurring(month, "income"));
   const withdrawn = total(entriesIn(state.withdrawEntries, month));
   const saved =
-    allowanceSave + extra + total(entriesIn(state.savingEntries, month)) + total(dueRecurring(month, "saving")) - withdrawn;
+    allowanceSave + extra + bonusSave + total(entriesIn(state.savingEntries, month)) + total(dueRecurring(month, "saving")) - withdrawn;
   const spent = total(entriesIn(state.expenses, month)) + total(dueRecurring(month, "expense"));
   // Left over at the last payday and taken along into this month, or from this month into the next.
   const carriedIn = carriedFrom(addMonths(month, -1));
   const carriedOut = carriedFrom(month);
   return {
-    salary, bonus, allowances, allowanceSave, extra, withdrawn, otherIncome, carriedIn, carriedOut,
+    salary, bonus, bonusSave, allowances, allowanceSave, extra, withdrawn, otherIncome, carriedIn, carriedOut,
     income, saved, spent, available: income + otherIncome + carriedIn - carriedOut - saved - spent,
   };
 }
@@ -338,7 +341,7 @@ function accountMoves(months, withOpening = false) {
   for (const month of months.filter(counts)) {
     const summary = monthSummary(month);
     add(spendingAccount().id, summary.available);
-    add(autoId, summary.allowanceSave + summary.extra);
+    add(autoId, summary.allowanceSave + summary.extra + summary.bonusSave);
     entriesIn(state.savingEntries, month).forEach((entry) => add(idByName[entry.cat] ?? autoId, entry.amount));
     dueRecurring(month, "saving").forEach((order) => add(idByName[order.cat] ?? autoId, order.amount));
     entriesIn(state.withdrawEntries, month).forEach((entry) => add(idByName[entry.cat] ?? autoId, -entry.amount));
@@ -369,6 +372,7 @@ function monthLedger(month) {
     add(start, t("{name} sparen", { name: allowance.name }), allowance.save, "saving", toSavings);
   }
   add(start, t("Automatisch sparen"), summary.extra, "saving", toSavings);
+  add(start, t("13. Monatslohn sparen"), summary.bonusSave, "saving", toSavings);
   for (const payment of plannedRecurring(month).filter(isPaid)) {
     add(payment.date, payment.order.name, payment.order.amount, payment.order.kind, t("Dauerauftrag"));
   }

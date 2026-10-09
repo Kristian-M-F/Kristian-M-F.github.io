@@ -208,9 +208,12 @@ function setArranging(name, on) {
 }
 
 // A click outside the blocks ends arranging (everything is already saved).
+// The click that the browser sends right after letting go of a dragged or resized block does
+// not count: arranging stays on until "Fertig" or a real click outside.
+let lastArrangeGesture = 0;
 document.addEventListener("click", (event) => {
   const container = document.querySelector("[data-sortable].arranging");
-  if (!container || dragState) return;
+  if (!container || dragState || Date.now() - lastArrangeGesture < 300) return;
   if (event.target.closest("[data-sortable] > .block, [data-action='arrange'], .arrange-help, .toast, dialog")) return;
   setArranging(container.dataset.sortable, false);
 });
@@ -354,6 +357,7 @@ function startMove(event, bar) {
     placeholder.replaceWith(block);
     block.classList.remove("dragging");
     dragState = null;
+    lastArrangeGesture = Date.now();
     placeBlocks(name);
     saveLayout(name);
   };
@@ -414,6 +418,7 @@ function startResize(event, handle) {
     document.removeEventListener("pointerup", onUp);
     document.removeEventListener("pointercancel", onUp);
     block.classList.remove("resizing");
+    lastArrangeGesture = Date.now();
     saveLayout(name);
   };
   block.dataset.size = `${Math.round((item.w * 100) / COLUMNS)} %`;

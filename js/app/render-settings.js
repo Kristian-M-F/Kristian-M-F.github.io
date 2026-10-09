@@ -22,7 +22,16 @@ function buildYearSettings() {
         <td><b>${year}</b></td>
         <td>${input("salary" + i, `${t("Nettolohn")} ${year}`)}</td>
         <td>${input("extraSave" + i, `${t("Automatisch sparen")} ${year}`)}</td>
-        <td class="money computed" id="thirteenth${i}" aria-live="polite"></td>
+        <td class="money computed"><div class="thirteenth-cell">
+          <span class="thirteenth-info">
+            <small class="thirteenth-title">${t("13. Monatslohn")}</small>
+            <span class="thirteenth-amount" id="thirteenth${i}" aria-live="polite"></span>
+          </span>
+          <label class="switch thirteenth-save">
+            <span class="switch-text"><span class="long-label">${t("13. Lohn sparen")}</span><span class="short-label">${t("Sparen")}</span></span>
+            <input type="checkbox" id="thirteenthSave${i}" aria-label="${t("13. Monatslohn sparen")} – ${year}">
+          </label>
+        </div></td>
       </tr>`;
     })
     .join("");
@@ -285,7 +294,10 @@ function renderSettings() {
   for (const i of yearIndexes()) {
     const amount = thirteenthPerYear(Number(state.salaries[i]) || 0);
     $("thirteenth" + i).textContent = state.thirteenth === "none" ? "–" : chf(amount);
+    $("thirteenthSave" + i).checked = Boolean((state.thirteenthSave || [])[i]);
   }
+  // The switch only makes sense when the 13th is paid out extra (November or December)
+  $("yearSettings").closest("table").classList.toggle("thirteenth-paid", ["11", "12"].includes(state.thirteenth));
   $("thirteenthNote").textContent = thirteenthText();
   $("yearSettings").closest("table").classList.toggle("no-thirteenth", state.thirteenth === "none");
   $("thirteenthHead").textContent = state.thirteenth === "spread" ? t("Davon 13. Monatslohn") : t("13. Monatslohn pro Jahr");

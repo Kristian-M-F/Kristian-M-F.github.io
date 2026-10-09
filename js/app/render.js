@@ -133,10 +133,7 @@ function renderAvailableHero() {
 
   $("heroAmount").textContent = chf(summary.available);
   $("heroAmount").classList.toggle("bad", summary.available < 0);
-  const money = summary.income + summary.otherIncome + summary.carriedIn;
-  const used = money ? ((summary.saved + summary.spent) / money) * 100 : 0;
-  $("heroBar").style.width = Math.min(100, Math.max(0, used)) + "%";
-  $("heroBar").classList.toggle("over", summary.available < 0);
+  const { money, used } = renderUsageBar("hero", summary);
   $("heroUsed").textContent = money
     ? t("{percent} von {income} sind ausgegeben oder gespart.", { percent: percent(Math.max(0, used)), income: chf(money) })
     : t("Trage in den Einstellungen deinen Lohn ein, dann rechnet Finance OS aus, was verfügbar ist.");
@@ -188,6 +185,13 @@ function renderOnboarding() {
   $("onboarding").hidden = allDone || Boolean(state.onboardingDismissed) || Boolean(state.setupDone);
 }
 
+// Short amount for small labels: 1'240 or 12.5k (no "CHF", no cents)
+function shortAmount(amount) {
+  const value = Math.round(amount);
+  if (Math.abs(value) >= 10000) return (value / 1000).toLocaleString("de-CH", { maximumFractionDigits: 1 }) + "k";
+  return value.toLocaleString("de-CH");
+}
+
 function renderSavingsChart() {
   let running = 0;
   const points = countedMonths()
@@ -199,7 +203,7 @@ function renderSavingsChart() {
     ? points
         .map(
           ({ month, total }) =>
-            `<div class="bar" title="${monthName(month)}: ${chf(total)}" style="height:${Math.max(0, (total / max) * 100)}%"><i>${shortMonth(month)}</i></div>`,
+            `<div class="bar" title="${monthName(month)}: ${chf(total)}" style="height:${Math.max(0, (total / max) * 100)}%"><b>${shortAmount(total)}</b><i>${shortMonth(month)}</i></div>`,
         )
         .join("")
     : `<div class="empty">${t("Noch keine Daten.")}</div>`;
@@ -313,23 +317,31 @@ function renderMonthPage() {
         .join("")
     : emptyRow(5, t("Keine geplanten Daueraufträge in diesem Lohnmonat."));
 
-  const money = summary.income + summary.otherIncome + summary.carriedIn;
-  const used = money ? ((summary.saved + summary.spent) / money) * 100 : 0;
-  // Spent (red) and saved (orange) as a share of the income; together at most the full bar.
-  const spentPercent = money ? (Math.max(0, summary.spent) / money) * 100 : 0;
-  const savedPercent = money ? (Math.max(0, summary.saved) / money) * 100 : 0;
-  const spentWidth = Math.min(100, spentPercent);
-  $("budgetSpent").style.width = spentWidth + "%";
-  $("budgetSaved").style.width = Math.min(100 - spentWidth, savedPercent) + "%";
-  $("budgetSpentPercent").textContent = percent(spentPercent);
-  $("budgetSavedPercent").textContent = percent(savedPercent);
-  $("budgetLegend").hidden = !money;
+  const { money, used } = renderUsageBar("budget", summary);
   if (!money) {
     $("budgetText").textContent = t("Noch keine Einnahmen erfasst.");
   } else {
     const over = summary.available < 0 ? " " + t("Budget um {amount} überschritten.", { amount: chf(-summary.available) }) : "";
     $("budgetText").textContent = t("{percent} der Einnahmen sind ausgegeben oder gespart.", { percent: percent(used) }) + over;
   }
+}
+
+// Bar with spent (red) and saved (orange) as a share of the income, with a legend
+// "Ausgegeben 3.0 % (CHF 23.00)". prefix: "budget" (month page) or "hero" (dashboard).
+function renderUsageBar(prefix, summary) {
+  const money = summary.income + summary.otherIncome + summary.carriedIn;
+  const used = money ? ((summary.saved + summary.spent) / money) * 100 : 0;
+  const spent = Math.max(0, summary.spent);
+  const saved = Math.max(0, summary.saved);
+  const spentPercent = money ? (spent / money) * 100 : 0;
+  const savedPercent = money ? (saved / money) * 100 : 0;
+  const spentWidth = Math.min(100, spentPercent);
+  $(prefix + "Spent").style.width = spentWidth + "%";
+  $(prefix + "Saved").style.width = Math.min(100 - spentWidth, savedPercent) + "%";
+  $(prefix + "SpentPercent").textContent = `${percent(spentPercent)} (${chf(spent)})`;
+  $(prefix + "SavedPercent").textContent = `${percent(savedPercent)} (${chf(saved)})`;
+  $(prefix + "Legend").hidden = !money;
+  return { money, used };
 }
 
 // Only the entries of the selected pay month; other months show theirs when chosen.

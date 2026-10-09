@@ -222,7 +222,11 @@ function saveSettings() {
   const autoAccount = $("setAutoAccount").value;
   const trackFrom = /^\d{4}-\d{2}$/.test($("setTrackFrom").value) ? $("setTrackFrom").value : null;
 
-  Object.assign(state, { start, years, payday, thirteenth, salaries, extraSave, trackFrom });
+  const thirteenthSave = Array.from({ length: MAX_YEARS }, (_, i) =>
+    $("thirteenthSave" + i) ? $("thirteenthSave" + i).checked : Boolean((state.thirteenthSave || [])[i]),
+  );
+
+  Object.assign(state, { start, years, payday, thirteenth, salaries, extraSave, thirteenthSave, trackFrom });
   if (savingAccounts().some((account) => account.id === autoAccount)) state.autoAccount = autoAccount;
   if (!monthList().includes(currentMonth)) {
     setCurrentMonth(initialMonth());

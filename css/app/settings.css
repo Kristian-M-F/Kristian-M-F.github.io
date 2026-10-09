@@ -97,6 +97,40 @@
   white-space: nowrap;
 }
 
+/* 13th-month salary: switch "sparen" left of the amount (only when it is paid in Nov/Dec) */
+.year-table td:first-child {
+  white-space: nowrap;
+}
+
+.year-table td:first-child {
+  white-space: nowrap;
+}
+
+/* Only on phones (see responsive.css): small title above the amount, short switch label */
+.thirteenth-title,
+.thirteenth-save .short-label {
+  display: none;
+}
+
+.thirteenth-cell {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.year-table .thirteenth-save {
+  display: none;
+  gap: 10px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.year-table.thirteenth-paid .thirteenth-save {
+  display: inline-flex;
+}
+
 /* Account and privacy */
 
 .note a {

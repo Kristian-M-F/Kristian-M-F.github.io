@@ -96,6 +96,8 @@ test("an entry in another pay month says where it was booked", async ({ page, re
 });
 
 test("dashboard blocks can be dragged and resized at the edge; the month page has no arranging", async ({ page, request }) => {
+  // Tall window: the mouse cannot leave the window, and all blocks used here must be on screen.
+  await page.setViewportSize({ width: 1280, height: 1100 });
   await openApp(page, request);
   const order = () => page.locator('[data-sortable="dashboard"] > .block').evaluateAll((blocks) => blocks.map((block) => block.dataset.block));
   const width = (id) => page.locator(`[data-block="${id}"]`).evaluate((block) => block.getBoundingClientRect().width);
@@ -123,6 +125,7 @@ test("dashboard blocks can be dragged and resized at the edge; the month page ha
   const half = await width("available");
   expect(half).toBeGreaterThan(full * 0.45);
   expect(half).toBeLessThan(full * 0.55);
+  await page.waitForTimeout(400); // the other blocks glide into their new places
 
   // Dragging the bar: the wage account goes anywhere, here into the free space below the savings account.
   // The block stays under the pointer the whole time.
@@ -331,6 +334,7 @@ test("two blocks side by side share their edge: one gets wider, the other narrow
   const main = page.locator('[data-block="account-main"]');
   const save = page.locator('[data-block="account-save"]');
   await page.waitForTimeout(400); // the blocks glide into their arranging places
+  await save.scrollIntoViewIfNeeded();
   const mainBefore = await main.boundingBox();
   const saveBefore = await save.boundingBox();
   expect(Math.abs(mainBefore.y - saveBefore.y)).toBeLessThan(2); // next to each other
@@ -349,4 +353,40 @@ test("two blocks side by side share their edge: one gets wider, the other narrow
   expect(saveAfter.width).toBeGreaterThan(saveBefore.width + 100);
   expect(Math.abs(mainAfter.x - mainBefore.x)).toBeLessThan(2); // outer edges stay
   expect(Math.abs(saveAfter.x + saveAfter.width - (saveBefore.x + saveBefore.width))).toBeLessThan(2);
+});
+
+test("arranging stays on after moving or resizing a block, until 'Fertig' or a click outside", async ({ page, request }) => {
+  await page.setViewportSize({ width: 1280, height: 1100 });
+  await openApp(page, request);
+  const container = page.locator('[data-sortable="dashboard"]');
+  const toggle = page.locator('#dashboard [data-action="arrange"]');
+  await toggle.click();
+  await expect(container).toHaveClass(/arranging/);
+  await page.waitForTimeout(400);
+
+  // Resize: let go far away from the block (over empty space)
+  const save = page.locator('[data-block="account-save"]');
+  const edge = await save.locator('[data-block-resize="left"]').boundingBox();
+  await page.mouse.move(edge.x + edge.width / 2, edge.y + edge.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(edge.x - 120, edge.y + edge.height / 2 + 200, { steps: 10 });
+  await page.mouse.up();
+  await page.waitForTimeout(300);
+  await expect(container).toHaveClass(/arranging/);
+
+  // Move: drag the wage account by its bar and let go
+  const main = page.locator('[data-block="account-main"]');
+  const bar = await main.locator(".block-name").boundingBox();
+  await page.mouse.move(bar.x + 10, bar.y + bar.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(bar.x + 10, bar.y + bar.height / 2 + 300, { steps: 12 });
+  await page.mouse.up();
+  await page.waitForTimeout(400);
+  await expect(container).toHaveClass(/arranging/);
+  await expect(toggle).toHaveText("Fertig");
+
+  // A real click outside ends it
+  await page.click("#dashboard h1");
+  await expect(container).not.toHaveClass(/arranging/);
+  await expect(toggle).toHaveText("Anordnen");
 });

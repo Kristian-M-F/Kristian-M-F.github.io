@@ -101,6 +101,19 @@
   background: var(--bar-hover);
 }
 
+/* Amount above each bar of "Sparentwicklung" */
+.bar b {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-weight: 650;
+  color: var(--label);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
 .bar i {
   position: absolute;
   bottom: -22px;
@@ -434,8 +447,9 @@
   height: 10px;
 }
 
-.hero-progress span.over {
-  background: var(--red);
+/* Dashboard: the same red/orange bar as "Budget-Nutzung", directly under the big number */
+.budget.hero-usage {
+  margin-top: 0;
 }
 
 .available-hero > .note {

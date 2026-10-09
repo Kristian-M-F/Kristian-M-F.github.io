@@ -86,7 +86,7 @@ const DATE_FIELDS = ["exDate", "recStart", "recEnd", "setStart"];
 const DEFAULT_DATE_FIELDS = ["exDate", "recStart"];
 const DRAFT_FIELDS = ["entryKind", ...Object.values(FORMS).flatMap((form) => form.fields)];
 const SETTINGS_FIELD =
-  /^(setStart|setYears|setPayday|setThirteenth|setTrackFrom|setAutoAccount|salary\d|extraSave\d)$/;
+  /^(setStart|setYears|setPayday|setThirteenth|setTrackFrom|setAutoAccount|salary\d|extraSave\d|thirteenthSave\d)$/;
 
 // Data
 
@@ -141,6 +141,8 @@ function createEmptyData() {
     autoAccount: "save", // receives automatic savings and the saved part of allowances
     salaries: [0, 0, 0, 0],
     extraSave: [0, 0, 0, 0],
+    // Save the 13th-month salary (paid in November/December) on the savings account, per year
+    thirteenthSave: [false, false, false, false],
     // Defaults in the current language; users can rename them.
     categories: DEFAULT_LISTS.categories.map((name) => t(name)),
     incomeCategories: DEFAULT_LISTS.incomeCategories.map((name) => t(name)),

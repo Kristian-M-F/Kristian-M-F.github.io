@@ -351,6 +351,10 @@
     margin-top: auto;
   }
 
+  table.year-table td input[type="checkbox"] {
+    margin-top: 0;
+  }
+
   /* Allowances: one row per apprentice year (year | amount | of which saved), labels only on top */
   .allowance-years {
     grid-template-columns: 1fr;
@@ -831,41 +835,78 @@
     font-size: 14px;
   }
 
-  /* Settings: wage per apprentice year as one compact row each (labels only on the first row) */
-  table.year-table tr {
-    grid-template-columns: 74px minmax(0, 1fr) minmax(0, 1fr);
-    gap: 4px 8px;
-    margin: 0;
-    padding: 6px 0;
-    border: 0;
-    border-radius: 0;
-  }
-
-  table.year-table td:first-child {
-    grid-column: auto;
-    align-self: end;
-    justify-content: center;
-    min-height: 42px;
-    font-size: 12px;
-    line-height: 1.2;
-    white-space: nowrap;
-  }
-
-  table.year-table tr:not(:first-child) td::before {
+  /* Settings: wage per apprentice year as a small card each:
+     year on top, net wage and automatic saving side by side (with labels),
+     then the 13th-month salary with the switch "13. Lohn sparen" on its own line */
+  table.year-table thead {
     display: none;
   }
 
-  table.year-table td.computed {
-    grid-column: 2 / -1;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 0 8px;
+  table.year-table tr {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 10px;
+    margin: 0 0 10px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+
+  table.year-table td:first-child {
+    grid-column: 1 / -1;
+    font-size: 15px;
+  }
+
+  table.year-table td::before {
     font-size: 12px;
   }
 
+  /* 13th-month salary: tinted box at the bottom of the card, purple when it is saved */
+  table.year-table td.computed {
+    grid-column: 1 / -1;
+    margin-top: 4px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--soft);
+    text-align: left;
+  }
+
+  table.year-table td.computed:has(input:checked) {
+    background: var(--brand-soft);
+  }
+
   table.year-table tr td.computed::before {
+    display: none;
+  }
+
+  table.year-table .thirteenth-cell {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  table.year-table .thirteenth-info {
+    display: grid;
+    gap: 1px;
+  }
+
+  table.year-table .thirteenth-title {
     display: block;
+    color: var(--label);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  table.year-table .thirteenth-amount {
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  table.year-table .thirteenth-save .long-label {
+    display: none;
+  }
+
+  table.year-table .thirteenth-save .short-label {
+    display: inline;
   }
 
   .allowance {

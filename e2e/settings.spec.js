@@ -112,6 +112,19 @@ test("the 13th-month salary per year is calculated", async ({ page, request }) =
   // Paid with the December wage: one extra monthly wage
   await page.selectOption("#setThirteenth", "12");
   await expect.poll(async () => chf(await page.locator("#thirteenth0").textContent())).toBe(1300);
+
+  // Switch "13. Monatslohn sparen": only when it is paid extra; then it goes to the savings account
+  await expect(page.locator('label:has(#thirteenthSave0)')).toBeVisible();
+  await page.locator('label:has(#thirteenthSave0)').click();
+  await expect(page.locator("#thirteenthSave0")).toBeChecked();
+  const december = await page.evaluate(() => {
+    const month = monthList().find((item) => item.endsWith("-12"));
+    return { save: state.thirteenthSave[0], summary: monthSummary(month) };
+  });
+  expect(december.save).toBe(true);
+  if (december.summary.bonus) expect(december.summary.bonusSave).toBe(1300);
+  await page.selectOption("#setThirteenth", "spread");
+  await expect(page.locator('label:has(#thirteenthSave0)')).toBeHidden();
 });
 
 test("colour, dark mode and text size are applied and saved with the account", async ({ page, request }) => {
