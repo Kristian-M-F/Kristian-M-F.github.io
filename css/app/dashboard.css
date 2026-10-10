@@ -51,6 +51,11 @@
   background: var(--brand);
 }
 
+/* "Ausgaben nach Kategorie": expenses, red */
+.category-row .progress span {
+  background: var(--red);
+}
+
 .progress span.over {
   background: var(--red);
 }
@@ -193,7 +198,7 @@
 }
 
 .saved-value {
-  color: var(--saved);
+  color: var(--orange-text);
   text-align: right;
 }
 
@@ -410,6 +415,19 @@
 .account-card strong {
   font-size: 22px;
   font-variant-numeric: tabular-nums;
+}
+
+/* Lohnkonto: what is left (green, red when negative); savings account: saved (orange) */
+.account-card.spending strong {
+  color: var(--green);
+}
+
+.account-card.saving strong {
+  color: var(--orange-text);
+}
+
+.account-card strong.bad {
+  color: var(--red);
 }
 
 /* "Still available" in the pay month: the first and largest thing on the dashboard */

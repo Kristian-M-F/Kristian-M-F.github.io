@@ -332,7 +332,7 @@ body.setup-open .app {
   font-size: 34px;
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: var(--brand-text);
+  color: var(--green);
 }
 
 .payday-question {

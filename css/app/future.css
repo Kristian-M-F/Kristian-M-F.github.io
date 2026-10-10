@@ -17,7 +17,7 @@
 .future-total-sum strong {
   display: block;
   margin: 4px 0 6px;
-  color: var(--brand-text);
+  color: var(--orange-text);
   font-size: 36px;
   line-height: 1.15;
   letter-spacing: -0.5px;
@@ -89,7 +89,7 @@
 }
 
 .save-headline b {
-  color: var(--brand-text);
+  color: var(--orange-text);
   font-size: 20px;
 }
 

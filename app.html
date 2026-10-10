@@ -17,20 +17,20 @@
     <link rel="apple-touch-icon" href="img/icons/apple-touch-icon.png" />
     <link rel="manifest" href="manifest.webmanifest" />
     <!-- Styles: base.css applies everywhere, then one file per page, responsive.css last -->
-    <script src="js/shared/translations.js?v=2026100826"></script>
-    <script src="js/shared/i18n.js?v=2026100826"></script>
-    <script src="js/shared/update.js?v=2026100826" defer></script>
-    <link rel="stylesheet" href="css/shared/base.css?v=2026100826" />
-    <link rel="stylesheet" href="css/app/dashboard.css?v=2026100826" />
-    <link rel="stylesheet" href="css/app/month.css?v=2026100826" />
-    <link rel="stylesheet" href="css/app/month-picker.css?v=2026100826" />
-    <link rel="stylesheet" href="css/app/settings.css?v=2026100826" />
-    <link rel="stylesheet" href="css/app/future.css?v=2026100826" />
-    <link rel="stylesheet" href="css/shared/themes.css?v=2026100826" />
-    <link rel="stylesheet" href="css/app/tour.css?v=2026100826" />
-    <link rel="stylesheet" href="css/app/setup.css?v=2026100826" />
-    <link rel="stylesheet" href="css/app/responsive.css?v=2026100826" />
-    <link rel="stylesheet" href="css/shared/error.css?v=2026100826" />
+    <script src="js/shared/translations.js?v=2026100828"></script>
+    <script src="js/shared/i18n.js?v=2026100828"></script>
+    <script src="js/shared/update.js?v=2026100828" defer></script>
+    <link rel="stylesheet" href="css/shared/base.css?v=2026100828" />
+    <link rel="stylesheet" href="css/app/dashboard.css?v=2026100828" />
+    <link rel="stylesheet" href="css/app/month.css?v=2026100828" />
+    <link rel="stylesheet" href="css/app/month-picker.css?v=2026100828" />
+    <link rel="stylesheet" href="css/app/settings.css?v=2026100828" />
+    <link rel="stylesheet" href="css/app/future.css?v=2026100828" />
+    <link rel="stylesheet" href="css/shared/themes.css?v=2026100828" />
+    <link rel="stylesheet" href="css/app/tour.css?v=2026100828" />
+    <link rel="stylesheet" href="css/app/setup.css?v=2026100828" />
+    <link rel="stylesheet" href="css/app/responsive.css?v=2026100828" />
+    <link rel="stylesheet" href="css/shared/error.css?v=2026100828" />
   </head>
   <body>
     <div id="toast" class="toast" role="status" hidden></div>
@@ -298,15 +298,15 @@
                   <div class="grid4">
                     <div class="kpi">
                       <span class="label">Gesamt gespart</span>
-                      <strong id="dSaved">CHF 0.00</strong>
+                      <strong id="dSaved" class="saved-text">CHF 0.00</strong>
                     </div>
                     <div class="kpi">
                       <span class="label">Lohn + Pauschalen</span>
-                      <strong id="dIncome">CHF 0.00</strong>
+                      <strong id="dIncome" class="income-text">CHF 0.00</strong>
                     </div>
                     <div class="kpi">
                       <span class="label">Gesamte Ausgaben</span>
-                      <strong id="dSpent">CHF 0.00</strong>
+                      <strong id="dSpent" class="spent-text">CHF 0.00</strong>
                     </div>
                     <div class="kpi">
                       <span class="label">Sparquote</span>
@@ -366,13 +366,13 @@
             <div class="block span-2" data-block="kpis" data-block-name="Übersicht">
               <div class="grid4">
                 <div class="card kpi">
-                  <span class="label">Lohn + Pauschalen</span><strong id="mIncome"></strong>
+                  <span class="label">Lohn + Pauschalen</span><strong id="mIncome" class="income-text"></strong>
                 </div>
                 <div class="card kpi">
-                  <span class="label">Gespart</span><strong id="mSaved"></strong>
+                  <span class="label">Gespart</span><strong id="mSaved" class="saved-text"></strong>
                 </div>
                 <div class="card kpi">
-                  <span class="label">Ausgaben</span><strong id="mSpent"></strong>
+                  <span class="label">Ausgaben</span><strong id="mSpent" class="spent-text"></strong>
                 </div>
                 <div class="card kpi">
                   <span class="label">Verfügbar</span><strong id="mAvail"></strong>
@@ -896,18 +896,18 @@
 
     <!-- api.js: connection to the backend (login + database).
          js/app/: the app logic, split into parts that are loaded in this order (main.js last) -->
-    <script src="js/shared/api.js?v=2026100826"></script>
-    <script src="js/app/tour.js?v=2026100826"></script>
-    <script src="js/app/setup.js?v=2026100826"></script>
-    <script src="js/app/state.js?v=2026100826"></script>
-    <script src="js/app/calc.js?v=2026100826"></script>
-    <script src="js/app/render.js?v=2026100826"></script>
-    <script src="js/app/render-settings.js?v=2026100826"></script>
-    <script src="js/app/future.js?v=2026100826"></script>
-    <script src="js/app/layout.js?v=2026100826"></script>
-    <script src="js/app/navigation.js?v=2026100826"></script>
-    <script src="js/app/forms.js?v=2026100826"></script>
-    <script src="js/app/payday.js?v=2026100826"></script>
-    <script src="js/app/main.js?v=2026100826"></script>
+    <script src="js/shared/api.js?v=2026100828"></script>
+    <script src="js/app/tour.js?v=2026100828"></script>
+    <script src="js/app/setup.js?v=2026100828"></script>
+    <script src="js/app/state.js?v=2026100828"></script>
+    <script src="js/app/calc.js?v=2026100828"></script>
+    <script src="js/app/render.js?v=2026100828"></script>
+    <script src="js/app/render-settings.js?v=2026100828"></script>
+    <script src="js/app/future.js?v=2026100828"></script>
+    <script src="js/app/layout.js?v=2026100828"></script>
+    <script src="js/app/navigation.js?v=2026100828"></script>
+    <script src="js/app/forms.js?v=2026100828"></script>
+    <script src="js/app/payday.js?v=2026100828"></script>
+    <script src="js/app/main.js?v=2026100828"></script>
   </body>
 </html>

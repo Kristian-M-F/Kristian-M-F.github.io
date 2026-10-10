@@ -46,7 +46,7 @@
   --green: #137a52;
   --red: #b84040;
   --orange: #c77700;
-  --spending: #c86748;
+  --spending: var(--red); /* expenses: red everywhere */
   /* Brand colour (also logo and landing page): buttons, active menu item, progress */
   /* Main colour (Lila); the other accent colours are in themes.css */
   --brand: #6b40c4;
@@ -59,13 +59,13 @@
   --line-strong: #bac2d0;
   --row-hover: rgba(23, 32, 51, 0.02);
   --track: #edf0f4;
-  --bar: color-mix(in srgb, var(--brand) 30%, #fff);
-  --bar-hover: var(--brand);
+  --bar: color-mix(in srgb, var(--orange) 45%, #fff); /* "Sparentwicklung": savings, orange */
+  --bar-hover: var(--orange);
   --good-soft: #e8f4ee;
   --warn-soft: #fff4df;
   --warn-text: #845d17;
   --danger-line: #f0caca;
-  --spending-text: #a3482b;
+  --spending-text: var(--red);
   --orange-text: #9a5a00; /* orange for text (the bars stay --orange) */
   --shadow: 0 8px 28px rgba(25, 35, 55, 0.035);
 
@@ -119,7 +119,7 @@
 :root {
   color-scheme: light dark; /* date pickers, scrollbars etc. adapt */
   --error-soft: #fbeaea;
-  --saved: #2f6fd6; /* savings in the dashboard comparison */
+  --saved: var(--orange); /* savings: orange everywhere */
 }
 
 :root[data-theme="light"] {
@@ -140,25 +140,25 @@
     --green: #4cc48b;
     --red: #f07c7c;
     --orange: #f0a845;
-    --spending: #e2896b;
+    --spending: var(--red); /* expenses: red everywhere */
     --brand-text: var(--brand-light);
     --brand-soft: color-mix(in srgb, var(--brand-light) 15%, var(--panel));
     --field: #10161f;
     --line-strong: #3d4a60;
     --row-hover: rgba(255, 255, 255, 0.025);
     --track: #232c3a;
-    --bar: color-mix(in srgb, var(--brand-light) 35%, var(--panel));
-    --bar-hover: var(--brand-light);
+    --bar: color-mix(in srgb, var(--orange) 50%, var(--panel));
+    --bar-hover: var(--orange);
     --good-soft: rgba(76, 196, 139, 0.14);
     --warn-soft: rgba(240, 168, 69, 0.14);
     --warn-text: #f0bf6e;
     --danger-line: #5a2e33;
-    --spending-text: #e9997d;
+    --spending-text: var(--red);
   --orange-text: var(--orange);
     --orange-text: var(--orange);
     --shadow: none;
     --error-soft: rgba(240, 124, 124, 0.14);
-    --saved: #7aa7ff;
+    --saved: var(--orange); /* savings: orange everywhere */
   }
 }
 
@@ -177,24 +177,24 @@
   --green: #4cc48b;
   --red: #f07c7c;
   --orange: #f0a845;
-  --spending: #e2896b;
+  --spending: var(--red); /* expenses: red everywhere */
   --brand-text: var(--brand-light);
   --brand-soft: color-mix(in srgb, var(--brand-light) 15%, var(--panel));
   --field: #10161f;
   --line-strong: #3d4a60;
   --row-hover: rgba(255, 255, 255, 0.025);
   --track: #232c3a;
-  --bar: color-mix(in srgb, var(--brand-light) 35%, var(--panel));
-  --bar-hover: var(--brand-light);
+  --bar: color-mix(in srgb, var(--orange) 50%, var(--panel));
+  --bar-hover: var(--orange);
   --good-soft: rgba(76, 196, 139, 0.14);
   --warn-soft: rgba(240, 168, 69, 0.14);
   --warn-text: #f0bf6e;
   --danger-line: #5a2e33;
-  --spending-text: #e9997d;
+  --spending-text: var(--red);
   --orange-text: var(--orange);
   --shadow: none;
   --error-soft: rgba(240, 124, 124, 0.14);
-  --saved: #7aa7ff;
+  --saved: var(--orange); /* savings: orange everywhere */
 }
 
 * {
@@ -351,6 +351,19 @@ tr:hover td {
 
 .transfer {
   color: var(--orange);
+}
+
+/* Colours of amounts everywhere: income green, expenses red, savings orange */
+.income-text {
+  color: var(--green);
+}
+
+.spent-text {
+  color: var(--red);
+}
+
+.saved-text {
+  color: var(--orange-text);
 }
 
 .note,

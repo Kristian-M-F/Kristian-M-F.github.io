@@ -140,8 +140,10 @@ function renderAvailableHero() {
 
   const line = (sign, label, amount, always = false) =>
     amount || always
-      ? `<div class="summary-row"><span><span class="sign" aria-hidden="true">${sign}</span>${label}</span><b>${chf(amount)}</b></div>`
+      ? `<div class="summary-row"><span><span class="sign" aria-hidden="true">${sign}</span>${label}</span><b class="${COLOR_OF[label] || (sign === "+" ? "income-text" : "")}">${chf(amount)}</b></div>`
       : "";
+  // Expenses red, savings orange, money coming in green
+  const COLOR_OF = { [t("Ausgaben")]: "spent-text", [t("Gespart")]: "saved-text" };
   $("currentSummary").innerHTML = `
     ${line("+", t("Lohn + Pauschalen"), summary.income, true)}
     ${line("+", t("Weitere Einnahmen"), summary.otherIncome)}

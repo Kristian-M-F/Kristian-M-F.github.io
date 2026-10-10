@@ -341,8 +341,8 @@
 }
 
 .account-badge.spending {
-  background: var(--brand-soft);
-  color: var(--brand-text);
+  background: color-mix(in srgb, var(--red) 14%, var(--panel));
+  color: var(--red);
 }
 
 .account-badge.saving {
