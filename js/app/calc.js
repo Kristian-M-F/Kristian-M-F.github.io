@@ -255,9 +255,15 @@ function thirteenthText() {
   return "";
 }
 
+// Name of a month ("01" -> "Januar")
+const monthLabel = (number) => new Date(2000, Number(number) - 1).toLocaleDateString(I18N.locale, { month: "long" });
+
+// Pay month in which a yearly allowance comes ("01"–"12")
+const allowanceMonth = (allowance) => allowance.month || firstMonth().slice(5, 7);
+
 function monthSummary(month) {
   if (!isTracked(month)) {
-    return { salary: 0, bonus: 0, bonusSave: 0, allowances: [], allowanceSave: 0, extra: 0, withdrawn: 0, otherIncome: 0, carriedIn: 0, carriedOut: 0, income: 0, saved: 0, spent: 0, available: 0 };
+    return { salary: 0, bonus: 0, bonusSave: 0, allowances: [], allowanceSave: 0, extra: 0, withdrawn: 0, otherIncome: 0, carriedIn: 0, carriedOut: 0, opening: 0, income: 0, saved: 0, spent: 0, available: 0 };
   }
   const year = apprenticeYear(month);
   const paid = hasStarted(month);
@@ -273,10 +279,9 @@ function monthSummary(month) {
     : state.thirteenth === "spread"
       ? Math.round((salary / 13) * 100) / 100
       : bonus;
-  // A yearly allowance comes once, with the first wage of each apprenticeship year.
-  const firstOfYear = monthsBetween(firstMonth(), month) % 12 === 0;
+  // A yearly allowance comes once a year, with the wage of the chosen pay month.
   const allowances = enabledAllowances()
-    .filter((allowance) => allowance.per !== "year" || firstOfYear)
+    .filter((allowance) => allowance.per !== "year" || month.slice(5, 7) === allowanceMonth(allowance))
     .map((allowance) => ({
       name: allowance.name,
       per: allowance.per === "year" ? "year" : "month",
@@ -299,11 +304,25 @@ function monthSummary(month) {
   // Left over at the last payday and taken along into this month, or from this month into the next.
   const carriedIn = carriedFrom(addMonths(month, -1));
   const carriedOut = carriedFrom(month);
+  // Opening balance of the Lohnkonto, in the pay month in which it was entered
+  const opening = spendingAccount() ? openingIn(spendingAccount(), month) : 0;
   return {
-    salary, bonus, bonusSave, allowances, allowanceSave, extra, withdrawn, otherIncome, carriedIn, carriedOut,
-    income, saved, spent, available: income + otherIncome + carriedIn - carriedOut - saved - spent,
+    salary, bonus, bonusSave, allowances, allowanceSave, extra, withdrawn, otherIncome, carriedIn, carriedOut, opening,
+    income, saved, spent, available: income + otherIncome + carriedIn + opening - carriedOut - saved - spent,
   };
 }
+
+// Opening balance ("Anfangsbestand", Einstellungen → Konten): counts once, in the pay month in
+// which it was entered (account.startMonth) – like an amount carried into that month.
+// Lohnkonto: added to "available" of that month. Savings account: added to its balance there.
+function openingMonth(account) {
+  if (!(Number(account.start) > 0)) return null;
+  if (!account.startMonth) account.startMonth = todaysMonth(); // entered before this was stored
+  const months = countedMonths();
+  return months.includes(account.startMonth) ? account.startMonth : months.at(-1) || account.startMonth;
+}
+
+const openingIn = (account, month) => (openingMonth(account) === month ? Number(account.start) || 0 : 0);
 
 // Amount taken from this pay month into the next one (payday question, js/app/payday.js)
 function carriedFrom(month) {
@@ -341,9 +360,10 @@ const spendingAccount = () => state.accounts.find((account) => account.kind === 
 const savingAccounts = () => state.accounts.filter((account) => account.kind === "saving");
 const savingNames = () => savingAccounts().map((account) => account.name);
 
-// Money moved on each account in the given months; with opening balances = balance today.
-function accountMoves(months, withOpening = false) {
-  const balance = Object.fromEntries(state.accounts.map((account) => [account.id, withOpening ? Number(account.start) || 0 : 0]));
+// Money moved on each account in the given months, including the opening balances in the month
+// they count in (Lohnkonto: part of "available"); over all months = balance today.
+function accountMoves(months) {
+  const balance = Object.fromEntries(state.accounts.map((account) => [account.id, 0]));
   const idByName = Object.fromEntries(savingAccounts().map((account) => [account.name, account.id]));
   const autoId = state.autoAccount in balance ? state.autoAccount : savingAccounts()[0]?.id;
   const add = (id, amount) => {
@@ -356,12 +376,13 @@ function accountMoves(months, withOpening = false) {
     entriesIn(state.savingEntries, month).forEach((entry) => add(idByName[entry.cat] ?? autoId, entry.amount));
     dueRecurring(month, "saving").forEach((order) => add(idByName[order.cat] ?? autoId, order.amount));
     entriesIn(state.withdrawEntries, month).forEach((entry) => add(idByName[entry.cat] ?? autoId, -entry.amount));
+    savingAccounts().forEach((account) => add(account.id, openingIn(account, month)));
   }
   return balance;
 }
 
 // Balance today: opening balance plus every movement since the start of the apprenticeship.
-const accountBalances = () => accountMoves(countedMonths(), true);
+const accountBalances = () => accountMoves(countedMonths());
 
 function monthLedger(month) {
   const summary = monthSummary(month);
@@ -417,6 +438,7 @@ function monthLedger(month) {
   for (const entry of entriesIn(state.incomeEntries, month)) {
     add(entry.date, entry.desc, entry.amount, "income", "");
   }
+  add(start, t("Anfangsbestand {name}", { name: spendingAccount()?.name || "" }), summary.opening, "carryIn", "");
   // Payday question: left over from the last pay month / taken into the next one
   for (const carry of (state.carryOvers || []).filter((item) => addMonths(item.from, 1) === month)) {
     add(start, t("Übertrag aus {month}", { month: monthName(carry.from) }), carry.amount, "carryIn", carryUndo(carry));

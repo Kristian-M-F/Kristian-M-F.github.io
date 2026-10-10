@@ -93,7 +93,8 @@ const SETTINGS_FIELD =
 // Allowances are fixed amounts paid on top of the wage (meals, public transport, …).
 // Each has an amount and a saved part per apprenticeship year.
 
-// per: "month" (with every wage) or "year" (once, with the first wage of each apprenticeship year)
+// per: "month" (with every wage) or "year" (once a year, with the wage of the pay month in "month":
+// "01"–"12"; without it the first pay month of the apprenticeship year, as in older versions)
 function newAllowance(id, name, enabled = false) {
   return { id, name, enabled, per: "month", amounts: Array(MAX_YEARS).fill(0), save: Array(MAX_YEARS).fill(0) };
 }

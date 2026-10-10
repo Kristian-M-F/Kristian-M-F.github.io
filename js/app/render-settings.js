@@ -43,7 +43,7 @@ function buildYearSettings() {
 let allowanceShape = "";
 
 function renderAllowances() {
-  const shape = JSON.stringify([state.years, state.allowances.map((allowance) => [allowance.id, allowance.name, allowance.enabled, allowance.per])]);
+  const shape = JSON.stringify([state.years, state.allowances.map((allowance) => [allowance.id, allowance.name, allowance.enabled, allowance.per, allowanceMonth(allowance)])]);
   if (shape !== allowanceShape) {
     allowanceShape = shape;
     const input = (allowance, field, i, label) =>
@@ -75,6 +75,12 @@ function renderAllowances() {
               <option value="month" ${yearly ? "" : "selected"}>${t("monatlich")}</option>
               <option value="year" ${yearly ? "selected" : ""}>${t("jährlich")}</option>
             </select>` : ""}
+            ${allowance.enabled && yearly ? `<label class="allowance-month">${t("kommt im")}
+              <select data-allowance-month="${allowance.id}" aria-label="${t("In welchem Lohnmonat? {name}", { name })}">
+                ${Array.from({ length: 12 }, (_, i) => pad2(i + 1))
+                  .map((number) => `<option value="${number}" ${number === allowanceMonth(allowance) ? "selected" : ""}>${monthLabel(number)}</option>`)
+                  .join("")}
+              </select></label>` : ""}
             <button class="secondary allowance-rename" data-action="rename-allowance" data-id="${allowance.id}" aria-label="${t("{name} umbenennen", { name })}" title="${t("Umbenennen")}"><span aria-hidden="true">✎</span></button>
             <button class="danger" data-action="delete-allowance" data-id="${allowance.id}" aria-label="${t("{name} entfernen", { name })}">${t("Entfernen")}</button>
           </div>
@@ -92,9 +98,13 @@ function renderAllowances() {
 }
 
 function changeAllowance(field) {
-  const id = field.dataset.allowance || field.dataset.allowanceToggle || field.dataset.allowancePer;
+  const id = field.dataset.allowance || field.dataset.allowanceToggle || field.dataset.allowancePer || field.dataset.allowanceMonth;
   const allowance = state.allowances.find((allowance) => allowance.id === id);
   if (!allowance) return;
+  if (field.dataset.allowanceMonth) {
+    allowance.month = field.value;
+    return persist();
+  }
   if (field.dataset.allowancePer) {
     allowance.per = field.value === "year" ? "year" : "month";
     return persist();
@@ -270,6 +280,8 @@ function changeAccountStart(field) {
   const value = readAmount(field.id, true);
   if (!account) return;
   if (value === null) return notify("Bitte einen gültigen Betrag ab 0 eingeben.");
+  // Counts in the pay month in which it is entered (see openingMonth in calc.js)
+  if (!(Number(account.start) > 0) || !account.startMonth) account.startMonth = todaysMonth();
   account.start = value;
   persist();
 }

@@ -85,6 +85,18 @@ const Setup = (() => {
       <option value="year" ${per === "year" ? "selected" : ""}>${t("jährlich")}</option>
     </select>`;
 
+  // Yearly allowance: in which pay month it comes (default: the month the apprenticeship started)
+  const monthSelect = (attributes, item) => {
+    if (item.per !== "year") return "";
+    const chosen = item.month || String(answers.startMonth).padStart(2, "0");
+    return `<label class="setup-month">${t("kommt im")}
+      <select ${attributes} aria-label="${t("In welchem Lohnmonat?")}">
+        ${Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"))
+          .map((number) => `<option value="${number}" ${number === chosen ? "selected" : ""}>${monthName(number)}</option>`)
+          .join("")}
+      </select></label>`;
+  };
+
   // Each step: title, optional note, the form (html) and a check that returns an error text or "".
   const STEPS = [
     {
@@ -200,6 +212,7 @@ const Setup = (() => {
                     <span class="setup-money"><input type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" aria-label="${t("Betrag CHF")}"
                       data-allowance-amount="${i}" value="${escapeHTML(item.amount)}"><small>CHF</small></span>
                     ${perSelect(`data-allowance-per="${i}"`, item.per)}
+                    ${monthSelect(`data-allowance-month="${i}"`, item)}
                   </div>` : ""}
                 </div>`).join("")}
               <div class="setup-allowance">
@@ -209,6 +222,7 @@ const Setup = (() => {
                   <span class="setup-money"><input type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" aria-label="${t("Betrag CHF")}"
                     data-own="amount" value="${escapeHTML(answers.ownAllowance.amount)}"><small>CHF</small></span>
                   ${perSelect('data-own="per"', answers.ownAllowance.per)}
+                  ${monthSelect('data-own="month"', answers.ownAllowance)}
                 </div>
               </div>
               <p class="note">${t("Der Betrag gilt für alle Lehrjahre. Du kannst ihn später pro Lehrjahr anpassen.")}</p>
@@ -270,7 +284,7 @@ const Setup = (() => {
         const thirteenth = { none: t("Nein"), 11: t("Ja, mit dem Novemberlohn"), 12: t("Ja, mit dem Dezemberlohn"), spread: t("Ja, in den 12 Löhnen verteilt") };
         const allowances = answers.allowances === "yes"
           ? [...answers.allowanceItems.filter((item) => item.on), ...(answers.ownAllowance.name.trim() ? [answers.ownAllowance] : [])]
-              .map((item) => `${escapeHTML(item.name)} ${chf(item.amount)} ${item.per === "year" ? t("jährlich") : t("monatlich")}`)
+              .map((item) => `${escapeHTML(item.name)} ${chf(item.amount)} ${item.per === "year" ? `${t("jährlich")} (${monthName(item.month || String(answers.startMonth).padStart(2, "0"))})` : t("monatlich")}`)
               .join(", ")
           : t("Keine");
         const rows = [
@@ -344,7 +358,10 @@ const Setup = (() => {
     if (data.wage) answers.wages[Number(data.wage)] = field.value;
     if (data.allowanceAmount) answers.allowanceItems[Number(data.allowanceAmount)].amount = field.value;
     if (data.allowancePer) answers.allowanceItems[Number(data.allowancePer)].per = field.value;
+    if (data.allowanceMonth) answers.allowanceItems[Number(data.allowanceMonth)].month = field.value;
     if (data.own) answers.ownAllowance[data.own] = field.value;
+    // "jährlich" shows the month choice
+    if ((data.allowancePer || data.own === "per") && event.type === "change") render();
     if (data.order) answers.orders[Number(data.order)][data.key] = field.value;
     if (data.allowanceOn && event.type === "change") {
       answers.allowanceItems[Number(data.allowanceOn)].on = field.checked;

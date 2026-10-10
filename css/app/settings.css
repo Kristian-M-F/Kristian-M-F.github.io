@@ -185,6 +185,24 @@
   min-width: 0;
 }
 
+/* Yearly allowance: in which pay month it comes */
+.allowance-month {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--label);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.allowance-month select {
+  width: auto;
+  min-height: 36px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  font-size: 14px;
+}
+
 /* Monthly or yearly */
 .allowance-per {
   width: auto;

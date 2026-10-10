@@ -146,6 +146,7 @@ function renderAvailableHero() {
     ${line("+", t("Lohn + Pauschalen"), summary.income, true)}
     ${line("+", t("Weitere Einnahmen"), summary.otherIncome)}
     ${line("+", t("Übertrag aus {month}", { month: monthName(addMonths(month, -1)) }), summary.carriedIn)}
+    ${line("+", t("Anfangsbestand"), summary.opening)}
     ${line("−", t("In den {month} mitgenommen", { month: monthName(addMonths(month, 1)) }), summary.carriedOut)}
     ${line("−", t("Ausgaben"), summary.spent, true)}
     ${line("−", t("Gespart"), summary.saved, true)}`;
@@ -329,7 +330,7 @@ function renderMonthPage() {
 // Bar with spent (red) and saved (orange) as a share of the income, with a legend
 // "Ausgegeben 3.0 % (CHF 23.00)". prefix: "budget" (month page) or "hero" (dashboard).
 function renderUsageBar(prefix, summary) {
-  const money = summary.income + summary.otherIncome + summary.carriedIn;
+  const money = summary.income + summary.otherIncome + summary.carriedIn + summary.opening;
   const used = money ? ((summary.saved + summary.spent) / money) * 100 : 0;
   const spent = Math.max(0, summary.spent);
   const saved = Math.max(0, summary.saved);

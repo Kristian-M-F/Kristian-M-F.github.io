@@ -88,7 +88,9 @@ document.addEventListener("change", (event) => {
   if (!ready) return;
   const field = event.target;
   if (APPEARANCE_FIELDS.includes(field.name)) return changeAppearance(field);
-  if (field.dataset.allowance || field.dataset.allowanceToggle || field.dataset.allowancePer) return changeAllowance(field);
+  if (field.dataset.allowance || field.dataset.allowanceToggle || field.dataset.allowancePer || field.dataset.allowanceMonth) {
+    return changeAllowance(field);
+  }
   if (field.dataset.accountStart) return changeAccountStart(field);
   if (SETTINGS_FIELD.test(field.id)) return saveSettings();
 

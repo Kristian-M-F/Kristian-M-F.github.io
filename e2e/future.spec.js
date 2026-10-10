@@ -23,8 +23,7 @@ test("Sparzukunft shows what is saved per year and until the end of the apprenti
   await goTo(page, "future");
   // Year 1: 100 + 50 per month of 770, plus the 13th (650) once
   const first = page.locator("#saveOverview .save-year").first();
-  await expect(first).toContainText("CHF 150.00");
-  await expect(first).toContainText("CHF 770.00");
+  await expect(first.locator(".save-headline")).toHaveText("Du sparst CHF 150.00 von CHF 650.00 Lohn + CHF 120.00 Pauschalen pro Monat");
   await expect(first).toContainText("CHF 620.00");
   await expect(first.locator(".save-yearly")).toContainText("CHF 650.00");
   // (150×12 + 650) + 200×12 + 200×12 + 300×12
@@ -77,4 +76,43 @@ test("an allowance can be renamed", async ({ page, request }) => {
   await page.click(`[data-action="rename-allowance"][data-id="${id}"]`);
   await expect(page.locator("#allowanceList")).toContainText("Essen");
   expect(await page.evaluate(() => state.allowances[0].name)).toBe("Essen");
+});
+
+test("Sparzukunft always uses the wage and amounts from the settings", async ({ page, request }) => {
+  await createUser(page, request, { setup: { wage: 650 } });
+  await skipTour(page);
+  await goTo(page, "settings");
+  await page.click('[data-settings-tab-button="pay"]');
+  await page.fill("#salary0", "812.40");
+  await page.locator("#salary0").blur();
+  await page.fill("#extraSave0", "75");
+  await page.locator("#extraSave0").blur();
+  await goTo(page, "future");
+  await expect(page.locator("#saveOverview .save-year .save-headline").first()).toHaveText("Du sparst CHF 75.00 von CHF 812.40 Lohn pro Monat");
+});
+
+test("a yearly allowance comes in the chosen pay month; savings standing orders count in Sparzukunft", async ({ page, request }) => {
+  await createUser(page, request);
+  await skipTour(page);
+  await setUp(page);
+  const result = await page.evaluate(() => {
+    const allowance = state.allowances[0];
+    allowance.per = "year";
+    allowance.month = "03";
+    state.recurring.push({ id: newId(), kind: "saving", name: "Sparplan", amount: 40, interval: "monthly", start: firstMonth() + "-25", end: "", cat: savingAccounts()[0].name });
+    render();
+    const months = monthList().slice(0, 12);
+    return {
+      paidIn: months.filter((month) => monthSummary(month).allowances.length).map((month) => month.slice(5, 7)),
+      selectValue: document.querySelector(`[data-allowance-month="${allowance.id}"]`)?.value,
+    };
+  });
+  expect(result.paidIn).toEqual(["03"]);
+  expect(result.selectValue).toBe("03");
+  await goTo(page, "future");
+  const first = page.locator("#saveOverview .save-year").first();
+  // 100 automatic + 40 standing order per month; the allowance (yearly) is not part of "pro Monat"
+  await expect(first.locator(".save-headline")).toHaveText("Du sparst CHF 140.00 von CHF 650.00 Lohn pro Monat");
+  await expect(first).toContainText("Sparplan");
+  await expect(first.locator(".save-yearly").first()).toContainText("März");
 });

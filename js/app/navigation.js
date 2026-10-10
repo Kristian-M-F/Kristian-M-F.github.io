@@ -99,11 +99,16 @@ function applySetup(answers) {
     const allowance = state.allowances.find((entry) => entry.id === item.id);
     if (!allowance) continue;
     allowance.enabled = wanted && item.on;
-    if (allowance.enabled) Object.assign(allowance, { amounts: perYear(item.amount), per: item.per });
+    if (allowance.enabled) Object.assign(allowance, { amounts: perYear(item.amount), per: item.per, month: item.per === "year" ? item.month || pad2(answers.startMonth) : undefined });
   }
   const own = answers.ownAllowance;
   if (wanted && own.name.trim()) {
-    state.allowances.push({ ...newAllowance("p" + newId(), own.name.trim(), true), amounts: perYear(own.amount), per: own.per });
+    state.allowances.push({
+      ...newAllowance("p" + newId(), own.name.trim(), true),
+      amounts: perYear(own.amount),
+      per: own.per,
+      month: own.per === "year" ? own.month || pad2(answers.startMonth) : undefined,
+    });
   }
 
   for (const order of answers.orders) {

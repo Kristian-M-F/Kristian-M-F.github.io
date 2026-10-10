@@ -390,3 +390,38 @@ test("arranging stays on after moving or resizing a block, until 'Fertig' or a c
   await expect(container).not.toHaveClass(/arranging/);
   await expect(toggle).toHaveText("Anordnen");
 });
+
+test("an opening balance counts like money carried into the pay month in which it is entered", async ({ page, request }) => {
+  await openApp(page, request);
+  const before = await page.evaluate(() => monthSummary(currentMonth).available);
+  await goTo(page, "settings");
+  await page.click('[data-settings-tab-button="lists"]');
+  const [spending, saving] = await page.evaluate(() => [spendingAccount().id, savingAccounts()[0].id]);
+  await page.fill(`#acc-start-${spending}`, "30.50");
+  await page.locator(`#acc-start-${spending}`).blur();
+  await page.fill(`#acc-start-${saving}`, "20");
+  await page.locator(`#acc-start-${saving}`).blur();
+
+  await goTo(page, "dashboard");
+  await expect.poll(async () => chf(await page.locator("#heroAmount").textContent())).toBeCloseTo(before + 30.5);
+  await expect(page.locator("#currentSummary")).toContainText("Anfangsbestand");
+  await expect
+    .poll(async () => chf(await page.locator("#dashboard .account-card.spending strong").textContent()))
+    .toBeCloseTo(before + 30.5);
+  await goTo(page, "month");
+  await expect.poll(async () => chf(await page.locator("#mAvail").textContent())).toBeCloseTo(before + 30.5);
+  await expect(page.locator("#monthMath")).toContainText("Anfangsbestand");
+  // Counted once: the balance today has it once, the next pay month does not have it again
+  const check = await page.evaluate(([spendingId, savingId]) => {
+    const balance = accountBalances();
+    const total = countedMonths().reduce((sum, month) => sum + monthSummary(month).available, 0);
+    return {
+      spending: balance[spendingId] - total,
+      saving: balance[savingId] - countedMonths().reduce((sum, month) => sum + accountMoves([month])[savingId], 0),
+      next: monthSummary(addMonths(currentMonth, 1)).opening,
+    };
+  }, [spending, saving]);
+  expect(check.spending).toBeCloseTo(0);
+  expect(check.saving).toBeCloseTo(0);
+  expect(check.next).toBe(0);
+});
