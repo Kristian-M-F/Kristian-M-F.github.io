@@ -49,7 +49,10 @@ test("the money left over can be taken into the new month or saved", async ({ pa
   expect(sums.old).toBeCloseTo(600);
   expect(sums.carried).toBeCloseTo(400);
   expect(sums.available).toBeCloseTo(1400);
-  await expect(page.locator("#currentSummary")).toContainText("Übertrag aus");
+  await expect(page.locator("#currentSummary")).toContainText("Übrig vom Vormonat");
+  // In the new month's ledger: below the wage
+  const carried = await page.evaluate(() => monthLedger(currentMonth).map((row) => row.text));
+  expect(carried.at(-1)).toMatch(/^Übrig vom Vormonat/);
 
   // Asked only once per pay month
   await page.evaluate(() => checkPayday());
@@ -71,6 +74,13 @@ test("the money left over can be taken into the new month or saved", async ({ pa
     return { amount: entry.amount, date: entry.date, end: period(month).end, available: monthSummary(month).available };
   }, previous);
   expect(saved.amount).toBe(250);
+  // The new month shows it for information, without counting it there
+  const note = await page.evaluate((month) => {
+    const next = addMonths(month, 1);
+    return { row: monthLedger(next).find((row) => row.kind === "note"), available: monthSummary(next).available };
+  }, previous);
+  expect(note.row.text).toMatch(/^Übrig vom Vormonat/);
+  expect(note.row.amount).toBe(250);
   expect(saved.date).toBe(saved.end);
   expect(saved.available).toBeCloseTo(750);
 });

@@ -42,6 +42,8 @@ const AMOUNT_STYLES = {
   // Left over at payday and taken into the next pay month (js/app/payday.js)
   carryIn: { sign: "+", className: "good" },
   carryOut: { sign: "→", className: "transfer" },
+  // Left over last month and saved at payday: shown like a transfer, counts in the last month
+  note: { sign: "↗", className: "transfer" },
 };
 // Standing order interval -> number of months between payments
 const INTERVALS = {

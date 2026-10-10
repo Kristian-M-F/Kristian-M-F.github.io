@@ -145,7 +145,7 @@ function renderAvailableHero() {
   $("currentSummary").innerHTML = `
     ${line("+", t("Lohn + Pauschalen"), summary.income, true)}
     ${line("+", t("Weitere Einnahmen"), summary.otherIncome)}
-    ${line("+", t("Übertrag aus {month}", { month: monthName(addMonths(month, -1)) }), summary.carriedIn)}
+    ${line("+", t("Übrig vom Vormonat ({month})", { month: monthOnly(addMonths(month, -1)) }), summary.carriedIn)}
     ${line("+", t("Anfangsbestand"), summary.opening)}
     ${line("−", t("In den {month} mitgenommen", { month: monthName(addMonths(month, 1)) }), summary.carriedOut)}
     ${line("−", t("Ausgaben"), summary.spent, true)}
@@ -211,8 +211,9 @@ function renderSavingsChart() {
 }
 
 // Wage + allowances, expenses and savings per pay month as three bars.
+// Newest month first.
 function comparisonRows(months) {
-  const summaries = months.map((month) => ({ month, ...monthSummary(month) }));
+  const summaries = [...months].reverse().map((month) => ({ month, ...monthSummary(month) }));
   const peak = Math.max(1, ...summaries.flatMap((summary) => [summary.income, summary.spent, summary.saved]));
   const bar = (kind, value) =>
     `<div class="compare-track ${kind}" aria-hidden="true"><span style="width:${(Math.max(0, value) / peak) * 100}%"></span></div>`;
@@ -244,7 +245,7 @@ function renderComparisonChart() {
 function showComparison() {
   $("comparisonAll").innerHTML = comparisonRows(countedMonths());
   $("comparisonDialog").showModal();
-  $("comparisonAll").scrollTop = $("comparisonAll").scrollHeight; // newest month at the bottom
+  $("comparisonAll").scrollTop = 0; // newest month at the top
 }
 
 function categoryChart(totalsByCategory, emptyText) {

@@ -105,6 +105,7 @@ function confirmPayday() {
       cat: account.name,
       pay: "",
       amount: rounded,
+      payday: month, // shown as "Übrig vom Vormonat" in the next pay month
     };
     state.savingEntries.push(entry);
     undo = () => (state.savingEntries = state.savingEntries.filter((item) => item.id !== entry.id));

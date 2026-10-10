@@ -392,6 +392,19 @@ function monthLedger(month) {
     if (amount) rows.push({ date, text, amount, kind, label });
   };
 
+  // Money that was there before this wage: opening balance and what was left over in the last
+  // pay month. Added first, so it is shown at the bottom, below "Lohn" (newest first).
+  add(start, t("Anfangsbestand {name}", { name: spendingAccount()?.name || "" }), summary.opening, "carryIn", "");
+  const previous = monthOnly(addMonths(month, -1));
+  for (const carry of (state.carryOvers || []).filter((item) => addMonths(item.from, 1) === month)) {
+    add(start, t("Übrig vom Vormonat ({month})", { month: previous }), carry.amount, "carryIn", `${t("Ins Lohnkonto mitgenommen")} · ${carryUndo(carry)}`);
+  }
+  // Left over in the last pay month and saved at payday: shown like a transfer to the savings
+  // account (it is booked in the last month, so it does not change "available" here)
+  for (const entry of state.savingEntries.filter((item) => item.payday && addMonths(item.payday, 1) === month)) {
+    add(start, t("Übrig vom Vormonat ({month})", { month: previous }), entry.amount, "note", t("Ins Sparkonto mitgenommen"));
+  }
+
   // label: small second line under the description, only where it adds information
   const year = yearLabel(apprenticeYear(month));
   const automatic = t("Automatisch");
@@ -438,11 +451,7 @@ function monthLedger(month) {
   for (const entry of entriesIn(state.incomeEntries, month)) {
     add(entry.date, entry.desc, entry.amount, "income", "");
   }
-  add(start, t("Anfangsbestand {name}", { name: spendingAccount()?.name || "" }), summary.opening, "carryIn", "");
-  // Payday question: left over from the last pay month / taken into the next one
-  for (const carry of (state.carryOvers || []).filter((item) => addMonths(item.from, 1) === month)) {
-    add(start, t("Übertrag aus {month}", { month: monthName(carry.from) }), carry.amount, "carryIn", carryUndo(carry));
-  }
+  // Payday question: taken into the next pay month
   for (const carry of (state.carryOvers || []).filter((item) => item.from === month)) {
     add(period(month).end, t("In den {month} mitgenommen", { month: monthName(addMonths(month, 1)) }), carry.amount, "carryOut", carryUndo(carry));
   }

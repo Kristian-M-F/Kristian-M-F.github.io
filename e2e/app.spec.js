@@ -411,6 +411,8 @@ test("an opening balance counts like money carried into the pay month in which i
   await goTo(page, "month");
   await expect.poll(async () => chf(await page.locator("#mAvail").textContent())).toBeCloseTo(before + 30.5);
   await expect(page.locator("#monthMath")).toContainText("Anfangsbestand");
+  // Shown at the bottom, below the wage (it was there before the wage)
+  await expect(page.locator("#monthMath tr").last()).toContainText("Anfangsbestand");
   // Counted once: the balance today has it once, the next pay month does not have it again
   const check = await page.evaluate(([spendingId, savingId]) => {
     const balance = accountBalances();
