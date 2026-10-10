@@ -153,27 +153,14 @@ test("dashboard blocks can be dragged and resized at the edge; the month page ha
   expect(landed.y).toBeGreaterThan(saveNow.bottom);
   expect(landed.y - saveNow.bottom).toBeLessThan(30);
 
-  // Into a gap that is narrower than the block: it becomes just narrow enough to fit
+  // Narrower than half is not possible (too little room for the text): it stops at half
   const saveEdge = await savings.locator('[data-block-resize="right"]').boundingBox();
   await page.mouse.move(saveEdge.x + saveEdge.width / 2, saveEdge.y + saveEdge.height / 2);
   await page.mouse.down();
   await page.mouse.move(saveEdge.x + saveEdge.width / 2 - full / 4, saveEdge.y + saveEdge.height / 2, { steps: 10 });
   await page.mouse.up();
-  const quarter = (await savings.boundingBox()).width;
-  expect(quarter).toBeLessThan(full * 0.3);
-  const mainBar = await main.locator(".block-name").boundingBox();
-  await page.mouse.move(mainBar.x + 10, mainBar.y + mainBar.height / 2);
-  await page.mouse.down();
-  const saveSmall = await savings.boundingBox();
-  await page.mouse.move(saveSmall.x + saveSmall.width + 60, saveSmall.y + 20, { steps: 15 });
-  await page.mouse.up();
   await page.waitForTimeout(400);
-  const fitted = await main.boundingBox();
-  const saveAfter = await savings.boundingBox();
-  expect(Math.abs(fitted.y - saveAfter.y)).toBeLessThan(3);
-  expect(fitted.x).toBeGreaterThan(saveAfter.x + saveAfter.width);
-  expect(fitted.width).toBeLessThan(full * 0.3);
-  expect(fitted.x + fitted.width).toBeLessThan(full * 1.02 + (await available.boundingBox()).x);
+  expect((await savings.boundingBox()).width).toBeGreaterThan(full * 0.45);
   const arranged = await order();
 
   // "Ausblenden": while arranging the block stays faded with "Ausgeblendet", afterwards it is gone
@@ -193,10 +180,10 @@ test("dashboard blocks can be dragged and resized at the edge; the month page ha
   await expect(page.locator("#financeApp")).toBeVisible();
   expect(await order()).toEqual(arranged);
   expect(Math.abs((await width("available")) - half)).toBeLessThan(3);
-  expect(Math.abs((await box(main)).y - (await box(savings)).y)).toBeLessThan(3);
+  expect((await box(main)).y).toBeGreaterThan((await box(savings)).bottom - 3); // still below the savings account
   await expect(categoriesBlock).toBeHidden();
 
-  // The left edge also changes the width; the right side stays where it is
+  // The left edge works the same way (here it would get narrower than half, so it stays); the right side stays where it is
   await page.click('#dashboard [data-action="arrange"]');
   const before = await available.boundingBox();
   const leftEdge = await available.locator('[data-block-resize="left"]').boundingBox();
@@ -206,7 +193,7 @@ test("dashboard blocks can be dragged and resized at the edge; the month page ha
   await page.mouse.up();
   await page.waitForTimeout(400);
   const after = await available.boundingBox();
-  expect(after.x).toBeGreaterThan(before.x + full / 10);
+  expect(after.width).toBeGreaterThan(full * 0.45); // half is the smallest width
   expect(Math.abs(after.x + after.width - (before.x + before.width))).toBeLessThan(3);
 
   await page.click('#dashboard [data-action="reset-layout"]');
@@ -328,7 +315,7 @@ test("the dashboard compares wage, expenses and savings; all months open in a po
   await expect(page.locator("#comparisonDialog")).toBeHidden();
 });
 
-test("two blocks side by side share their edge: one gets wider, the other narrower", async ({ page, request }) => {
+test("two blocks side by side can not be made narrower than half", async ({ page, request }) => {
   await openApp(page, request);
   await page.click('#dashboard [data-action="arrange"]');
   const main = page.locator('[data-block="account-main"]');
@@ -337,9 +324,9 @@ test("two blocks side by side share their edge: one gets wider, the other narrow
   await save.scrollIntoViewIfNeeded();
   const mainBefore = await main.boundingBox();
   const saveBefore = await save.boundingBox();
-  expect(Math.abs(mainBefore.y - saveBefore.y)).toBeLessThan(2); // next to each other
+  expect(Math.abs(mainBefore.y - saveBefore.y)).toBeLessThan(2); // next to each other, half each
 
-  // The savings account's left edge to the left: the wage account becomes narrower
+  // The savings account's left edge to the left would make the wage account narrower than half
   const edge = await save.locator('[data-block-resize="left"]').boundingBox();
   await page.mouse.move(edge.x + edge.width / 2, edge.y + edge.height / 2);
   await page.mouse.down();
@@ -347,12 +334,7 @@ test("two blocks side by side share their edge: one gets wider, the other narrow
   await page.mouse.up();
   await page.waitForTimeout(400);
   const mainAfter = await main.boundingBox();
-  const saveAfter = await save.boundingBox();
-  expect(Math.abs(mainAfter.y - saveAfter.y)).toBeLessThan(2); // still in one row
-  expect(mainAfter.width).toBeLessThan(mainBefore.width - 100);
-  expect(saveAfter.width).toBeGreaterThan(saveBefore.width + 100);
-  expect(Math.abs(mainAfter.x - mainBefore.x)).toBeLessThan(2); // outer edges stay
-  expect(Math.abs(saveAfter.x + saveAfter.width - (saveBefore.x + saveBefore.width))).toBeLessThan(2);
+  expect(Math.abs(mainAfter.width - mainBefore.width)).toBeLessThan(3);
 });
 
 test("arranging stays on after moving or resizing a block, until 'Fertig' or a click outside", async ({ page, request }) => {

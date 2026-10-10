@@ -50,15 +50,32 @@ test("the tour highlights the visible phone controls", async ({ page, request })
   await expect(card).toHaveCount(0);
 });
 
-test("dashboard blocks are never squeezed: too narrow ones get the whole row", async ({ page, request }) => {
-  await page.setViewportSize({ width: 390, height: 900 });
+test("dashboard blocks are at least half as wide; the content fits in half", async ({ page, request }) => {
+  await page.setViewportSize({ width: 360, height: 900 });
   await createUser(page, request);
   await skipTour(page);
-  const widths = await page.evaluate(() => {
-    state.layout = { ...(state.layout || {}), grid: { phone: { upcoming: { x: 0, w: 12 }, stats: { x: 12, w: 6 } } } };
+  await page.evaluate(() => {
+    state.recurring.push({ id: newId(), kind: "expense", name: "Fitnessstudio Abo", amount: 80, interval: "monthly", start: todayISO().slice(0, 8) + "20", end: "", cat: state.categories[0] });
+    state.layout = { ...(state.layout || {}), grid: { phone: { upcoming: { x: 0, w: 12 }, categories: { x: 12, w: 4 } } } };
     applyLayout();
-    const full = document.querySelector('[data-block="available"]').getBoundingClientRect().width;
-    return ["upcoming", "stats"].map((id) => Math.round(document.querySelector(`[data-block="${id}"]`).getBoundingClientRect().width - full));
+    render();
   });
-  expect(widths).toEqual([0, 0]);
+  await page.waitForTimeout(500);
+  const result = await page.evaluate(() => {
+    const full = document.querySelector('[data-block="available"]').getBoundingClientRect().width;
+    const block = (id) => document.querySelector(`[data-block="${id}"]`);
+    const overflow = [...document.querySelectorAll("#dashboard [data-block]:not(.block-hidden) .card *")].some((el) => {
+      const box = el.getBoundingClientRect();
+      const parent = el.closest("[data-block]").getBoundingClientRect();
+      return box.width && (box.right > parent.right + 1 || box.left < parent.left - 1);
+    });
+    return {
+      upcoming: block("upcoming").getBoundingClientRect().width / full,
+      categories: block("categories").getBoundingClientRect().width / full,
+      overflow,
+    };
+  });
+  expect(result.upcoming).toBeLessThan(0.55);
+  expect(result.categories).toBeGreaterThan(0.45); // narrower than half is shown as half
+  expect(result.overflow).toBe(false);
 });

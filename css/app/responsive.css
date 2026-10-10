@@ -1139,8 +1139,39 @@
     font-size: 17px;
   }
 
+  /* Whole words wrap (long ones are hyphenated), never single letters */
   .card,
   .fold-title {
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  .fold > summary {
+    font-size: 15px;
+  }
+
+  /* "Kommt noch": name on its own line, below it date and amount */
+  .upcoming li {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "name name" "date money";
+    gap: 2px 8px;
+  }
+
+  .upcoming-name {
+    grid-area: name;
+    overflow-wrap: break-word;
+  }
+
+  .upcoming-date {
+    grid-area: date;
+  }
+
+  .upcoming .money {
+    grid-area: money;
+  }
+
+  .category-label {
+    flex-wrap: wrap;
+    gap: 2px 8px;
   }
 }
