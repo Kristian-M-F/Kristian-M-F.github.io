@@ -439,7 +439,7 @@ function monthLedger(month) {
   // Opening balance of a savings account: shown in the pay month in which it counts (on the
   // savings account, like on the dashboard card); it is not taken from the wage.
   for (const account of savingAccounts()) {
-    add(start, t("Anfangsbestand {name}", { name: account.name }), openingIn(account, month), "note", t("War schon auf dem Sparkonto – nicht aus dem Lohn"));
+    add(start, t("Anfangsbestand {name}", { name: account.name }), openingIn(account, month), "carryIn", "");
   }
   const previous = monthOnly(addMonths(month, -1));
   for (const carry of (state.carryOvers || []).filter((item) => addMonths(item.from, 1) === month)) {
