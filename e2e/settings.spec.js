@@ -196,7 +196,6 @@ test("an opening balance is entered for the current pay month only; earlier ones
   await page.click('[data-settings-tab-button="lists"]');
   // The field is for this pay month and empty
   await expect(page.locator(`#acc-start-${id}`)).toHaveValue("");
-  await expect(page.locator(`#acc-start-note-${id}`)).toContainText("Nur für");
   await page.fill(`#acc-start-${id}`, "10");
   await page.locator(`#acc-start-${id}`).blur();
   const openings = await page.evaluate(() => spendingAccount().openings);
@@ -204,4 +203,17 @@ test("an opening balance is entered for the current pay month only; earlier ones
   expect(Object.values(openings)).toContain(10);
   const counted = await page.evaluate((prev) => [monthSummary(prev).opening, monthSummary(todaysMonth()).opening], previous);
   expect(counted).toEqual([25.5, 10]);
+});
+
+test("the pay month of an opening balance can be chosen", async ({ page, request }) => {
+  await openApp(page, request);
+  const [id, previous] = await page.evaluate(() => [spendingAccount().id, countedMonths().filter((m) => m < todaysMonth()).at(-1)]);
+  test.skip(!previous, "only one pay month so far");
+  await goTo(page, "settings");
+  await page.click('[data-settings-tab-button="lists"]');
+  await page.selectOption(`#acc-start-month-${id}`, previous);
+  await page.fill(`#acc-start-${id}`, "12.5");
+  await page.locator(`#acc-start-${id}`).blur();
+  expect(await page.evaluate((month) => spendingAccount().openings[month], previous)).toBe(12.5);
+  expect(await page.evaluate((month) => monthSummary(month).opening, previous)).toBe(12.5);
 });

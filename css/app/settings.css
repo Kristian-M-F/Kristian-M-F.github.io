@@ -314,22 +314,60 @@
 
 .account-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 170px 210px;
-  align-items: center;
   gap: 12px;
-  padding: 12px 14px;
+  padding: 14px 16px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-left: 4px solid var(--brand);
+  border-radius: 14px;
+  background: var(--panel);
+}
+
+.account-row.saving {
+  border-left-color: var(--orange);
+}
+
+/* Name, balance today and buttons in one line */
+.account-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 14px;
 }
 
 .account-row-name {
   display: grid;
-  gap: 2px;
+  gap: 4px;
   min-width: 0;
 }
 
 .account-row-name b {
+  font-size: 16px;
   overflow-wrap: anywhere;
+}
+
+.account-today {
+  display: grid;
+  justify-items: end;
+  gap: 1px;
+}
+
+.account-today small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.account-today strong {
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.account-row.spending .account-today strong {
+  color: var(--green);
+}
+
+.account-row.saving .account-today strong {
+  color: var(--orange-text);
 }
 
 .account-badge {
@@ -350,43 +388,63 @@
   color: var(--warn-text);
 }
 
+/* Opening balance: pay month and amount in a soft box */
 .account-start {
   display: grid;
-  gap: 4px;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--soft);
+}
+
+.account-start > label {
   color: var(--label);
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 600;
 }
 
-.account-start input {
+.account-start-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+}
+
+.account-start-row select {
+  width: 100%;
   min-height: 40px;
-  padding: 8px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  font-size: 14px;
 }
 
-.account-start .note {
-  margin: 0;
+/* Amount with "CHF" in front */
+.money-field {
+  position: relative;
+  display: block;
+}
+
+.money-field > span {
+  position: absolute;
+  top: 50%;
+  left: 11px;
+  transform: translateY(-50%);
   color: var(--muted);
-  font-size: 12px;
-  line-height: 1.4;
+  font-size: 13px;
+  pointer-events: none;
 }
 
-/* Headings inside a card: show what belongs together */
-.group-title {
-  margin: 4px 0 2px;
-  font-size: 15px;
+.money-field input {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 10px 8px 44px;
+  font-variant-numeric: tabular-nums;
 }
 
-@media (max-width: 760px) {
-  .account-row {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .account-row-name {
-    grid-column: 1 / -1;
-  }
-
-  .account-row .actions {
-    justify-content: flex-end;
-  }
+.account-row .actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  min-width: 130px; /* same place for the balance, with or without "Löschen" */
 }
 
 .account-row .actions button {
@@ -395,8 +453,47 @@
   font-size: 13px;
 }
 
-.account-row .actions {
-  justify-content: flex-end;
+.account-row .icon-button {
+  min-width: 36px;
+  font-size: 15px;
+}
+
+/* Headings inside a card: show what belongs together */
+.group-title {
+  margin: 4px 0 2px;
+  font-size: 15px;
+}
+
+@media (max-width: 560px) {
+  /* Phone: name and buttons on top, balance below */
+  .account-head {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "name actions" "today today";
+    gap: 8px 10px;
+  }
+
+  .account-row-name {
+    grid-area: name;
+  }
+
+  .account-row .actions {
+    grid-area: actions;
+  }
+
+  .account-row .actions {
+    min-width: 0;
+  }
+
+  .account-start-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .account-today {
+    grid-area: today;
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+    align-items: baseline;
+  }
 }
 
 /* "Start tour" in the appearance settings */

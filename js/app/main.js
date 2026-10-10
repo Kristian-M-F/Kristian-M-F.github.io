@@ -93,6 +93,7 @@ document.addEventListener("change", (event) => {
     return changeAllowance(field);
   }
   if (field.dataset.accountStart) return changeAccountStart(field);
+  if (field.dataset.accountStartMonth) return chooseOpeningMonth(field);
   if (SETTINGS_FIELD.test(field.id)) return saveSettings();
 
   if (field.id === "entryKind" || field.id === "recKind") fillSelects();

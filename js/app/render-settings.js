@@ -217,34 +217,48 @@ function renderAccounts() {
       .map((account) => {
         const spending = account.kind === "spending";
         const removable = !spending && savingAccounts().length > 1;
-        return `<div class="account-row">
-          <div class="account-row-name">
-            <span class="account-badge ${spending ? "spending" : "saving"}">${spending ? t("Ausgaben") : t("Sparen")}</span>
-            <b translate="no">${escapeHTML(account.name)}</b>
-            <span class="note" id="acc-balance-${account.id}"></span>
+        const name = escapeHTML(account.name);
+        return `<div class="account-row ${spending ? "spending" : "saving"}">
+          <div class="account-head">
+            <div class="account-row-name">
+              <span class="account-badge ${spending ? "spending" : "saving"}">${spending ? t("Ausgaben") : t("Sparen")}</span>
+              <b translate="no">${name}</b>
+            </div>
+            <div class="account-today">
+              <small>${t("Stand heute")}</small>
+              <strong id="acc-balance-${account.id}"></strong>
+            </div>
+            <div class="actions">
+              <button class="secondary icon-button" data-action="rename-account" data-id="${account.id}"
+                aria-label="${t("{name} umbenennen", { name })}" title="${t("Umbenennen")}"><span aria-hidden="true">✎</span></button>
+              ${removable ? `<button class="danger" data-action="delete-account-item" data-id="${account.id}">${t("Löschen")}</button>` : ""}
+            </div>
           </div>
           <div class="account-start">
-            <label for="acc-start-${account.id}" id="acc-start-label-${account.id}"></label>
-            <input type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"
-              id="acc-start-${account.id}" data-account-start="${account.id}">
-            <small class="note" id="acc-start-note-${account.id}"></small>
-          </div>
-          <div class="actions">
-            <button class="secondary" data-action="rename-account" data-id="${account.id}">${t("Umbenennen")}</button>
-            ${removable ? `<button class="danger" data-action="delete-account-item" data-id="${account.id}">${t("Löschen")}</button>` : ""}
+            <label for="acc-start-${account.id}">${t("Anfangsbestand")}</label>
+            <div class="account-start-row">
+              <select id="acc-start-month-${account.id}" data-account-start-month="${account.id}" aria-label="${t("Lohnmonat")}"></select>
+              <span class="money-field"><span aria-hidden="true">CHF</span>
+                <input type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"
+                  id="acc-start-${account.id}" data-account-start="${account.id}"></span>
+            </div>
           </div>
         </div>`;
       })
       .join("");
   }
   for (const account of state.accounts) {
-    // Money already on the account: for the current pay month only (see openingsOf in calc.js)
-    const month = todaysMonth();
+    // Money already on the account, for the chosen pay month (see openingsOf in calc.js);
+    // today's pay month unless another one is chosen.
+    const months = openingMonths();
+    const month = months.includes(openingChoice[account.id]) ? openingChoice[account.id] : todaysMonth();
     const openings = openingsOf(account);
+    const select = $(`acc-start-month-${account.id}`);
+    select.innerHTML = months
+      .map((key) => `<option value="${key}" ${key === month ? "selected" : ""}>${monthName(key)}</option>`)
+      .join("");
     setValue(`acc-start-${account.id}`, openings[month] || "");
-    $(`acc-start-label-${account.id}`).textContent = t("Anfangsbestand CHF");
-    $(`acc-start-note-${account.id}`).textContent = t("Nur für {month}", { month: monthOnly(month) });
-    $(`acc-balance-${account.id}`).textContent = t("Stand heute: {amount}", { amount: chf(balance[account.id] || 0) });
+    $(`acc-balance-${account.id}`).textContent = chf(balance[account.id] || 0);
   }
 }
 
@@ -287,11 +301,27 @@ function changeAccountStart(field) {
   const value = readAmount(field.id, true);
   if (!account) return;
   if (value === null) return notify("Bitte einen gültigen Betrag ab 0 eingeben.");
-  // Counts in the current pay month only (see openingsOf in calc.js)
+  // Counts in the chosen pay month only (see openingsOf in calc.js)
   const openings = openingsOf(account);
-  if (value) openings[todaysMonth()] = value;
-  else delete openings[todaysMonth()];
+  const month = openingMonths().includes(openingChoice[account.id]) ? openingChoice[account.id] : todaysMonth();
+  if (value) openings[month] = value;
+  else delete openings[month];
   persist();
+}
+
+// Pay month chosen next to the opening balance (only while the page is open)
+const openingChoice = {};
+
+// Pay months an opening balance can be entered for: the tracked ones up to today's
+function openingMonths() {
+  const today = todaysMonth();
+  const months = countedMonths().filter((month) => month <= today);
+  return months.includes(today) ? months : [...months, today];
+}
+
+function chooseOpeningMonth(field) {
+  openingChoice[field.dataset.accountStartMonth] = field.value;
+  renderAccounts();
 }
 
 // "Tracken ab" in the settings: the start of the apprenticeship or any pay month up to the next one.
