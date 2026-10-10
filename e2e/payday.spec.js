@@ -116,3 +116,16 @@ test("an amount left at payday can never make the old month negative later", asy
   expect(result.available).toBeCloseTo(0);
   expect(result.counted).toBeCloseTo(result.stored - 30);
 });
+
+test("an amount saved at payday can be undone in the new month", async ({ page, request }) => {
+  await createUser(page, request);
+  await skipTour(page);
+  await makePaydayDue(page);
+  await page.click('[data-action="payday-confirm"]');
+  await goTo(page, "month");
+  await page.click('#monthMath [data-action="undo-payday-save"]');
+  expect(await page.evaluate(() => state.savingEntries.filter((entry) => entry.payday).length)).toBe(0);
+  // The question comes again, so it can be answered differently
+  await page.evaluate(() => checkPayday());
+  await expect(page.locator("#paydayDialog")).toBeVisible();
+});

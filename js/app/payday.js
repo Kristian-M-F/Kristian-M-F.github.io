@@ -135,6 +135,21 @@ function undoCarry(data) {
   notify("Übertrag entfernt");
 }
 
+// "Rückgängig" next to an amount saved at payday: removes it, and the question comes again
+function undoPaydaySave(data) {
+  const entry = state.savingEntries.find((item) => String(item.id) === data.id);
+  if (!entry) return;
+  state.savingEntries = state.savingEntries.filter((item) => item !== entry);
+  const month = paydayMonthOf(entry);
+  state.paydayAnswered = (state.paydayAnswered || []).filter((item) => item !== month);
+  persist();
+  notify("Rückgängig gemacht");
+}
+
+function paydaySaveUndo(entry) {
+  return `<button type="button" class="link-button" data-action="undo-payday-save" data-id="${entry.id}">${escapeHTML(t("Rückgängig"))}</button>`;
+}
+
 // Small "Rückgängig" button in the month ledger (detail line of a carried amount)
 function carryUndo(carry) {
   return `<button type="button" class="link-button" data-action="undo-carry" data-id="${carry.id}">${escapeHTML(t("Rückgängig"))}</button>`;

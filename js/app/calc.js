@@ -449,7 +449,7 @@ function monthLedger(month) {
   // Left over in the last pay month and saved at payday: shown like a transfer to the savings
   // account (it is booked in the last month, so it does not change "available" here)
   for (const entry of state.savingEntries.filter((item) => isPaydayEntry(item) && addMonths(paydayMonthOf(item), 1) === month)) {
-    add(start, t("Übrig vom Vormonat ({month})", { month: previous }), paydayAmount(entry), "note", t("Ins Sparkonto mitgenommen"));
+    add(start, t("Übrig vom Vormonat ({month})", { month: previous }), paydayAmount(entry), "note", `${t("Ins Sparkonto mitgenommen")} · ${paydaySaveUndo(entry)}`);
   }
 
   // label: small second line under the description, only where it adds information
@@ -490,7 +490,8 @@ function monthLedger(month) {
     add(entry.date, entry.desc, entry.amount, "expense", "");
   }
   for (const entry of entriesIn(state.savingEntries, month)) {
-    add(entry.date, entry.desc, paydayAmount(entry), "saving", t("Aufs Sparkonto „{name}“", { name: entry.cat }));
+    const toAccount = t("Aufs Sparkonto „{name}“", { name: escapeHTML(entry.cat) });
+    add(entry.date, entry.desc, paydayAmount(entry), "saving", isPaydayEntry(entry) ? `${toAccount} · ${paydaySaveUndo(entry)}` : toAccount);
   }
   for (const entry of entriesIn(state.withdrawEntries, month)) {
     add(entry.date, entry.desc, entry.amount, "withdraw", t("Vom Sparkonto „{name}“", { name: entry.cat }));

@@ -20,6 +20,7 @@ const actions = {
   "payday-confirm": confirmPayday,
   "payday-later": () => $("paydayDialog").close(),
   "undo-carry": undoCarry,
+  "undo-payday-save": undoPaydaySave,
   "new-entry": openNewEntry,
   "toggle-recurring-payment": toggleRecurringPayment,
   "toggle-theme": toggleTheme,

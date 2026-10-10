@@ -155,6 +155,7 @@ window.TRANSLATIONS = {
   "Ins Sparkonto mitgenommen": ["Taken into the savings account", "Reporté sur le compte épargne", "Riportato sul conto di risparmio"],
   "inkl. Anfangsbestand {amount}": ["incl. opening balance {amount}", "solde initial {amount} inclus", "incl. saldo iniziale {amount}"],
   "Nur für {month}": ["Only for {month}", "Seulement pour {month}", "Solo per {month}"],
+  "Rückgängig gemacht": ["Undone", "Annulé", "Annullato"],
   "Ins Lohnkonto mitgenommen": ["Taken into the wage account", "Reporté sur le compte salaire", "Riportato sul conto salario"],
   "Übertrag aus {month}": ["Carried over from {month}", "Report de {month}", "Riporto da {month}"],
   "In den {month} mitgenommen": ["Taken into {month}", "Reporté sur {month}", "Portato a {month}"],
