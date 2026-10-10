@@ -223,7 +223,7 @@ function renderAccounts() {
             <b translate="no">${escapeHTML(account.name)}</b>
             <span class="note" id="acc-balance-${account.id}"></span>
           </div>
-          <label class="account-start">${t("Anfangsbestand CHF")}
+          <label class="account-start"><span id="acc-start-label-${account.id}"></span>
             <input type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"
               id="acc-start-${account.id}" data-account-start="${account.id}">
           </label>
@@ -237,6 +237,9 @@ function renderAccounts() {
   }
   for (const account of state.accounts) {
     setValue(`acc-start-${account.id}`, account.start);
+    // The opening balance counts in one pay month: the one it was entered in (or today's)
+    const month = openingMonth(account) || todaysMonth();
+    $(`acc-start-label-${account.id}`).textContent = t("Anfangsbestand für den Lohnmonat {month} (CHF)", { month: monthOnly(month) });
     $(`acc-balance-${account.id}`).textContent = t("Stand heute: {amount}", { amount: chf(balance[account.id] || 0) });
   }
 }
