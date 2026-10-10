@@ -129,3 +129,15 @@ test("an amount saved at payday can be undone in the new month", async ({ page, 
   await page.evaluate(() => checkPayday());
   await expect(page.locator("#paydayDialog")).toBeVisible();
 });
+
+test("older entries 'Übrig aus …' (saved before the payday mark existed) can be undone too", async ({ page, request }) => {
+  await createUser(page, request);
+  await skipTour(page);
+  await page.evaluate(() => {
+    state.savingEntries.push({ id: 777, date: todayISO(), desc: "Übrig aus September", cat: savingAccounts()[0].name, pay: "", amount: 40 });
+    render();
+  });
+  await goTo(page, "month");
+  await page.click('#monthMath [data-action="undo-payday-save"]');
+  expect(await page.evaluate(() => state.savingEntries.some((entry) => entry.id === 777))).toBe(false);
+});

@@ -317,10 +317,11 @@ function monthSummary(month) {
   };
 }
 
-// Savings entry made by the payday question (js/app/payday.js); older ones only by their text.
+// Savings entry made by the payday question (js/app/payday.js); older ones (without the mark)
+// by their text "Übrig aus …".
 function isPaydayEntry(entry) {
   if (entry.payday) return true;
-  return /^(Übrig aus|Left over from|Reste de|Avanzo di) /.test(entry.desc || "") && entry.date === period(payrollMonth(entry.date)).end;
+  return /^(Übrig aus|Left over from|Reste de|Avanzo di) /.test(entry.desc || "");
 }
 
 const paydayMonthOf = (entry) => entry.payday || payrollMonth(entry.date);
