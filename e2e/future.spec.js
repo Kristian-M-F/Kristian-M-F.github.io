@@ -23,7 +23,7 @@ test("Sparzukunft shows what is saved per year and until the end of the apprenti
   await goTo(page, "future");
   // Year 1: 100 + 50 per month of 770, plus the 13th (650) once
   const first = page.locator("#saveOverview .save-year").first();
-  await expect(first.locator(".save-headline")).toHaveText("Du sparst CHF 150.00 von CHF 650.00 Lohn + CHF 120.00 Pauschalen pro Monat");
+  await expect(first.locator(".save-headline")).toHaveText("Du sparst CHF 150.00 von CHF 770.00 (Lohn + Pauschalen) pro Monat");
   await expect(first).toContainText("CHF 620.00");
   await expect(first.locator(".save-yearly")).toContainText("CHF 650.00");
   // (150×12 + 650) + 200×12 + 200×12 + 300×12
@@ -88,7 +88,7 @@ test("Sparzukunft always uses the wage and amounts from the settings", async ({ 
   await page.fill("#extraSave0", "75");
   await page.locator("#extraSave0").blur();
   await goTo(page, "future");
-  await expect(page.locator("#saveOverview .save-year .save-headline").first()).toHaveText("Du sparst CHF 75.00 von CHF 812.40 Lohn pro Monat");
+  await expect(page.locator("#saveOverview .save-year .save-headline").first()).toHaveText("Du sparst CHF 75.00 von CHF 812.40 (Lohn) pro Monat");
 });
 
 test("a yearly allowance comes in the chosen pay month; savings standing orders count in Sparzukunft", async ({ page, request }) => {
@@ -112,7 +112,7 @@ test("a yearly allowance comes in the chosen pay month; savings standing orders 
   await goTo(page, "future");
   const first = page.locator("#saveOverview .save-year").first();
   // 100 automatic + 40 standing order per month; the allowance (yearly) is not part of "pro Monat"
-  await expect(first.locator(".save-headline")).toHaveText("Du sparst CHF 140.00 von CHF 650.00 Lohn pro Monat");
+  await expect(first.locator(".save-headline")).toHaveText("Du sparst CHF 140.00 von CHF 650.00 (Lohn) pro Monat");
   await expect(first).toContainText("Sparplan");
   await expect(first.locator(".save-yearly").first()).toContainText("März");
 });

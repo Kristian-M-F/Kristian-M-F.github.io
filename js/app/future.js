@@ -86,15 +86,10 @@ function renderFuture() {
         .join("");
       return `<article class="card save-year">
         <h2>${yearLabel(year.i)}</h2>
-        <p class="save-headline">${
-          year.allowanceIncome
-            ? t("Du sparst {saved} von {salary} Lohn + {allowances} Pauschalen pro Monat", {
-                saved: `<b>${chf(year.saved)}</b>`,
-                salary: chf(year.salary),
-                allowances: chf(year.allowanceIncome),
-              })
-            : t("Du sparst {saved} von {salary} Lohn pro Monat", { saved: `<b>${chf(year.saved)}</b>`, salary: chf(year.salary) })
-        }</p>
+        <p class="save-headline">${t(year.allowanceIncome ? "Du sparst {saved} von {income} (Lohn + Pauschalen) pro Monat" : "Du sparst {saved} von {income} (Lohn) pro Monat", {
+          saved: `<b>${chf(year.saved)}</b>`,
+          income: chf(year.income),
+        })}</p>
         <div class="save-meter" aria-hidden="true"><span style="width:${Math.min(100, share)}%"></span></div>
         <p class="save-left">${share} % ${t("gespart")} · ${t("zum Ausgeben bleiben {amount}", { amount: `<b>${chf(year.left)}</b>` })}</p>
         <ul class="save-parts">${parts}</ul>
