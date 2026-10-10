@@ -395,6 +395,11 @@ function monthLedger(month) {
   // Money that was there before this wage: opening balance and what was left over in the last
   // pay month. Added first, so it is shown at the bottom, below "Lohn" (newest first).
   add(start, t("Anfangsbestand {name}", { name: spendingAccount()?.name || "" }), summary.opening, "carryIn", "");
+  // Opening balance of a savings account: shown in the pay month in which it counts (on the
+  // savings account, like on the dashboard card); it is not taken from the wage.
+  for (const account of savingAccounts()) {
+    add(start, t("Anfangsbestand {name}", { name: account.name }), openingIn(account, month), "note", t("Auf dem Sparkonto"));
+  }
   const previous = monthOnly(addMonths(month, -1));
   for (const carry of (state.carryOvers || []).filter((item) => addMonths(item.from, 1) === month)) {
     add(start, t("Übrig vom Vormonat ({month})", { month: previous }), carry.amount, "carryIn", `${t("Ins Lohnkonto mitgenommen")} · ${carryUndo(carry)}`);

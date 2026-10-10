@@ -285,7 +285,9 @@ function renderMonthPage() {
   $("mAvailExtra").textContent = summary.otherIncome
     ? t("inkl. weitere Einnahmen {amount}", { amount: chf(summary.otherIncome) })
     : "";
-  $("mSaved").textContent = chf(summary.saved);
+  const savingsOpening = sumBy(savingAccounts(), (account) => openingIn(account, month));
+  $("mSaved").textContent = chf(summary.saved + savingsOpening);
+  $("mSavedExtra").textContent = savingsOpening ? t("inkl. Anfangsbestand {amount}", { amount: chf(savingsOpening) }) : "";
   $("mSpent").textContent = chf(summary.spent);
   $("mAvail").textContent = chf(summary.available);
   $("mAvail").className = availableClass;

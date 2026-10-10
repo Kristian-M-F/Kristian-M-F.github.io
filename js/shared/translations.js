@@ -153,6 +153,8 @@ window.TRANSLATIONS = {
   "Übrig aus {month}": ["Left over from {month}", "Reste de {month}", "Avanzo di {month}"],
   "Übrig vom Vormonat ({month})": ["Left over last month ({month})", "Reste du mois précédent ({month})", "Avanzo del mese precedente ({month})"],
   "Ins Sparkonto mitgenommen": ["Taken into the savings account", "Reporté sur le compte épargne", "Riportato sul conto di risparmio"],
+  "Auf dem Sparkonto": ["In the savings account", "Sur le compte épargne", "Sul conto di risparmio"],
+  "inkl. Anfangsbestand {amount}": ["incl. opening balance {amount}", "solde initial {amount} inclus", "incl. saldo iniziale {amount}"],
   "Ins Lohnkonto mitgenommen": ["Taken into the wage account", "Reporté sur le compte salaire", "Riportato sul conto salario"],
   "Übertrag aus {month}": ["Carried over from {month}", "Report de {month}", "Riporto da {month}"],
   "In den {month} mitgenommen": ["Taken into {month}", "Reporté sur {month}", "Portato a {month}"],

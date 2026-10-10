@@ -427,3 +427,18 @@ test("an opening balance counts like money carried into the pay month in which i
   expect(check.saving).toBeCloseTo(0);
   expect(check.next).toBe(0);
 });
+
+test("the opening balance of a savings account shows on the month page too", async ({ page, request }) => {
+  await openApp(page, request);
+  const saving = await page.evaluate(() => savingAccounts()[0].id);
+  await goTo(page, "settings");
+  await page.click('[data-settings-tab-button="lists"]');
+  await page.fill(`#acc-start-${saving}`, "0.50");
+  await page.locator(`#acc-start-${saving}`).blur();
+  await goTo(page, "dashboard");
+  const card = chf(await page.locator("#dashboard .account-card.saving strong").first().textContent());
+  await goTo(page, "month");
+  await expect.poll(async () => chf(await page.locator("#mSaved").textContent())).toBeCloseTo(card);
+  await expect(page.locator("#mSavedExtra")).toContainText("0.50");
+  await expect(page.locator("#monthMath")).toContainText("Anfangsbestand Sparkonto");
+});
