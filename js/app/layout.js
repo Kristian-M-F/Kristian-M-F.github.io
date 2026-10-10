@@ -63,6 +63,10 @@ function gridOf(name, device = deviceKey()) {
   return result;
 }
 
+// Smallest width (px) a block is shown with; narrower ones are widened automatically.
+const MIN_BLOCK_WIDTH = 300;
+const MIN_ACCOUNT_WIDTH = 140;
+
 let currentGrid = null; // { x, w } per block id while the page is shown
 
 // Places the blocks: each one as high as possible in its columns, in the saved order.
@@ -76,7 +80,17 @@ function placeBlocks(name, floating = null) {
   const items = [...container.children].filter((el) => el !== floating && el.matches(".block") && !el.matches(".block-hidden:not(.arranging > *)"));
   // Set all widths first, then measure all heights (one layout pass instead of many).
   for (const el of items) {
-    const { x, w } = currentGrid[el.dataset.block || el.dataset.placeholderFor] || { x: 0, w: COLUMNS };
+    let { x, w } = currentGrid[el.dataset.block || el.dataset.placeholderFor] || { x: 0, w: COLUMNS };
+    // Never too narrow for its content (e.g. a small block on a phone): then it gets as many
+    // columns as it needs, up to the whole row – so nothing is cut off or squeezed.
+    const id = el.dataset.block || el.dataset.placeholderFor || "";
+    const minWidth = id.startsWith("account-") ? MIN_ACCOUNT_WIDTH : MIN_BLOCK_WIDTH;
+    if (w * unit - gap < minWidth) {
+      w = Math.min(COLUMNS, Math.ceil((minWidth + gap) / unit));
+      // No room left beside it for another block: use the whole row, it looks tidier
+      if ((COLUMNS - w) * unit - gap < MIN_ACCOUNT_WIDTH) w = COLUMNS;
+      x = Math.min(x, COLUMNS - w);
+    }
     el.style.width = `${w * unit - gap}px`;
     el._x = x;
     el._w = w;

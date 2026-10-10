@@ -98,3 +98,21 @@ test("'Später' closes the question until the app is opened again", async ({ pag
   await page.reload();
   await expect(page.locator("#paydayDialog")).toBeVisible();
 });
+
+test("an amount left at payday can never make the old month negative later", async ({ page, request }) => {
+  await createUser(page, request);
+  await skipTour(page);
+  const previous = await makePaydayDue(page);
+  // Save everything that is left, then change the month afterwards so less is left
+  await page.click('[data-action="payday-confirm"]');
+  const result = await page.evaluate((month) => {
+    const before = monthSummary(month).available;
+    state.extraSave[apprenticeYear(month)] += 30; // saving more after the payday answer
+    const after = monthSummary(month);
+    const entry = state.savingEntries.find((item) => item.payday === month);
+    return { before, available: after.available, counted: paydayAmount(entry), stored: entry.amount };
+  }, previous);
+  expect(result.before).toBeCloseTo(0);
+  expect(result.available).toBeCloseTo(0);
+  expect(result.counted).toBeCloseTo(result.stored - 30);
+});

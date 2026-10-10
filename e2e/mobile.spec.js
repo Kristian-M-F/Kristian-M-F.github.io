@@ -1,5 +1,5 @@
 // Phone view: burger menus, bottom navigation, tour, no sideways scrolling.
-const { test, expect, openApp, createUser, goTo, expectNoHorizontalScroll } = require("./fixtures");
+const { test, expect, openApp, createUser, goTo, expectNoHorizontalScroll, skipTour } = require("./fixtures");
 
 test("public pages fit the phone screen", async ({ page }) => {
   for (const path of ["/", "/login.html", "/login.html?register", "/datenschutz.html", "/kontakt.html"]) {
@@ -48,4 +48,17 @@ test("the tour highlights the visible phone controls", async ({ page, request })
     await card.locator('[data-tour="next"]').click();
   }
   await expect(card).toHaveCount(0);
+});
+
+test("dashboard blocks are never squeezed: too narrow ones get the whole row", async ({ page, request }) => {
+  await page.setViewportSize({ width: 390, height: 900 });
+  await createUser(page, request);
+  await skipTour(page);
+  const widths = await page.evaluate(() => {
+    state.layout = { ...(state.layout || {}), grid: { phone: { upcoming: { x: 0, w: 12 }, stats: { x: 12, w: 6 } } } };
+    applyLayout();
+    const full = document.querySelector('[data-block="available"]').getBoundingClientRect().width;
+    return ["upcoming", "stats"].map((id) => Math.round(document.querySelector(`[data-block="${id}"]`).getBoundingClientRect().width - full));
+  });
+  expect(widths).toEqual([0, 0]);
 });
