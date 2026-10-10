@@ -341,22 +341,23 @@ function paydayAmount(entry) {
   return Math.round(entry.amount * monthSummary(paydayMonthOf(entry)).paydayFactor * 100) / 100;
 }
 
-// Opening balance ("Anfangsbestand", Einstellungen → Konten): counts once, in the pay month in
-// which it was entered (account.startMonth) – like an amount carried into that month.
-// Lohnkonto: added to "available" of that month. Savings account: added to its balance there.
-function openingMonth(account) {
-  if (!(Number(account.start) > 0)) return null;
-  if (!account.startMonth) {
-    // Entered before the month was stored: fix it to today's pay month once and save it, so it
-    // does not move into the next pay month later.
-    account.startMonth = todaysMonth();
+// Money already on an account ("Anfangsbestand", Einstellungen → Konten), per pay month:
+// account.openings = { "2026-10": 25.5, … }. It is entered for the current pay month and counts
+// in that month only (Lohnkonto: in "available", savings account: in its balance), like an amount
+// carried into it. In the next pay month the field is empty again for a new amount.
+function openingsOf(account) {
+  if (!account.openings) {
+    // Older data: one amount (account.start) in one month (account.startMonth)
+    account.openings = {};
+    if (Number(account.start) > 0) account.openings[account.startMonth || todaysMonth()] = Number(account.start);
+    delete account.start;
+    delete account.startMonth;
     if (typeof save === "function" && typeof ready !== "undefined" && ready) save();
   }
-  const months = countedMonths();
-  return months.includes(account.startMonth) ? account.startMonth : months.at(-1) || account.startMonth;
+  return account.openings;
 }
 
-const openingIn = (account, month) => (openingMonth(account) === month ? Number(account.start) || 0 : 0);
+const openingIn = (account, month) => Number(openingsOf(account)[month]) || 0;
 
 // Amount taken from this pay month into the next one (payday question, js/app/payday.js),
 // as it counts (never more than was left in that month)

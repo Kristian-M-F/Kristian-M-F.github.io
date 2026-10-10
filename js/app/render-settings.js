@@ -223,10 +223,12 @@ function renderAccounts() {
             <b translate="no">${escapeHTML(account.name)}</b>
             <span class="note" id="acc-balance-${account.id}"></span>
           </div>
-          <label class="account-start"><span id="acc-start-label-${account.id}"></span>
+          <div class="account-start">
+            <label for="acc-start-${account.id}" id="acc-start-label-${account.id}"></label>
             <input type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"
               id="acc-start-${account.id}" data-account-start="${account.id}">
-          </label>
+            <small class="note" id="acc-start-note-${account.id}"></small>
+          </div>
           <div class="actions">
             <button class="secondary" data-action="rename-account" data-id="${account.id}">${t("Umbenennen")}</button>
             ${removable ? `<button class="danger" data-action="delete-account-item" data-id="${account.id}">${t("Löschen")}</button>` : ""}
@@ -236,10 +238,12 @@ function renderAccounts() {
       .join("");
   }
   for (const account of state.accounts) {
-    setValue(`acc-start-${account.id}`, account.start);
-    // The opening balance counts in one pay month: the one it was entered in (or today's)
-    const month = openingMonth(account) || todaysMonth();
-    $(`acc-start-label-${account.id}`).textContent = t("Anfangsbestand für den Lohnmonat {month} (CHF)", { month: monthOnly(month) });
+    // Money already on the account: for the current pay month only (see openingsOf in calc.js)
+    const month = todaysMonth();
+    const openings = openingsOf(account);
+    setValue(`acc-start-${account.id}`, openings[month] || "");
+    $(`acc-start-label-${account.id}`).textContent = t("Anfangsbestand CHF");
+    $(`acc-start-note-${account.id}`).textContent = t("Nur für {month}", { month: monthOnly(month) });
     $(`acc-balance-${account.id}`).textContent = t("Stand heute: {amount}", { amount: chf(balance[account.id] || 0) });
   }
 }
@@ -283,9 +287,10 @@ function changeAccountStart(field) {
   const value = readAmount(field.id, true);
   if (!account) return;
   if (value === null) return notify("Bitte einen gültigen Betrag ab 0 eingeben.");
-  // Counts in the pay month in which it is entered (see openingMonth in calc.js)
-  if (!(Number(account.start) > 0) || !account.startMonth) account.startMonth = todaysMonth();
-  account.start = value;
+  // Counts in the current pay month only (see openingsOf in calc.js)
+  const openings = openingsOf(account);
+  if (value) openings[todaysMonth()] = value;
+  else delete openings[todaysMonth()];
   persist();
 }
 

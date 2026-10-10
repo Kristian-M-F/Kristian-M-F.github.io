@@ -183,3 +183,25 @@ test("renamed default categories: old accounts get „Freizeit“ and „Fahrzeu
   expect(await page.evaluate(() => state.categories.slice(1, 3))).toEqual(["Freizeit", "Fahrzeug"]);
   expect(await page.evaluate(() => state.expenses.find((entry) => entry.id === "old1").cat)).toBe("Freizeit");
 });
+
+test("an opening balance is entered for the current pay month only; earlier ones stay in their month", async ({ page, request }) => {
+  await openApp(page, request);
+  const [id, previous] = await page.evaluate(() => {
+    const prev = addMonths(todaysMonth(), -1);
+    spendingAccount().openings = { [prev]: 25.5 };
+    render();
+    return [spendingAccount().id, prev];
+  });
+  await goTo(page, "settings");
+  await page.click('[data-settings-tab-button="lists"]');
+  // The field is for this pay month and empty
+  await expect(page.locator(`#acc-start-${id}`)).toHaveValue("");
+  await expect(page.locator(`#acc-start-note-${id}`)).toContainText("Nur für");
+  await page.fill(`#acc-start-${id}`, "10");
+  await page.locator(`#acc-start-${id}`).blur();
+  const openings = await page.evaluate(() => spendingAccount().openings);
+  expect(openings[previous]).toBe(25.5);
+  expect(Object.values(openings)).toContain(10);
+  const counted = await page.evaluate((prev) => [monthSummary(prev).opening, monthSummary(todaysMonth()).opening], previous);
+  expect(counted).toEqual([25.5, 10]);
+});
